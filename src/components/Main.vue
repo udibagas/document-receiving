@@ -13,22 +13,53 @@
             <p><v-ons-input v-model="po_number" class="po-number-input"></v-ons-input></p>
             <p><v-ons-button :disabled="is_ready" @click.prevent="scanDocument" class="scan-document-btn">SCAN PO</v-ons-button></p>
             <p><v-ons-button :disabled="!po_number" @click.prevent="submitData" class="submit-data-btn">SUBMIT</v-ons-button></p>
+            <p class="error" v-if="error">{{error}}</p>
         </div>
 
-        <v-ons->
+        <v-ons-modal :visible.sync="showPoList">
+            <ons-list>
+                <ons-list-item v-for="p in poList">
+                    <label class="left">
+                        <v-ons-checkbox :input-id="'checkbox-' + $index" :value="p.material" v-model="selectedPo">
+                        </v-ons-checkbox>
+                    </label>
+                    <label class="center">
+                        <div class="list-item__title">{{p.material}}</div>
+                        <span class="list-item__subtitle">
+                            {{p.description}}<br>
+                            <strong>Item: {{p.item}} &bull; Qty: {{p.qty}} &bull; Inbound: <span :class="p.inbound ? 'success' : 'danger'">{{p.inbound ? 'YES' : 'NO'}}</span></strong>
+                        </span>
+                    </label>
+                </ons-list-item>
+                <ons-list-item>
+                    <v-ons-button class="full-width" @click.prevent="createNotification">Create Notification</v-ons-button>
+                    <v-ons-button class="full-width" @click.prevent="createInbound">Create Inbound</v-ons-button>
+                    <v-ons-button class="full-width" @click.prevent="grProcess">GR Process</v-ons-button>
+                    <v-ons-button class="full-width" @click.prevent="showPoList = false; po_number = ''">Close</v-ons-button>
+                </ons-list-item>
+            </ons-list>
+
+        </v-ons-modal>
+
     </v-ons-page>
 </template>
 
 <script>
+import axios from 'axios'
 import Login from './Login'
 
 export default {
     data: function() {
         return {
+            api_url: 'http://192.168.160.131:8000/api/',
             user: null,
             is_ready: false,
             po_number: '',
-            image_src: ''
+            image_src: '',
+            error: '',
+            poList: [],
+            showPoList: false,
+            selectedPo: []
         }
     },
     methods: {
@@ -57,48 +88,85 @@ export default {
             }, cameraOptions);
         },
         submitData: function() {
-            // TODO: akses ke api
-            let status = 0
+            let _this = this
+            axios.get(_this.api_url + 'po', {params: {po_number: _this.po_number}})
+                .then(function(r) {
+                    let status = r.data.status
+                    _this.selectedPo = []
 
-            // PO not released/closed
-            if (status === 0) {
-                this.$ons.notification.alert('PO #xxx not released. Please release before proceed');
-            }
+                    // PO not released/closed
+                    if (status === 0) {
+                        _this.$ons.notification.alert({
+                            title: '',
+                            message: 'PO #' + _this.po_number + ' is not released yet. Please release before proceed.'
+                        });
+                    }
 
-            // PO released but no inbound
-            if (status === 1) {
-                // TODO: show modal with list, multiple select
-            }
+                    // PO released but no inbound
+                    if (status === 1) {
+                        _this.poList = r.data.data
+                        _this.showPoList = true
+                    }
 
-            // PO released and inbound
-            if (status === 2) {
+                    // PO released and inbound
+                    if (status === 2) {
+                        _this.poList = r.data.data
+                        _this.showPoList = true
+                    }
+                })
+                .catch(function(e) {
+                    if (e.response) {
+                        if (e.response.status === 500) {
+                            _this.error = e.response.data.message
+                        }
 
-            }
+                        if (e.response.status === 404) {
+                            _this.error = 'Page not found'
+                        }
+                    }
+                })
         },
         createNotification: function() {
             let _this = this
-            this.$ons.notification.confirm('Are you sure?').then(function(r) {
+            this.$ons.notification.confirm('Are you sure?', {title: ''}).then(function(r) {
                 if (r === 1) {
                     // TODO: create notif
-                    _this.$ons.notification.alert('Notification created')
+                    _this.showPoList = false
+                    _this.$ons.notification.alert({
+                        title: '',
+                        message: 'Notification for PO #' + _this.po_number + ' created'
+                    })
                 }
             })
         },
         createInbound: function() {
             let _this = this
-            this.$ons.notification.confirm('Are you sure?').then(function(r) {
+            this.$ons.notification.confirm('Are you sure?', {title: ''}).then(function(r) {
                 if (r === 1) {
                     // TODO: create inbound
-                    _this.$ons.notification.alert('Inbound created')
+                    _this.showPoList = false
+                    _this.$ons.notification.alert({
+                        title: '',
+                        message: 'Inbound for PO #' + _this.po_number + ' created'
+                    })
                 }
             })
         },
         grProcess: function() {
             // TODO: tampilkan form
+            let _this = this
+            _this.$ons.notification.alert({
+                title: '',
+                message: 'Under development'
+            })
         },
         saveData: function() {
             // TODO: save data to server
-            _this.$ons.notification.alert('GR Completed. Material Document xxx created.')
+            _this.showPoList = false
+            _this.$ons.notification.alert({
+                title: '',
+                message: 'GR completed. Material Document #' + _this.po_number + ' created'
+            })
         }
     },
     mounted: function() {
@@ -106,9 +174,9 @@ export default {
         this.$ons.ready(function() {
             _this.is_ready = true;
             TesseractPlugin.loadLanguage('eng', function(response) {
-                alert('Languange loaded' + response)
+                // alert('Languange loaded : ' + response)
             }, function(reason) {
-                alert('Failed to load language' + reason)
+                alert('Failed to load language: ' + reason)
             });
         });
     }
@@ -138,11 +206,28 @@ export default {
 }
 
 .submit-data-btn, .scan-document-btn {
-    width: 100%;
-    font-size: 30px;
-    height: 50px;
+    font-size: 20px;
+    height: 30px;
     font-weight: lighter;
-    border-radius: 25px;
-    padding: 5px;
+    border-radius: 20px;
+    width: 100%;
+}
+
+.selected {
+    background-color: yellow;
+}
+
+.success {
+    color: green;
+}
+
+.danger {
+    color: red;
+}
+
+.full-width {
+    display: block;
+    width: 100%;
+    margin-bottom: 5px;
 }
 </style>
