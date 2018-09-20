@@ -1,7 +1,7 @@
 {
-  "name": "Receipt_Processing",
+  "name": "Material_Handling",
   "version": "1.0.0",
-  "description": "A Vue.js project",
+  "description": "Material Handling for GMF",
   "author": "Bagas Udi Sahsangka <udibagas@gmail.com>",
   "private": true,
   "scripts": {
@@ -17,11 +17,14 @@
     "cordova-plugin-camera": "git+https://github.com/apache/cordova-plugin-camera.git",
     "cordova-plugin-file": "git+https://github.com/apache/cordova-plugin-file.git",
     "cordova-plugin-media": "git+https://github.com/apache/cordova-plugin-media.git",
+    "cordova-plugin-mobile-ocr": "git+https://github.com/NeutrinosPlatform/cordova-plugin-mobile-ocr.git",
     "cordova-plugin-network-information": "git+https://github.com/apache/cordova-plugin-network-information.git",
-    "cordova-plugin-tesseract": "git+https://github.com/gustavomazzoni/cordova-plugin-tesseract.git",
     "cordova-plugin-whitelist": "^1.3.3",
+    "fast-xml-parser": "^3.12.5",
     "moment": "^2.22.2",
     "onsenui": "^2.9.1",
+    "phonegap-plugin-barcodescanner": "git+https://github.com/phonegap/phonegap-plugin-barcodescanner.git",
+    "requirejs": "^2.3.6",
     "vue": "^2.5.0",
     "vue-onsenui": "^2.5.0",
     "vuex": "^3.0.0"
@@ -88,13 +91,16 @@
   "cordova": {
     "plugins": {
       "cordova-plugin-whitelist": {},
-      "cordova-plugin-tesseract": {},
       "cordova-plugin-camera": {
         "ANDROID_SUPPORT_V4_VERSION": "27.+"
       },
       "cordova-plugin-file": {},
       "cordova-plugin-media": {},
-      "cordova-plugin-network-information": {}
+      "cordova-plugin-network-information": {},
+      "phonegap-plugin-barcodescanner": {
+        "ANDROID_SUPPORT_V4_VERSION": "27.+"
+      },
+      "cordova-plugin-mobile-ocr": {}
     },
     "platforms": [
       "android"

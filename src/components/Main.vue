@@ -1,184 +1,197 @@
 <template>
     <v-ons-page>
         <div class="background"></div>
-        <!-- <v-ons-toolbar>
-            <div class="center">Document Receiving</div>
-            <div class="right">
-                <ons-toolbar-button @click="logout">
-                    <v-ons-icon icon="fa-sign-out"></v-ons-icon>
-                </ons-toolbar-button>
-            </div>
-        </v-ons-toolbar> -->
         <div class="content">
-            <p><v-ons-input v-model="po_number" class="po-number-input"></v-ons-input></p>
-            <p><v-ons-button :disabled="is_ready" @click.prevent="scanDocument" class="scan-document-btn">SCAN PO</v-ons-button></p>
-            <p><v-ons-button :disabled="!po_number" @click.prevent="submitData" class="submit-data-btn">SUBMIT</v-ons-button></p>
-            <p class="error" v-if="error">{{error}}</p>
+            <img src="../assets/logo.png"><br>
+            <strong>MATERIAL HANDLING</strong><br>
+            <div class="form">
+                <p><input type="number" v-model="po_number" class="po-number-input" placeholder="PO NUMBER"></p>
+                <p><v-ons-button :disabled="!po_number" @click.prevent="po_number = ''; error = ''" class="scan-document-btn" modifier="material">CLEAR</v-ons-button></p>
+                <p><v-ons-button @click.prevent="scanText" class="scan-document-btn">SCAN TEXT</v-ons-button></p>
+                <p><v-ons-button @click.prevent="scanCode" class="scan-document-btn">SCAN QR/BAR CODE</v-ons-button></p>
+                <p><v-ons-button :disabled="!po_number" @click.prevent="submitData" :class="['submit-data-btn', po_number ? 'btn-red' : '']" modifier="material">SUBMIT</v-ons-button></p>
+                <p class="error" v-if="error">{{error}}</p>
+            </div>
         </div>
 
-        <v-ons-modal :visible.sync="showPoList">
-            <ons-list>
-                <ons-list-item v-for="p in poList">
-                    <label class="left">
-                        <v-ons-checkbox :input-id="'checkbox-' + $index" :value="p.material" v-model="selectedPo">
-                        </v-ons-checkbox>
-                    </label>
-                    <label class="center">
-                        <div class="list-item__title">{{p.material}}</div>
-                        <span class="list-item__subtitle">
-                            {{p.description}}<br>
-                            <strong>Item: {{p.item}} &bull; Qty: {{p.qty}} &bull; Inbound: <span :class="p.inbound ? 'success' : 'danger'">{{p.inbound ? 'YES' : 'NO'}}</span></strong>
-                        </span>
-                    </label>
-                </ons-list-item>
-                <ons-list-item>
-                    <v-ons-button class="full-width" @click.prevent="createNotification">Create Notification</v-ons-button>
-                    <v-ons-button class="full-width" @click.prevent="createInbound">Create Inbound</v-ons-button>
-                    <v-ons-button class="full-width" @click.prevent="grProcess">GR Process</v-ons-button>
-                    <v-ons-button class="full-width" @click.prevent="showPoList = false; po_number = ''">Close</v-ons-button>
-                </ons-list-item>
-            </ons-list>
+        <v-ons-dialog :visible.sync="alert.show">
+            <div style="text-align:center;padding:15px;">
+                <p v-if="alert.title"><strong>{{alert.title}}</strong></p>
+                <p>{{alert.message}}</p>
+                <br>
+                <p><v-ons-button class="full-width btn-round" @click.prevent="alert.show = false">OK</v-ons-button></p>
+            </div>
+        </v-ons-dialog>
 
-        </v-ons-modal>
-
+        <v-ons-bottom-toolbar>
+            <v-ons-row>
+                <v-ons-col style="text-align:center">
+                    <v-ons-button style="margin-top:5px;" modifier="material--flat" @click.prevent="exit">EXIT APP</v-ons-button>
+                </v-ons-col>
+                <v-ons-col style="text-align:center">
+                    <v-ons-button style="margin-top:5px;" modifier="material--flat" @click.prevent="logout">LOGOUT</v-ons-button>
+                </v-ons-col>
+            </v-ons-row>
+        </v-ons-bottom-toolbar>
     </v-ons-page>
 </template>
 
 <script>
 import axios from 'axios'
+import fastXmlParser from 'fast-xml-parser'
 import Login from './Login'
+import PoDetail from './PoDetail'
 
 export default {
     data: function() {
         return {
-            api_url: 'http://192.168.160.131:8000/api/',
-            user: null,
-            is_ready: false,
             po_number: '',
-            image_src: '',
             error: '',
-            poList: [],
-            showPoList: false,
-            selectedPo: []
+            alert: {
+                title: '',
+                show: false,
+                message: ''
+            }
         }
     },
     methods: {
-        logout() {
+        logout: function() {
+            window.localStorage.isLoggedIn = null
+            window.localStorage.user = null
             this.$emit('replace-page', Login);
         },
-        scanDocument() {
+        exit: function() {
+            window.localStorage.isLoggedIn = null
+            window.localStorage.user = null
+            navigator.app.exitApp()
+        },
+        scanText: function() {
             let _this = this;
             _this.po_number = '';
-            _this.image_src = '';
 
             let cameraOptions = {
-                quality: 20,
-                destinationType: Camera.DestinationType.DATA_URL
+                quality: 100,
+                correctOrientation: true,
+                destinationType: Camera.DestinationType.NATIVE_URI
             };
 
-            navigator.camera.getPicture(function(imageData) {
-                _this.image_src = 'data:image/jpeg;base64,' + imageData;
-                TesseractPlugin.recognizeText(imageData, 'eng', function(recognizedText) {
-                    _this.po_number = recognizedText;
-                }, function(reason) {
-                    alert('Failed to recognize text: ' + reason);
-                });
-            }, function(message) {
-                alert(message);
-            }, cameraOptions);
+            _this.$ons.ready(function() {
+                navigator.camera.getPicture(function(imageData) {
+                    textocr.recText(0, 2, imageData, function(recognizedText) {
+                        _this.po_number = recognizedText
+                    }, function(message) {
+                        _this.error = 'Failed to read text: ' + message
+                    });
+                }, function(message) {
+                    _this.error = message
+                }, cameraOptions);
+            });
+        },
+        scanCode: function() {
+            let _this = this
+            _this.$ons.ready(function() {
+                cordova.plugins.barcodeScanner.scan(
+                    function (result) {
+                        _this.po_number = result.text
+                        if (_this.po_number) {
+                            _this.submitData()
+                        }
+                    },
+                    function (error) {
+                        alert('Scanning failed: ' + error);
+                    },
+                    {
+                        preferFrontCamera: false,
+                        showFlipCameraButton: true,
+                        showTorchButton: true,
+                        torchOn: false,
+                        saveHistory: true,
+                        prompt: 'Place a barcode inside the scan area',
+                        resultDisplayDuration: 500,
+                        // formats: 'QR_CODE,CODE_128',
+                        orientation: 'portrait',
+                        disableSuccessBeep: false
+                    }
+                );
+            })
         },
         submitData: function() {
             let _this = this
-            axios.get(_this.api_url + 'po', {params: {po_number: _this.po_number}})
-                .then(function(r) {
-                    let status = r.data.status
-                    _this.selectedPo = []
 
-                    // PO not released/closed
-                    if (status === 0) {
-                        _this.$ons.notification.alert({
-                            title: '',
-                            message: 'PO #' + _this.po_number + ' is not released yet. Please release before proceed.'
-                        });
-                    }
+            let apiUrl = 'http://sapgmfdpi.gmf-aeroasia.co.id:52500/XISOAPAdapter/MessageServlet?senderParty=&senderService=BC_POGetDetail&receiverParty=&receiverService=&interface=POGetDetail_OB_SI&interfaceNamespace=urn:gmf-aeroasia.co.id:POGetDetail'
 
-                    // PO released but no inbound
-                    if (status === 1) {
-                        _this.poList = r.data.data
-                        _this.showPoList = true
-                    }
+            let xmls = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">\
+                <soapenv:Header/>\
+                <soapenv:Body>\
+                    <urn:BAPI_PO_GETDETAIL1>\
+                        <PURCHASEORDER>' + _this.po_number + '</PURCHASEORDER>\
+                    </urn:BAPI_PO_GETDETAIL1>\
+                </soapenv:Body>\
+            </soapenv:Envelope>'
 
-                    // PO released and inbound
-                    if (status === 2) {
-                        _this.poList = r.data.data
-                        _this.showPoList = true
+            _this.error = 'Getting data...'
+
+            axios.post(apiUrl, xmls, {
+                headers: {'Content-Type': 'text/xml'},
+                auth: {
+                    username: process.env.SAP_API_USERNAME,
+                    password: process.env.SAP_API_PASSWORD
+                }
+            }).then(function(r) {
+                _this.error = ''
+
+                let jsonData = fastXmlParser.parse(r.data, {
+                    trimValues: true,
+                    ignoreNameSpace: true,
+                    ignoreAttributes: true,
+                    parseAttributeValue: false,
+                    parseNodeValue: false
+                });
+
+                if (jsonData.Envelope.Body["BAPI_PO_GETDETAIL1.Response"].POHEADER.PO_NUMBER === '') {
+                    _this.error = 'PO #' + _this.po_number + ' NOT FOUND!'
+                    return
+                }
+
+                let po = jsonData.Envelope.Body["BAPI_PO_GETDETAIL1.Response"]
+                let itemList = (typeof po.POITEM.item[0] === 'object') ? po.POITEM.item : [po.POITEM.item];
+                let poConfirmation = (typeof po.POCONFIRMATION.item[0] === 'object') ? po.POCONFIRMATION.item : [po.POCONFIRMATION.item];
+                let poHistoryTotal = []
+
+                if (po.POHISTORY_TOTALS === '') {
+                    poHistoryTotal = []
+                } else {
+                    poHistoryTotal = (typeof po.POHISTORY_TOTALS.item[0] === 'object') ? po.POHISTORY_TOTALS.item : [po.POHISTORY_TOTALS.item];
+                }
+
+                // alert(JSON.stringify(poHistoryTotal))
+
+                _this.$emit('push-page', {
+                    extends: PoDetail,
+                    data: function() {
+                        return {
+                            po: po.POHEADER,
+                            poConfirmation: poConfirmation,
+                            poHistoryTotal: poHistoryTotal,
+                            itemList: itemList
+                        }
                     }
                 })
-                .catch(function(e) {
-                    if (e.response) {
-                        if (e.response.status === 500) {
-                            _this.error = e.response.data.message
-                        }
-
-                        if (e.response.status === 404) {
-                            _this.error = 'Page not found'
-                        }
+            }).catch(function(e) {
+                if (e.response) {
+                    if (e.response.status === 500) {
+                        _this.error = 'Internal server error: ' + JSON.stringify(e.response.data)
                     }
-                })
-        },
-        createNotification: function() {
-            let _this = this
-            this.$ons.notification.confirm('Are you sure?', {title: ''}).then(function(r) {
-                if (r === 1) {
-                    // TODO: create notif
-                    _this.showPoList = false
-                    _this.$ons.notification.alert({
-                        title: '',
-                        message: 'Notification for PO #' + _this.po_number + ' created'
-                    })
+
+                    if (e.response.status === 404) {
+                        _this.error = 'Wrong API URL: ' + apiUrl
+                    }
                 }
-            })
-        },
-        createInbound: function() {
-            let _this = this
-            this.$ons.notification.confirm('Are you sure?', {title: ''}).then(function(r) {
-                if (r === 1) {
-                    // TODO: create inbound
-                    _this.showPoList = false
-                    _this.$ons.notification.alert({
-                        title: '',
-                        message: 'Inbound for PO #' + _this.po_number + ' created'
-                    })
-                }
-            })
-        },
-        grProcess: function() {
-            // TODO: tampilkan form
-            let _this = this
-            _this.$ons.notification.alert({
-                title: '',
-                message: 'Under development'
-            })
-        },
-        saveData: function() {
-            // TODO: save data to server
-            _this.showPoList = false
-            _this.$ons.notification.alert({
-                title: '',
-                message: 'GR completed. Material Document #' + _this.po_number + ' created'
+
+                _this.error = "Unhandled error!"
+                // alert(JSON.stringify(e))
             })
         }
-    },
-    mounted: function() {
-        let _this = this;
-        this.$ons.ready(function() {
-            _this.is_ready = true;
-            TesseractPlugin.loadLanguage('eng', function(response) {
-                // alert('Languange loaded : ' + response)
-            }, function(reason) {
-                alert('Failed to load language: ' + reason)
-            });
-        });
     }
 }
 </script>
@@ -190,44 +203,71 @@ export default {
 
 .content {
     text-align: center;
-    padding: 10px 50px;
-    margin-top: 150px;
+    margin: 50px auto 0;
+}
+
+.form {
+    margin: 100px auto 10px;
+    width: 270px;
+}
+
+img {
+    width: 200px;
+    margin: 10px auto;
 }
 
 .po-number-input {
     width: 100%;
-}
-
-.text-input {
-    font-size: 50px;
+    font-size: 32px;
     color: red;
+    background-color: #eee;
     text-align: center;
-    height: 60px;
-}
-
-.submit-data-btn, .scan-document-btn {
-    font-size: 20px;
-    height: 30px;
-    font-weight: lighter;
-    border-radius: 20px;
-    width: 100%;
-}
-
-.selected {
-    background-color: yellow;
-}
-
-.success {
-    color: green;
-}
-
-.danger {
-    color: red;
+    border: 1px solid #eee;
 }
 
 .full-width {
     display: block;
     width: 100%;
     margin-bottom: 5px;
+}
+
+.btn-round {
+    border-radius: 20px;
+}
+
+.submit-data-btn, .scan-document-btn {
+    font-size: 20px;
+    height: 30px;
+    font-weight: normal;
+    border-radius: 20px;
+    width: 100%;
+}
+
+.btn-red {
+    background-color: red;
+}
+
+.error {
+    color: red;
+}
+
+::-webkit-input-placeholder {
+   text-align: center;
+   font-weight: lighter;
+}
+
+:-moz-placeholder { /* Firefox 18- */
+   text-align: center;
+   font-weight: lighter;
+}
+
+::-moz-placeholder {  /* Firefox 19+ */
+   text-align: center;
+   font-weight: lighter;
+}
+
+:-ms-input-placeholder {
+   text-align: center;
+   font-weight: lighter;
 }
 </style>

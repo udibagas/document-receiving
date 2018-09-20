@@ -23,6 +23,9 @@ module.exports = {
     'space-before-function-paren': 'off',
     'no-unused-vars': 'off',
     'no-undef': 'off',
+    'no-multi-str': 'off',
+    'quotes': 'off',
+    'camelcase': 'off',
     // allow debugger during development
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off'
 

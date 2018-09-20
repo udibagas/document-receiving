@@ -1,10 +1,10 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget id="io.cordova.helloworld" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>Document Receiving</name>
+<widget id="id.co.gmf-aeroasia.material-handling" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>Material Handling</name>
     <description>
-      Document Receiving for GMF
+     Material Handling for GMF
     </description>
-    <author email="dev@cordova.apache.org" href="http://cordova.io">
+    <author email="bagas@lamsolusi.com" href="http://lamsolusi.com">
       Lamjaya Dev Team
     </author>
     <content src="index.html" />
@@ -23,12 +23,15 @@
         <allow-intent href="itms:*" />
         <allow-intent href="itms-apps:*" />
     </platform>
-    <plugin name="cordova-plugin-tesseract" spec="https://github.com/gustavomazzoni/cordova-plugin-tesseract" />
     <plugin name="cordova-plugin-camera" spec="https://github.com/apache/cordova-plugin-camera.git">
         <variable name="ANDROID_SUPPORT_V4_VERSION" value="27.+" />
     </plugin>
     <plugin name="cordova-plugin-file" spec="https://github.com/apache/cordova-plugin-file.git" />
     <plugin name="cordova-plugin-media" spec="https://github.com/apache/cordova-plugin-media.git" />
     <plugin name="cordova-plugin-network-information" spec="https://github.com/apache/cordova-plugin-network-information.git" />
+    <plugin name="phonegap-plugin-barcodescanner" spec="https://github.com/phonegap/phonegap-plugin-barcodescanner.git">
+        <variable name="ANDROID_SUPPORT_V4_VERSION" value="27.+" />
+    </plugin>
+    <plugin name="cordova-plugin-mobile-ocr" spec="https://github.com/NeutrinosPlatform/cordova-plugin-mobile-ocr.git" />
     <engine name="android" spec="^7.0.0" />
 </widget>

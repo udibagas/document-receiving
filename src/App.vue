@@ -8,12 +8,13 @@
 
 <script>
 import Login from './components/Login'
+import Main from './components/Main'
 
 export default {
     name: 'app',
     data: function() {
         return {
-            pageStack: [Login]
+            pageStack: [(window.localStorage.isLoggedIn === 'true') ? Main : Login]
         }
     }
 }

@@ -3,15 +3,15 @@
         <div class="background"></div>
         <div class="content">
             <img src="../assets/logo.png"><br>
-            <strong>DOCUMENT RECEIVING</strong><br>
+            <strong>MATERIAL HANDLING</strong><br>
             <div class="form">
-                <p> <v-ons-input v-model="username" placeholder="Username" class="full-width"></v-ons-input> </p>
+                <p><v-ons-input v-model="username" placeholder="Username" class="full-width"></v-ons-input></p>
                 <p> <v-ons-input type="password" v-model="password" placeholder="Password" class="full-width"></v-ons-input> </p>
                 <p><v-ons-button class="login-btn" @click.prevent="login">LOGIN</v-ons-button></p>
                 <p class="error" v-if="error">{{error}}</p>
 
                 <br><br>
-                <small>&copy; 2018 | GMF AeroAsia</small>
+                <small>&copy; {{year}} | GMF AeroAsia</small>
             </div>
         </div>
     </ons-page>
@@ -19,15 +19,16 @@
 
 <script>
 import axios from 'axios'
+import moment from 'moment'
 import Main from './Main'
 
 export default {
     data: function() {
         return {
-            api_url: 'http://192.168.160.131:8000/api/',
             username: '',
             password: '',
-            error: false
+            error: false,
+            year: moment().format('YYYY')
         }
     },
     methods: {
@@ -36,27 +37,22 @@ export default {
                 return
             }
 
-            if (navigator.connection.type !== Connection.WIFI) {
-                this.error = 'Please check your WiFi connection!'
-                return
-            }
+            // if (navigator.connection.type !== Connection.WIFI) {
+            //     this.error = 'Check your WiFi connection!'
+            //     return
+            // }
 
             let _this = this
             _this.error = 'Logging in...'
 
-            axios.post(_this.api_url + 'login', {
+            axios.post(process.env.ROOT_API + 'login', {
                 username: _this.username,
                 password: _this.password
             }).then(function(r) {
                 if (r.data.success) {
-                    _this.$emit('replace-page', {
-                        extends: Main,
-                        data: function() {
-                            return {
-                                user: r.data.user
-                            }
-                        }
-                    })
+                    window.localStorage.isLoggedIn = 'true'
+                    window.localStorage.api_token = r.data.user.api_token
+                    _this.$emit('replace-page', Main)
                 } else {
                     _this.error = r.data.message
                 }
@@ -67,8 +63,10 @@ export default {
                     }
 
                     if (e.response.status === 404) {
-                        _this.error = 'Page not found'
+                        _this.error = 'Page not found!'
                     }
+                } else {
+                    _this.error = 'Failed to connect to server! ' + process.env.ROOT_API
                 }
             })
         }
@@ -82,7 +80,7 @@ export default {
 }
 
 .content {
-    text-align:center;
+    text-align: center;
     margin: 50px auto 0;
 }
 
@@ -103,7 +101,7 @@ img {
 .login-btn {
     font-size: 20px;
     height: 30px;
-    font-weight: lighter;
+    font-weight: normal;
     border-radius: 20px;
     width: 100%;
 }
