@@ -1,21 +1,7 @@
-- INBOUND FORM
+- implement store!
 
-- Reterieve PO
-    - params: PURCHASEORDER
-- Create Notification
-    - 1 material
-    - input text (notifikasi - textarea)
-- Create Inbound
-    - multiple material
-    - form tersendiri
 - GR Process
-    - 1 material
-
-
-kayaknya harus 1-2 dech
-
-Flow ==>
-    Inbound ==> GR
+    - 1 material (di fix-kan form-nya)
 
 Menu di backend:
 - User

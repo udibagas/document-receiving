@@ -2,34 +2,25 @@
     <v-ons-page>
         <div class="background"></div>
         <div class="content">
-            <img src="../assets/logo.png"><br>
-            <strong>MATERIAL HANDLING</strong><br>
+            <img class="logo" src="../assets/logo.png"><br>
+            <strong style="color:#396080;">MATERIAL HANDLING</strong><br>
             <div class="form">
                 <p><input type="number" v-model="po_number" class="po-number-input" placeholder="PO NUMBER"></p>
-                <p><v-ons-button :disabled="!po_number" @click.prevent="po_number = ''; error = ''" class="scan-document-btn" modifier="material">CLEAR</v-ons-button></p>
-                <p><v-ons-button @click.prevent="scanText" class="scan-document-btn">SCAN TEXT</v-ons-button></p>
-                <p><v-ons-button @click.prevent="scanCode" class="scan-document-btn">SCAN QR/BAR CODE</v-ons-button></p>
-                <p><v-ons-button :disabled="!po_number" @click.prevent="submitData" :class="['submit-data-btn', po_number ? 'btn-red' : '']" modifier="material">SUBMIT</v-ons-button></p>
+                <p><v-ons-button :disabled="!po_number || processing" @click.prevent="po_number = ''; error = ''" class="scan-document-btn" modifier="material">CLEAR</v-ons-button></p>
+                <p><v-ons-button :disabled="processing" @click.prevent="scanText" class="scan-document-btn">SCAN TEXT</v-ons-button></p>
+                <p><v-ons-button :disabled="processing" @click.prevent="scanCode" class="scan-document-btn">SCAN QR/BAR CODE</v-ons-button></p>
+                <p><v-ons-button :disabled="!po_number || processing" @click.prevent="submitData" :class="['submit-data-btn', po_number ? 'btn-red' : '']" modifier="material">SUBMIT</v-ons-button></p>
                 <p class="error" v-if="error">{{error}}</p>
             </div>
         </div>
 
-        <v-ons-dialog :visible.sync="alert.show">
-            <div style="text-align:center;padding:15px;">
-                <p v-if="alert.title"><strong>{{alert.title}}</strong></p>
-                <p>{{alert.message}}</p>
-                <br>
-                <p><v-ons-button class="full-width btn-round" @click.prevent="alert.show = false">OK</v-ons-button></p>
-            </div>
-        </v-ons-dialog>
-
         <v-ons-bottom-toolbar>
             <v-ons-row>
                 <v-ons-col style="text-align:center">
-                    <v-ons-button style="margin-top:5px;" modifier="material--flat" @click.prevent="exit">EXIT APP</v-ons-button>
+                    <v-ons-button style="margin-top:3px;background:none;color:#396080;" modifier="material--flat" @click.prevent="exit">EXIT APP</v-ons-button>
                 </v-ons-col>
                 <v-ons-col style="text-align:center">
-                    <v-ons-button style="margin-top:5px;" modifier="material--flat" @click.prevent="logout">LOGOUT</v-ons-button>
+                    <v-ons-button style="margin-top:3px;background:none;color:#396080;" modifier="material--flat" @click.prevent="logout">LOGOUT</v-ons-button>
                 </v-ons-col>
             </v-ons-row>
         </v-ons-bottom-toolbar>
@@ -47,11 +38,7 @@ export default {
         return {
             po_number: '',
             error: '',
-            alert: {
-                title: '',
-                show: false,
-                message: ''
-            }
+            processing: false
         }
     },
     methods: {
@@ -129,6 +116,7 @@ export default {
                 </soapenv:Body>\
             </soapenv:Envelope>'
 
+            _this.processing = true
             _this.error = 'Getting data...'
 
             axios.post(apiUrl, xmls, {
@@ -138,6 +126,7 @@ export default {
                     password: process.env.SAP_API_PASSWORD
                 }
             }).then(function(r) {
+                _this.processing = false
                 _this.error = ''
 
                 let jsonData = fastXmlParser.parse(r.data, {
@@ -154,30 +143,26 @@ export default {
                 }
 
                 let po = jsonData.Envelope.Body["BAPI_PO_GETDETAIL1.Response"]
-                let itemList = (typeof po.POITEM.item[0] === 'object') ? po.POITEM.item : [po.POITEM.item];
-                let poConfirmation = (typeof po.POCONFIRMATION.item[0] === 'object') ? po.POCONFIRMATION.item : [po.POCONFIRMATION.item];
+                let itemList = Array.isArray(po.POITEM.item) ? po.POITEM.item : [po.POITEM.item];
+                let poConfirmation = Array.isArray(po.POCONFIRMATION.item) ? po.POCONFIRMATION.item : [po.POCONFIRMATION.item];
                 let poHistoryTotal = []
 
                 if (po.POHISTORY_TOTALS === '') {
                     poHistoryTotal = []
                 } else {
-                    poHistoryTotal = (typeof po.POHISTORY_TOTALS.item[0] === 'object') ? po.POHISTORY_TOTALS.item : [po.POHISTORY_TOTALS.item];
+                    poHistoryTotal = Array.isArray(po.POHISTORY_TOTALS.item) ? po.POHISTORY_TOTALS.item : [po.POHISTORY_TOTALS.item];
                 }
 
-                // alert(JSON.stringify(poHistoryTotal))
-
-                _this.$emit('push-page', {
-                    extends: PoDetail,
-                    data: function() {
-                        return {
-                            po: po.POHEADER,
-                            poConfirmation: poConfirmation,
-                            poHistoryTotal: poHistoryTotal,
-                            itemList: itemList
-                        }
-                    }
+                _this.$store.commit('update', {
+                    po: po.POHEADER,
+                    poConfirmation: poConfirmation,
+                    poHistoryTotal: poHistoryTotal,
+                    itemList: itemList
                 })
+
+                _this.$emit('push-page', PoDetail)
             }).catch(function(e) {
+                _this.processing = false
                 if (e.response) {
                     if (e.response.status === 500) {
                         _this.error = 'Internal server error: ' + JSON.stringify(e.response.data)
@@ -189,7 +174,6 @@ export default {
                 }
 
                 _this.error = "Unhandled error!"
-                // alert(JSON.stringify(e))
             })
         }
     }
@@ -211,15 +195,10 @@ export default {
     width: 270px;
 }
 
-img {
-    width: 200px;
-    margin: 10px auto;
-}
-
 .po-number-input {
     width: 100%;
     font-size: 32px;
-    color: red;
+    color: #e3342f;
     background-color: #eee;
     text-align: center;
     border: 1px solid #eee;
@@ -236,19 +215,13 @@ img {
 }
 
 .submit-data-btn, .scan-document-btn {
-    font-size: 20px;
     height: 30px;
-    font-weight: normal;
     border-radius: 20px;
     width: 100%;
 }
 
 .btn-red {
-    background-color: red;
-}
-
-.error {
-    color: red;
+    background-color: #e3342f;
 }
 
 ::-webkit-input-placeholder {

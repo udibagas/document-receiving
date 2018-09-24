@@ -15,7 +15,7 @@ Vue.use(VueOnsen)
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
-  // store,
+  store,
   template: '<App/>',
   components: { App }
 })

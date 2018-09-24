@@ -148,34 +148,25 @@
                     <p class="error" v-if="validationErrors.text">{{validationErrors.text[0]}}</p>
                 </v-ons-col>
             </v-ons-row>
-            <v-ons-row class="form-item">
-                <v-ons-button class="btn-save" @click.prevent="submitData">SUBMIT</v-ons-button>
-            </v-ons-row>
         </div>
 
-        <v-ons-dialog :visible.sync="alert.show">
-            <div style="text-align:center;padding:15px;">
-                <p v-if="alert.title"><strong>{{alert.title}}</strong></p>
-                <p>{{alert.message}}</p>
-                <br>
-                <p><v-ons-button class="btn-save" @click.prevent="alert.show = false">OK</v-ons-button></p>
-            </div>
-        </v-ons-dialog>
+        <div class="btn-fixed-bottom">
+            <v-ons-button class="btn-save" @click.prevent="submitData">SUBMIT</v-ons-button>
+        </div>
     </v-ons-page>
 </template>
 
 <script>
 import axios from 'axios'
-import Main from './Main'
 
 export default {
     data: function() {
         return {
             formData: {},
+            busy: false,
             validationErrors: {},
             alert: {
                 show: false,
-                title: '',
                 message: ''
             }
         }
@@ -183,70 +174,44 @@ export default {
     methods: {
         submitData: function() {
             let _this = this
+            // TODO: benerin url-nya nembak ke api SAP
             axios.post(process.env.ROOT_API + 'grProcess', _this.formData)
                 .then(function(r) {
-                    _this.$emit('replace-page', {
-                        extends: Main,
-                        data: function() {
-                            return {
-                                alert: {
-                                    show: true,
-                                    title: 'GR COMPLETED',
-                                    message: 'Material Document #' + _this.formData.po_number + ' created'
-                                }
-                            }
-                        }
-                    });
+                    _this.sendLog(1)
+                    _this.busy = false
+                    _this.$ons.notification.toast('GR creation SUCCESS!', { timeout: 3000, animation: 'fall' })
+                    _this.$emit('pop-page')
+                    _this.$store.commit('update', _this.formData.PO_NUMBER)
                 })
                 .catch(function(e) {
-                    if (e.response) {
-                        if (e.response.status === 500) {
-                            _this.validationErrors = {};
-                            _this.alert = {
-                                show: true,
-                                title: 'ERROR 500',
-                                message: e.response.data.message
-                            }
-                        }
-
-                        if (e.response.status === 422) {
-                            _this.validationErrors = e.response.data.errors
-                            _this.alert = {
-                                show: true,
-                                title: 'VALIDATION ERROR',
-                                message: 'Please fill form correctly!'
-                            }
-                        }
-
-                        if (e.response.status === 404) {
-                            _this.validationErrors = {};
-                            _this.alert = {
-                                show: true,
-                                title: 'ERROR 404',
-                                message: 'Page not found!'
-                            }
-                        }
-                    } else {
-                        _this.alert = {
-                            show: true,
-                            title: 'ERROR',
-                            message: 'Failed to connect to server!'
-                        }
-                    }
+                    _this.$ons.notification.toast('GR creation FAILED!', { timeout: 3000, animation: 'fall' })
+                    _this.sendLog(0)
                 })
+        },
+        sendLog: function(status) {
+            let _this = this
+            let data = {
+                po_number: _this.po.PO_NUMBER,
+                message: 'User :user creates GR for PO #' + _this.po.PO_NUMBER + ' material item #' + _this.item.PO_ITEM + '(' + _this.item.SHORT_TEXT + ')',
+                action: 'Create GR',
+                status: status
+            }
+
+            axios.post(BASE_URL + 'userLog', data).then(function(r) {
+                _this.$ons.notification.toast('Log has been saved!', { timeout: 3000, animation: 'fall' })
+            }).catch(function(e) {
+                _this.$ons.notification.toast('Failed to save log!', { timeout: 3000, animation: 'fall' })
+            })
         }
     }
 }
 </script>
 
 <style lang="css" scoped>
-.background {
-    background-color: white;
-}
-
 .content {
     margin-top: 20px;
     padding: 20px;
+    margin-bottom: 45px;
 }
 
 .label {
@@ -271,10 +236,7 @@ input {
 }
 
 .btn-save {
-    display: block;
-    width: 100%;
-    margin-bottom: 5px;
-    border-radius: 20px;
+    width: 95%;
 }
 
 .error {

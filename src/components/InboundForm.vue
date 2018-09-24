@@ -7,51 +7,46 @@
             <div class="center">CREATE INBOUND</div>
         </v-ons-toolbar>
         <div class="background"></div>
-        <v-ons-card>
-            <v-ons-list>
-                <li class="list-item">
-                    <div class="list-item__center">
-                        <v-ons-row>
-                            <v-ons-col>PO NUMBER</v-ons-col>
-                            <v-ons-col>: <strong>{{po.PO_NUMBER}}</strong></v-ons-col>
-                        </v-ons-row>
-                    </div>
-                </li>
-                <v-ons-list-item>
-                    <label class="left">
-                        <strong>#{{parseInt(item.PO_ITEM)}}</strong>
-                    </label>
-                    <label class="center">
-                        <div class="list-item__title">{{item.SHORT_TEXT}}</div>
-                        <span class="list-item__subtitle">
-                            {{item.MATERIAL_EXTERNAL}}<br>
-                            Qty PO: {{parseInt(item.QUANTITY)}} &bull;
-                            Inbound: {{item.QTY_INBOUND}} &bull;
-                            GR: {{item.QTY_GR}}
-                        </span>
-                    </label>
-                    <label class="right" style="text-align:right">
-                        <input type="number" v-model="quantity" class="my-input" placeholder="Qty">
-                    </label>
-                </v-ons-list-item>
-            </v-ons-list>
-            <br>
+        <po-component></po-component>
+        <v-ons-list style="margin-bottom:45px">
+            <v-ons-list-item v-for="item in items" :key="item.PO_ITEM" v-if="parseInt(item.QUANTITY) > item.QTY_INBOUND">
+                <label class="left">
+                    <strong>#{{parseInt(item.PO_ITEM)}}</strong>
+                </label>
+                <label class="center">
+                    <div class="list-item__title">{{item.SHORT_TEXT}}</div>
+                    <span class="list-item__subtitle">
+                        {{item.MATERIAL_EXTERNAL}}<br>
+                        Qty PO: {{parseInt(item.QUANTITY)}} &bull;
+                        Inbound: {{item.QTY_INBOUND}} &bull;
+                        GR: {{item.QTY_GR}}
+                    </span>
+                </label>
+                <label class="right" style="text-align:right">
+                    <input type="number" v-model="quantity" class="my-input" placeholder="Qty">
+                </label>
+            </v-ons-list-item>
+        </v-ons-list>
+        <br>
+        <div class="btn-fixed-bottom">
             <v-ons-button :disabled="busy" class="btn-submit" @click.prevent="submitInbound">SUBMIT</v-ons-button>
-            <p class="error" v-if="error">{{error}}</p>
-        </v-ons-card>
+            <p class="error text-center" v-if="error">{{error}}</p>
+        </div>
     </ons-page>
 </template>
 
 <script>
 import axios from 'axios'
+import PoComponent from './PoComponent'
 
 export default {
+    components: { PoComponent },
     data: function() {
         return {
             busy: false,
             quantity: '',
             po: {},
-            item: {},
+            items: [],
             error: ''
         }
     },
@@ -66,39 +61,39 @@ export default {
 
             _this.busy = true
             _this.error = 'Processing...'
+            // TODO: sesuaikan URL & data
             axios.post(process.env.ROOT_API + 'inbound', {
                 po: _this.po,
                 po_number: _this.po.PO_NUMBER,
                 item: _this.item,
                 quantity: _this.quantity
             }).then(function(r) {
+                _this.sendLog(1)
                 _this.busy = false
                 _this.error = ''
-                _this.$emit('replace-page', {
-                    extends: Main,
-                    data: function() {
-                        return {
-                            alert: {
-                                title: 'INBOUND CREATED',
-                                show: true,
-                                message: 'Inbound for PO #' + _this.po.PO_NUMBER + ' created'
-                            }
-                        }
-                    }
-                })
+                _this.$ons.notification.toast('Inbound creation SUCCESS!', { timeout: 3000, animation: 'fall' })
+                _this.$emit('pop-page')
+                _this.$store.commit('update', _this.po.PO_NUMBER)
             }).catch(function(e) {
                 _this.busy = false
-                if (e.response) {
-                    if (e.response.status === 500) {
-                        _this.error = 'Internal server error! ' + e.response.data.message
-                    }
+                _this.$ons.notification.toast('Inbound creation FAILED!', { timeout: 3000, animation: 'fall' })
+                _this.sendLog(2)
+            })
+        },
+        sendLog: function(status) {
+            let _this = this
+            let data = {
+                po_number: _this.po.PO_NUMBER,
+                // TODO : sesuaikan lagi
+                message: 'User :user creates Inbound for PO #' + _this.po.PO_NUMBER + ' items : ' + JSON.stringify(_this.items),
+                action: 'Create Inbound',
+                status: status
+            }
 
-                    if (e.response.status === 404) {
-                        _this.error = 'Page not found!'
-                    }
-                } else {
-                    _this.error = 'Failed to connect to server!'
-                }
+            axios.post(BASE_URL + 'userLog', data).then(function(r) {
+                _this.$ons.notification.toast('Log has been saved!', { timeout: 3000, animation: 'fall' })
+            }).catch(function(e) {
+                _this.$ons.notification.toast('Failed to save log!', { timeout: 3000, animation: 'fall' })
             })
         }
     }
@@ -106,20 +101,8 @@ export default {
 </script>
 
 <style lang="css" scoped>
-.background {
-    background-color: #eee;
-}
-
 .btn-submit {
-    display: block;
-    width: 100%;
-    margin-bottom: 5px;
-    border-radius: 20px;
-}
-
-.error {
-    color: red;
-    text-align: center;
+    width: 95%;
 }
 
 .my-input {

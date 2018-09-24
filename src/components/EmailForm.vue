@@ -7,42 +7,36 @@
             <div class="center">SEND EMAIL</div>
         </v-ons-toolbar>
         <div class="background"></div>
-        <v-ons-card>
-            <ul class="list">
-                <li class="list-item">
-                    <div class="list-item__center">
-                        <v-ons-row>
-                            <v-ons-col>PO NUMBER</v-ons-col>
-                            <v-ons-col>: <strong>{{po_number}}</strong></v-ons-col>
-                        </v-ons-row>
-                    </div>
-                </li>
-                <li class="list-item">
-                    <div class="list-item__center">
-                        <input type="text" v-model="subject" class="text-input" placeholder="Subject">
-                    </div>
-                </li>
-                <li class="list-item">
-                    <div class="list-item__center">
-                        <textarea v-model="body" class="textarea textarea--transparent" rows="10" placeholder="Message"></textarea>
-                    </div>
-                </li>
-            </ul>
-            <br>
+        <po-component></po-component>
+        <ul class="list">
+            <li class="list-item">
+                <div class="list-item__center">
+                    <input type="text" v-model="subject" class="text-input" placeholder="Subject">
+                </div>
+            </li>
+            <li class="list-item">
+                <div class="list-item__center">
+                    <textarea v-model="body" class="textarea textarea--transparent" rows="10" placeholder="Message"></textarea>
+                </div>
+            </li>
+        </ul>
+        <p class="error text-center" v-if="error">{{error}}</p>
+
+        <div class="btn-fixed-bottom">
             <v-ons-button class="btn-send" :disabled="busy" @click.prevent="sendMessage">SEND EMAIL</v-ons-button>
-            <p class="error" v-if="error">{{error}}</p>
-        </v-ons-card>
+        </div>
     </ons-page>
 </template>
 
 <script>
 import axios from 'axios'
-import Main from './Main'
+import PoComponent from './PoComponent'
 
 export default {
+    components: { PoComponent },
     data: function() {
         return {
-            po_number: '',
+            po: {},
             subject: '',
             body: '',
             to: '',
@@ -61,9 +55,10 @@ export default {
 
             let data = {
                 api_token: window.localStorage.api_token,
-                po_number: _this.po_number,
+                po_number: _this.po.PO_NUMBER,
                 subject: _this.subject,
                 body: _this.body,
+                // TODO : sesuaikan ini
                 to: 'bagas@lamsolusi.com'
             }
 
@@ -77,32 +72,12 @@ export default {
                         return
                     }
                     _this.error = ''
-                    _this.$emit('replace-page', {
-                        extends: Main,
-                        data: function() {
-                            return {
-                                alert: {
-                                    show: true,
-                                    title: 'EMAIL SENT',
-                                    message: r.data.message
-                                }
-                            }
-                        }
-                    })
+                    _this.$emit('pop-page')
+                    _this.$ons.notification.toast('Sending email SUCCESS!', { timeout: 3000, animation: 'fall' })
                 })
                 .catch(function(e) {
                     _this.busy = false
-                    if (e.response) {
-                        if (e.response.status === 500) {
-                            _this.error = 'Internal server error! ' + e.response.data.message
-                        }
-
-                        if (e.response.status === 404) {
-                            _this.error = 'Page not found!'
-                        }
-                    } else {
-                        _this.error = 'Failed to connect to server!'
-                    }
+                    _this.$ons.notification.toast('Sending email FAILED!', { timeout: 3000, animation: 'fall' })
                 })
         }
     }
@@ -110,19 +85,7 @@ export default {
 </script>
 
 <style lang="css" scoped>
-.background {
-    background-color: #eee;
-}
-
 .btn-send {
-    display: block;
-    width: 100%;
-    margin-bottom: 5px;
-    border-radius: 20px;
-}
-
-.error {
-    color: red;
-    text-align: center;
+    width: 95%;
 }
 </style>

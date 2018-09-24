@@ -2,12 +2,12 @@
     <ons-page>
         <div class="background"></div>
         <div class="content">
-            <img src="../assets/logo.png"><br>
-            <strong>MATERIAL HANDLING</strong><br>
+            <img class="logo" src="../assets/logo.png"><br>
+            <strong style="color:#396080;">MATERIAL HANDLING</strong><br>
             <div class="form">
                 <p><v-ons-input v-model="username" placeholder="Username" class="full-width"></v-ons-input></p>
                 <p> <v-ons-input type="password" v-model="password" placeholder="Password" class="full-width"></v-ons-input> </p>
-                <p><v-ons-button class="login-btn" @click.prevent="login">LOGIN</v-ons-button></p>
+                <p><v-ons-button class="full-width" @click.prevent="login">LOGIN</v-ons-button></p>
                 <p class="error" v-if="error">{{error}}</p>
 
                 <br><br>
@@ -67,6 +67,7 @@ export default {
                     }
                 } else {
                     _this.error = 'Failed to connect to server! ' + process.env.ROOT_API
+                    console.log(e);
                 }
             })
         }
@@ -75,35 +76,14 @@ export default {
 </script>
 
 <style scoped>
-.background {
-    background-color: #fff;
-}
-
 .content {
     text-align: center;
     margin: 50px auto 0;
 }
 
-img {
-    width: 200px;
-    margin: 10px auto;
-}
-
-.error {
-    color: red;
-}
-
 .form {
     margin: 100px auto 10px;
     width: 250px;
-}
-
-.login-btn {
-    font-size: 20px;
-    height: 30px;
-    font-weight: normal;
-    border-radius: 20px;
-    width: 100%;
 }
 
 .full-width {
