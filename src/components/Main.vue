@@ -1,17 +1,56 @@
-<template>
+<template lang="html">
     <v-ons-page>
         <div class="background"></div>
         <div class="content">
             <img class="logo" src="../assets/logo.png"><br>
-            <strong style="color:#396080;">MATERIAL HANDLING</strong><br>
-            <div class="form">
-                <p><input type="number" v-model="po_number" class="po-number-input" placeholder="PO NUMBER"></p>
-                <p><v-ons-button :disabled="!po_number || processing" @click.prevent="po_number = ''; error = ''" class="scan-document-btn" modifier="material">CLEAR</v-ons-button></p>
-                <p><v-ons-button :disabled="processing" @click.prevent="scanText" class="scan-document-btn">SCAN TEXT</v-ons-button></p>
-                <p><v-ons-button :disabled="processing" @click.prevent="scanCode" class="scan-document-btn">SCAN QR/BAR CODE</v-ons-button></p>
-                <p><v-ons-button :disabled="!po_number || processing" @click.prevent="submitData" :class="['submit-data-btn', po_number ? 'btn-red' : '']" modifier="material">SUBMIT</v-ons-button></p>
-                <p class="error" v-if="error">{{error}}</p>
-            </div>
+            <strong class="text-primary" style="font-size:13px">MATERIAL RECEIVING AND INSPECTION</strong><br>
+
+            <v-ons-row style="padding:0 20px;margin-top:80px;">
+                <v-ons-col>
+                    <v-ons-card style="background-color:#396080;" class="text-center text-white" @click="goTo('GoodsReceipt')">
+                        <i class="zmdi zmdi-widgets" style="font-size:90px;"></i><br>
+                        <span style="font-size:10px">GOODS RECEIPT</span>
+                    </v-ons-card>
+                </v-ons-col>
+                <v-ons-col>
+                    <v-ons-card style="background-color:#396080;" class="text-center text-white" @click="goTo('QualityInspection')">
+                        <i class="zmdi zmdi-assignment-check" style="font-size:90px;"></i><br>
+                        <span style="font-size:10px">QUALITY INSPECTION</span>
+                    </v-ons-card>
+                </v-ons-col>
+            </v-ons-row>
+            <v-ons-row style="padding:0 20px;">
+                <v-ons-col>
+                    <v-ons-card style="background-color:#396080;" class="text-center text-white" @click="goTo('MrirNotification')">
+                        <i class="zmdi zmdi-notifications" style="font-size:90px;"></i><br>
+                        <span style="font-size:10px">MRIR NOTIFICATION</span>
+                    </v-ons-card>
+                </v-ons-col>
+                <v-ons-col>
+                    <v-ons-card style="background-color:#396080;" class="text-center text-white" @click="goTo('DeclareServiceable')">
+                        <i class="zmdi zmdi-wrench" style="font-size:90px;"></i><br>
+                        <span style="font-size:10px">DECLARE SERVICEABLE</span>
+                    </v-ons-card>
+                </v-ons-col>
+            </v-ons-row>
+            <!-- <v-ons-row style="padding:0 20px;">
+                <v-ons-col>
+                    <v-ons-card style="background-color:#396080;" class="text-center text-white" @click="logout">
+                        <v-ons-icon icon="ion-log-out" size="90px"></v-ons-icon><br>
+                        <span style="font-size:10px">LOGOUT</span>
+                    </v-ons-card>
+                </v-ons-col>
+                <v-ons-col>
+                    <v-ons-card style="background-color:#396080;" class="text-center text-white" @click="exit">
+                        <v-ons-icon icon="ion-power" size="90px"></v-ons-icon><br>
+                        <span style="font-size:10px">EXIT</span>
+                    </v-ons-card>
+                </v-ons-col>
+            </v-ons-row> -->
+        </div>
+
+        <div class="btn-fixed-bottom">
+            <small style="color:#999">&copy; {{year}} | GMF AeroAsia</small>
         </div>
 
         <v-ons-bottom-toolbar>
@@ -28,17 +67,24 @@
 </template>
 
 <script>
-import axios from 'axios'
-import fastXmlParser from 'fast-xml-parser'
+import moment from 'moment'
 import Login from './Login'
-import PoDetail from './PoDetail'
+import GoodsReceipt from './GoodsReceipt'
+import QualityInspection from './QualityInspection'
+import DeclareServiceable from './DeclareServiceable'
+import MrirNotification from './MrirNotification'
 
 export default {
+    components: {
+        GoodsReceipt,
+        QualityInspection,
+        DeclareServiceable,
+        MrirNotification,
+        Login
+    },
     data: function() {
         return {
-            po_number: '',
-            error: '',
-            processing: false
+            year: moment().format('YYYY')
         }
     },
     methods: {
@@ -52,195 +98,27 @@ export default {
             window.localStorage.user = null
             navigator.app.exitApp()
         },
-        scanText: function() {
-            let _this = this;
-            _this.po_number = '';
-
-            let cameraOptions = {
-                quality: 100,
-                correctOrientation: true,
-                destinationType: Camera.DestinationType.NATIVE_URI
-            };
-
-            _this.$ons.ready(function() {
-                navigator.camera.getPicture(function(imageData) {
-                    textocr.recText(0, 2, imageData, function(recognizedText) {
-                        _this.po_number = recognizedText
-                    }, function(message) {
-                        _this.error = 'Failed to read text: ' + message
-                    });
-                }, function(message) {
-                    _this.error = message
-                }, cameraOptions);
-            });
-        },
-        scanCode: function() {
-            let _this = this
-            _this.$ons.ready(function() {
-                cordova.plugins.barcodeScanner.scan(
-                    function (result) {
-                        _this.po_number = result.text
-                        if (_this.po_number) {
-                            _this.submitData()
-                        }
-                    },
-                    function (error) {
-                        alert('Scanning failed: ' + error);
-                    },
-                    {
-                        preferFrontCamera: false,
-                        showFlipCameraButton: true,
-                        showTorchButton: true,
-                        torchOn: false,
-                        saveHistory: true,
-                        prompt: 'Place a barcode inside the scan area',
-                        resultDisplayDuration: 500,
-                        // formats: 'QR_CODE,CODE_128',
-                        orientation: 'portrait',
-                        disableSuccessBeep: false
-                    }
-                );
-            })
-        },
-        submitData: function() {
-            let _this = this
-
-            let apiUrl = 'http://sapgmfdpi.gmf-aeroasia.co.id:52500/XISOAPAdapter/MessageServlet?senderParty=&senderService=BC_POGetDetail&receiverParty=&receiverService=&interface=POGetDetail_OB_SI&interfaceNamespace=urn:gmf-aeroasia.co.id:POGetDetail'
-
-            let xmls = '<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:sap-com:document:sap:rfc:functions">\
-                <soapenv:Header/>\
-                <soapenv:Body>\
-                    <urn:BAPI_PO_GETDETAIL1>\
-                        <PURCHASEORDER>' + _this.po_number + '</PURCHASEORDER>\
-                    </urn:BAPI_PO_GETDETAIL1>\
-                </soapenv:Body>\
-            </soapenv:Envelope>'
-
-            _this.processing = true
-            _this.error = 'Getting data...'
-
-            axios.post(apiUrl, xmls, {
-                headers: {'Content-Type': 'text/xml'},
-                auth: {
-                    username: process.env.SAP_API_USERNAME,
-                    password: process.env.SAP_API_PASSWORD
-                }
-            }).then(function(r) {
-                _this.processing = false
-                _this.error = ''
-
-                let jsonData = fastXmlParser.parse(r.data, {
-                    trimValues: true,
-                    ignoreNameSpace: true,
-                    ignoreAttributes: true,
-                    parseAttributeValue: false,
-                    parseNodeValue: false
-                });
-
-                if (jsonData.Envelope.Body["BAPI_PO_GETDETAIL1.Response"].POHEADER.PO_NUMBER === '') {
-                    _this.error = 'PO #' + _this.po_number + ' NOT FOUND!'
-                    return
-                }
-
-                let po = jsonData.Envelope.Body["BAPI_PO_GETDETAIL1.Response"]
-                let itemList = Array.isArray(po.POITEM.item) ? po.POITEM.item : [po.POITEM.item];
-                let poConfirmation = Array.isArray(po.POCONFIRMATION.item) ? po.POCONFIRMATION.item : [po.POCONFIRMATION.item];
-                let poHistoryTotal = []
-
-                if (po.POHISTORY_TOTALS === '') {
-                    poHistoryTotal = []
-                } else {
-                    poHistoryTotal = Array.isArray(po.POHISTORY_TOTALS.item) ? po.POHISTORY_TOTALS.item : [po.POHISTORY_TOTALS.item];
-                }
-
-                _this.$store.commit('update', {
-                    po: po.POHEADER,
-                    poConfirmation: poConfirmation,
-                    poHistoryTotal: poHistoryTotal,
-                    itemList: itemList
-                })
-
-                _this.$emit('push-page', PoDetail)
-            }).catch(function(e) {
-                _this.processing = false
-                if (e.response) {
-                    if (e.response.status === 500) {
-                        _this.error = 'Internal server error: ' + JSON.stringify(e.response.data)
-                    }
-
-                    if (e.response.status === 404) {
-                        _this.error = 'Wrong API URL: ' + apiUrl
-                    }
-                }
-
-                _this.error = "Unhandled error!"
-            })
+        goTo: function(page) {
+            let components = {
+                'GoodsReceipt': GoodsReceipt,
+                'QualityInspection': QualityInspection,
+                'DeclareServiceable': DeclareServiceable,
+                'MrirNotification': MrirNotification
+            }
+            this.$emit('push-page', components[page])
         }
     }
 }
 </script>
 
 <style scoped>
-.background {
-    background-color: white;
-}
-
 .content {
     text-align: center;
-    margin: 50px auto 0;
+    margin: 20px auto 0;
 }
 
 .form {
     margin: 100px auto 10px;
-    width: 270px;
-}
-
-.po-number-input {
-    width: 100%;
-    font-size: 32px;
-    color: #e3342f;
-    background-color: #eee;
-    text-align: center;
-    border: 1px solid #eee;
-}
-
-.full-width {
-    display: block;
-    width: 100%;
-    margin-bottom: 5px;
-}
-
-.btn-round {
-    border-radius: 20px;
-}
-
-.submit-data-btn, .scan-document-btn {
-    height: 30px;
-    border-radius: 20px;
-    width: 100%;
-}
-
-.btn-red {
-    background-color: #e3342f;
-}
-
-::-webkit-input-placeholder {
-   text-align: center;
-   font-weight: lighter;
-}
-
-:-moz-placeholder { /* Firefox 18- */
-   text-align: center;
-   font-weight: lighter;
-}
-
-::-moz-placeholder {  /* Firefox 19+ */
-   text-align: center;
-   font-weight: lighter;
-}
-
-:-ms-input-placeholder {
-   text-align: center;
-   font-weight: lighter;
+    width: 250px;
 }
 </style>

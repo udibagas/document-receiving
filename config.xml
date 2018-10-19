@@ -1,12 +1,13 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="id.co.gmf-aeroasia.material-handling" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>Material Handling</name>
+    <name>Material Receiving and Inspection</name>
     <description>
-     Material Handling for GMF
+    Material Receiving and Inspection GMF
     </description>
     <author email="bagas@lamsolusi.com" href="http://lamsolusi.com">
       Lamjaya Dev Team
     </author>
+    <icon density="mdpi" height="57" platform="android" src="res/icon/android/box.png" width="57" />
     <content src="index.html" />
     <plugin name="cordova-plugin-whitelist" spec="1" />
     <access origin="*" />

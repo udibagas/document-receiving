@@ -7,33 +7,37 @@
             <div class="center">PO DETAIL</div>
         </v-ons-toolbar>
         <div class="background"></div>
-        <po-component></po-component>
+        <po-header></po-header>
 
         <v-ons-list style="margin-bottom:45px;">
             <v-ons-list-item v-for="item in itemList" :key="item.PO_ITEM" tappable>
                 <label class="left">
                     <strong>#{{parseInt(item.PO_ITEM)}}</strong>
                 </label>
-                <label class="center">
+                <label class="center" @click="showDetail(item)">
                     <div class="list-item__title">{{item.SHORT_TEXT}}</div>
                     <span class="list-item__subtitle">
                         {{item.MATERIAL_EXTERNAL}}<br>
                         Qty PO: {{item.QUANTITY}} &bull;
-                        Inbound: {{item.QTY_INBOUND}} &bull;
-                        GR: {{item.QTY_GR}}
+                        Qty Inbound: {{item.QTY_INBOUND}} &bull;
+                        Qty GR: {{item.QTY_GR}}
                     </span>
                 </label>
-                <label class="right" v-if="parseInt(po.PO_REL_IND) === 2">
+                <label class="right" v-if="parseInt(po.E_POHEADER.PO_REL_IND) === 2">
                     <v-ons-checkbox v-if="parseInt(item.QUANTITY) > item.QTY_GR" :input-id="'checkbox-' + item.PO_ITEM" :value="item.PO_ITEM" v-model="selectedItem"> </v-ons-checkbox>
                 </label>
             </v-ons-list-item>
         </v-ons-list>
 
         <div class="btn-fixed-bottom">
-            <v-ons-button v-if="parseInt(po.PO_REL_IND) !== 2" style="width:95%;" @click.prevent="composeEmail">Send Email</v-ons-button>
-            <v-ons-button :disabled="selectedItem.length > 1 || selectedItem.length === 0" v-if="parseInt(po.PO_REL_IND) === 2" style="width:120px" @click.prevent="createNotification">NOTIF</v-ons-button>
-            <v-ons-button :disabled="selectedItem.length === 0" v-if="parseInt(po.PO_REL_IND) === 2" style="width:120px" @click.prevent="createInbound">IBOUND</v-ons-button>
-            <v-ons-button :disabled="selectedItem.length > 1 || selectedItem.length === 0" v-if="parseInt(po.PO_REL_IND) === 2" style="width:120px" @click.prevent="grProcess">GR</v-ons-button>
+            <v-ons-button v-if="parseInt(po.E_POHEADER.PO_REL_IND) !== 2" style="width:95%;" @click.prevent="createNotification">SEND NOTIFICATION</v-ons-button>
+            <v-ons-button :disabled="selectedItem.length > 1 || selectedItem.length === 0" v-if="parseInt(po.E_POHEADER.PO_REL_IND) === 2" style="width:170px" @click.prevent="createNotification">SEND NOTIFICATION</v-ons-button>
+            <v-ons-button :disabled="selectedItem.length === 0" v-if="parseInt(po.E_POHEADER.PO_REL_IND) === 2" style="width:170px" @click.prevent="createInbound">CREATE INBOUND</v-ons-button>
+        </div>
+
+        <div class="toast" v-show="toast.show" style="bottom:45px;">
+            <div class="toast__message">{{toast.message}}</div>
+            <button class="toast__button" @click="toast.show = false">OK</button>
         </div>
 
     </v-ons-page>
@@ -41,15 +45,13 @@
 
 <script>
 import axios from 'axios'
-import Main from './Main'
-import GrForm from './GrForm'
-import EmailForm from './EmailForm'
 import NotificationForm from './NotificationForm'
 import InboundForm from './InboundForm'
-import PoComponent from './PoComponent'
+import PoHeader from './PoHeader'
+import ItemDetail from './ItemDetail'
 
 export default {
-    components: { PoComponent },
+    components: { PoHeader },
     computed: {
         po() {
             return this.$store.state.po
@@ -66,10 +68,27 @@ export default {
     },
     data: function() {
         return {
-            selectedItem: []
+            selectedItem: [],
+            toast: {
+                show: false,
+                message: ''
+            }
         }
     },
     methods: {
+        showDetail: function(item) {
+            let _this = this
+            _this.$emit('push-page', {
+                extends: ItemDetail,
+                data: function() {
+                    return {
+                        po: _this.po,
+                        item: item,
+                        poConfirmation: _this.poConfirmation.filter(p => p.PO_ITEM === item.PO_ITEM)
+                    }
+                }
+            })
+        },
         inboundQty: function(poItem) {
             let totalInbound = 0;
             let inboundDelivery = this.poConfirmation.filter(pc => pc.PO_ITEM === poItem && pc.CONF_NAME === 'Inbound Delivery');
@@ -86,22 +105,19 @@ export default {
             })
             return totalGr
         },
-        composeEmail: function() {
-            let _this = this
-            _this.$emit('push-page', {
-                extends: EmailForm,
-                data: function() {
-                    return {
-                        po: _this.po
-                    }
-                }
-            })
-        },
         createNotification: function() {
             let _this = this
-            let item = _this.itemList.find(item => item.PO_ITEM.toString() === _this.selectedItem[0])
-            if (parseInt(item.QUANTITY) === item.QTY_GR) {
-                return
+            let item = {}
+
+            if (_this.selectedItem.length > 0) {
+                item = _this.itemList.find(item => item.PO_ITEM.toString() === _this.selectedItem[0])
+                if (parseInt(item.QUANTITY) === item.QTY_GR) {
+                    _this.toast = {
+                        show: true,
+                        message: 'Action not allowed. GR completed.'
+                    }
+                    return
+                }
             }
             _this.$emit('push-page', {
                 extends: NotificationForm,
@@ -117,6 +133,10 @@ export default {
             let _this = this
             let items = _this.itemList.filter(item => _this.selectedItem.indexOf(item.PO_ITEM.toString()) !== -1 && parseInt(item.QUANTITY) > item.QTY_INBOUND);
             if (items.length === 0) {
+                _this.toast = {
+                    show: true,
+                    message: 'Action not allowed. All item has been received.'
+                }
                 return
             }
             _this.$emit('push-page', {
@@ -128,24 +148,6 @@ export default {
                     }
                 }
             })
-        },
-        grProcess: function() {
-            let _this = this
-            let item = _this.itemList.find(item => item.PO_ITEM.toString() === _this.selectedItem[0])
-            if (parseInt(item.QTY_INBOUND) === item.QTY_GR) {
-                return
-            }
-            _this.$emit('push-page', {
-                extends: GrForm,
-                data: function() {
-                    return {
-                        formData: {
-                            po: _this.po,
-                            item: item
-                        }
-                    }
-                }
-            });
         }
     },
     mounted: function() {

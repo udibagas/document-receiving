@@ -1,7 +1,6 @@
 'use strict'
 module.exports = {
   NODE_ENV: '"production"',
-  ROOT_API: '"http://192.168.43.230:8000/api/"',
-  SAP_API_USERNAME: '"G580422"',
-  SAP_API_PASSWORD: '"Welcome01"'
+  ROOT_API: '"http://13.76.153.42/material-receiving-and-inspection-dev/api/"'
+  // ROOT_API: '"192.168.0.18:8000/api/"'
 }

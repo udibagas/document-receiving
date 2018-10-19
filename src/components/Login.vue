@@ -3,11 +3,11 @@
         <div class="background"></div>
         <div class="content">
             <img class="logo" src="../assets/logo.png"><br>
-            <strong style="color:#396080;">MATERIAL HANDLING</strong><br>
+            <strong class="text-primary" style="font-size:13px">MATERIAL RECEIVING AND INSPECTION</strong><br>
             <div class="form">
                 <p><v-ons-input v-model="username" placeholder="Username" class="full-width"></v-ons-input></p>
                 <p> <v-ons-input type="password" v-model="password" placeholder="Password" class="full-width"></v-ons-input> </p>
-                <p><v-ons-button class="full-width" @click.prevent="login">LOGIN</v-ons-button></p>
+                <p><v-ons-button :disabled="busy" class="full-width" @click.prevent="login">LOGIN</v-ons-button></p>
                 <p class="error" v-if="error">{{error}}</p>
 
                 <br><br>
@@ -28,6 +28,7 @@ export default {
             username: '',
             password: '',
             error: false,
+            busy: false,
             year: moment().format('YYYY')
         }
     },
@@ -43,12 +44,14 @@ export default {
             // }
 
             let _this = this
+            _this.busy = true
             _this.error = 'Logging in...'
 
             axios.post(process.env.ROOT_API + 'login', {
                 username: _this.username,
                 password: _this.password
             }).then(function(r) {
+                _this.busy = false
                 if (r.data.success) {
                     window.localStorage.isLoggedIn = 'true'
                     window.localStorage.api_token = r.data.user.api_token
@@ -57,6 +60,7 @@ export default {
                     _this.error = r.data.message
                 }
             }).catch(function(e) {
+                _this.busy = false
                 if (e.response) {
                     if (e.response.status === 500) {
                         _this.error = e.response.data.message
@@ -67,7 +71,6 @@ export default {
                     }
                 } else {
                     _this.error = 'Failed to connect to server! ' + process.env.ROOT_API
-                    console.log(e);
                 }
             })
         }
@@ -84,9 +87,5 @@ export default {
 .form {
     margin: 100px auto 10px;
     width: 250px;
-}
-
-.full-width {
-    width: 100%;
 }
 </style>

@@ -1,8 +1,9 @@
 <template>
     <v-ons-navigator swipeable
         :page-stack="pageStack"
+        :options="{animation: 'slide'}"
         @push-page="pageStack.push($event)"
-        @replace-page="pageStack.pop(); pageStack.push($event)"
+        @replace-page="pageStack = []; pageStack.push($event)"
         @pop-page="pageStack.pop()"
     ></v-ons-navigator>
 </template>
@@ -16,38 +17,19 @@ export default {
     data: function() {
         return {
             pageStack: [(window.localStorage.isLoggedIn === 'true') ? Main : Login]
+            // pageStack: [Main]
         }
     }
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style>
-@font-face{
-    font-family:"Nirmala UI";
-    src:url("assets/fonts/Nirmala_0.ttf")
-}
-
 body {
-    /* font-family: "Nirmala UI",sans-serif; */
     color: #5a5a5a;
-    /* font-size: .9em; */
 }
 
 .page--material__content {
     color: #5a5a5a;
-    /* font-size: .9em; */
-}
-
-.page--material__content,
-.text-input__label.text-input--material__label,
-.text-input,
-.card--material,
-.list-item,
-.list-item__subtitle.list-item--material__subtitle
-.button {
-    /* font-family: "Nirmala UI",sans-serif; */
-    /* font-size: .9em; */
 }
 
 .back-button--material {
@@ -63,12 +45,10 @@ body {
 
 .toolbar__title {
     color: #fff;
-    /* font-family: "Nirmala UI",sans-serif; */
     font-size: 1em;
 }
 
 .action-sheet-button--material {
-    /* font-family: "Nirmala UI",sans-serif; */
     padding: 0;
     text-align: center;
     height: 40px;
@@ -76,7 +56,6 @@ body {
 }
 
 .button {
-    /* border-radius: 20px; */
     background-color: #396080;
 }
 
@@ -93,9 +72,7 @@ body {
 }
 
 .full-width {
-    display: block;
     width: 100%;
-    margin-bottom: 5px;
 }
 
 .text-center {
@@ -114,5 +91,18 @@ body {
 img.logo {
     width: 200px;
     margin: 10px auto;
+}
+
+.text-primary, .list-header--material {
+    color: #396080;
+}
+
+.text-white {
+    color: #fff;
+}
+
+.list-header {
+    background-color: #396080;
+    color: #fff;
 }
 </style>

@@ -4,56 +4,93 @@
             <div class="left">
                 <v-ons-back-button></v-ons-back-button>
             </div>
-            <div class="center">SEND NOTIFICATION</div>
+            <div class="center">CREATE NOTIFICATION</div>
+            <div class="right">
+                <v-ons-toolbar-button>
+                    <v-ons-button icon="fa-send" :disabled="busy" style="border:1px solid #fff;" @click.prevent="sendNotification"> SEND</v-ons-button>
+                </v-ons-toolbar-button>
+            </div>
         </v-ons-toolbar>
         <div class="background"></div>
-        <po-component></po-component>
         <div>
             <ul class="list">
                 <li class="list-item">
                     <div class="list-item__center">
-                        <div class="list-item__title">{{item.SHORT_TEXT}}</div>
-                        <span class="list-item__subtitle">
-                            {{item.MATERIAL_EXTERNAL}}<br>
-                            Qty PO: {{parseInt(item.QUANTITY)}} &bull;
-                            Inbound: {{item.QTY_INBOUND}} &bull;
-                            GR: {{item.QTY_GR}}
-                        </span>
+                        <input type="text" @click.prevent="problemDialog = true" readonly v-model="notification.problem" class="text-input" placeholder="Problem">
+                    </div>
+                    <div class="list-item__right">
+                        <div class="list-item__label">Problem</div>
                     </div>
                 </li>
                 <li class="list-item">
                     <div class="list-item__center">
-                        <select class="select-input" v-model="notification.code" style="width:100%">
-                            <option v-for="c in codes" :value="c.value" :key="c.value">{{c.value}} - {{c.label}}</option>
-                        </select>
+                        <input type="text" v-model="notification.purchaser_name" class="text-input" placeholder="Purchaser Name">
+                    </div>
+                    <div class="list-item__right">
+                        <div class="list-item__label">Purchaser Name</div>
                     </div>
                 </li>
                 <li class="list-item">
                     <div class="list-item__center">
-                        <input type="text" v-model="notification.title" class="text-input" placeholder="Title">
+                        <input type="text" v-model="notification.device_data" class="text-input" placeholder="Device Data">
+                    </div>
+                    <div class="list-item__right">
+                        <div class="list-item__label">Device Data</div>
                     </div>
                 </li>
                 <li class="list-item">
                     <div class="list-item__center">
-                        <textarea v-model="notification.description" class="textarea textarea--transparent" rows="5" placeholder="Description"></textarea>
+                        <input type="text" v-model="notification.main_work_center" class="text-input" placeholder="Main Work Center">
+                    </div>
+                    <div class="list-item__right">
+                        <div class="list-item__label">Main Work Center</div>
+                    </div>
+                </li>
+                <li class="list-item">
+                    <div class="list-item__center">
+                        <textarea v-model="notification.description" class="textarea textarea--transparent" rows="18" placeholder="Detail Description" style="width:100%"></textarea>
                     </div>
                 </li>
             </ul>
-            <p class="error text-center" v-if="error">{{error}}</p>
         </div>
 
-        <div class="btn-fixed-bottom">
-            <v-ons-button style="width:95%" :disabled="busy" @click.prevent="sendNotification">SEND NOTIFICATION</v-ons-button>
+        <div class="toast" v-show="error">
+            <div class="toast__message">{{error}}</div>
+            <button class="toast__button" @click="error = false">OK</button>
         </div>
+
+        <v-ons-dialog :visible.sync="problemDialog">
+            <v-ons-list>
+                <v-ons-list-item v-for="(p, $index) in problems" tappable :key="p">
+                    <label class="left">
+                        <v-ons-radio :input-id="'radio-' + $index" :value="p" v-model="notification.problem"> </v-ons-radio>
+                    </label>
+                    <label :for="'radio-' + $index" class="center">{{ p }}</label>
+                </v-ons-list-item>
+            </v-ons-list>
+        </v-ons-dialog>
+
+        <v-ons-modal :visible="busy">
+            <p style="text-align: center">
+                <v-ons-icon icon="fa-spinner" spin size="40px"></v-ons-icon>
+                <br><br>
+                Sending notification...
+            </p>
+        </v-ons-modal>
     </ons-page>
 </template>
 
 <script>
 import axios from 'axios'
-import PoComponent from './PoComponent'
+import PoHeader from './PoHeader'
 
 export default {
-    components: { PoComponent },
+    components: { PoHeader },
+    watch: {
+        'notification.problem': function(v, o) {
+            this.problemDialog = false
+        }
+    },
     data: function() {
         return {
             po: {},
@@ -61,23 +98,20 @@ export default {
             error: '',
             busy: false,
             notification: {
-                code: ''
+                problem: '',
+                // TODO: isi ini dengan PO dan atau material
+                description: ''
             },
-            codes: [
-                {value: '', label: 'Select Coding -'},
-                {value: 1, label: 'Create Equipment'},
-                {value: 2, label: 'Create Serial Number'},
-                {value: 3, label: 'Create Material Number'},
-                {value: 4, label: 'Create Serial and Material'},
-                {value: 5, label: 'Change Equipment'},
-                {value: 6, label: 'Change in Serial Number'},
-                {value: 7, label: 'Change in Material Number'},
-                {value: 8, label: 'Change in Serial and Part Number'},
-                {value: 9, label: 'Deactivate Equipment'},
-                {value: 10, label: 'Create Customer'},
-                {value: 11, label: 'Change Customer'},
-                {value: 12, label: 'Create Master Project'},
-                {value: 13, label: 'Change Master Project'}
+            problemDialog: false,
+            problems: [
+                'CREATE SN',
+                'RELEASE PO',
+                'DIFF PIN',
+                'INSERT QTY',
+                'CHANGE SN STATUS',
+                'INSERT PN',
+                'PO NOT EXIST',
+                'OTHER'
             ]
         }
     },
@@ -85,45 +119,37 @@ export default {
         sendNotification: function() {
             let _this = this
 
-            if (!_this.notification.code || !_this.notification.title || !_this.notification.description) {
+            if (!_this.notification.problem ||
+                !_this.notification.purchaser_name ||
+                !_this.notification.device_data ||
+                !_this.notification.main_work_center ||
+                !_this.notification.description) {
                 _this.error = 'Please fill the form correctly!'
                 return
             }
 
             let data = {
                 api_token: window.localStorage.api_token,
-                po_number: _this.po_number,
+                po_number: _this.po.PO_NUMBER,
                 notification: _this.notification
             }
 
-            _this.error = 'Sending notification...'
+            _this.error = ''
             _this.busy = true
-            // TODO: benerin URL nembak ke SAP
-            axios.post(process.env.ROOT_API + 'notification', data, {timeout: 3000})
-                .then(function(r) {
-                    _this.busy = false
-                    _this.$emit('pop-page')
-                    _this.$ons.notification.toast('Notification creation SUCCESS!', { timeout: 3000, animation: 'fall' })
-                    this.sendLog(1)
-                })
-                .catch(function(e) {
-                    _this.$ons.notification.toast('Notification creation FAILED!', { timeout: 3000, animation: 'fall' })
-                    this.sendLog(0)
-                })
-        },
-        sendLog: function(status) {
-            let _this = this
-            let data = {
-                po_number: _this.po.PO_NUMBER,
-                message: 'User :user creates notification for PO #' + _this.po.PO_NUMBER + ' material item #' + _this.item.PO_ITEM + '(' + _this.item.SHORT_TEXT + ') : ' + JSON.stringify(_this.notification),
-                action: 'Create Notification',
-                status: status
-            }
 
-            axios.post(BASE_URL + 'userLog', data).then(function(r) {
-                _this.$ons.notification.toast('Log has been saved!', { timeout: 3000, animation: 'fall' })
+            axios.post(process.env.ROOT_API + 'notification', data, {timeout: 3000}).then(function(r) {
+                _this.busy = false
+                _this.$ons.notification.toast(r.data.message, { timeout: 3000, animation: 'fall' })
+                if (r.data.success) {
+                    _this.$emit('pop-page')
+                }
             }).catch(function(e) {
-                _this.$ons.notification.toast('Failed to save log!', { timeout: 3000, animation: 'fall' })
+                _this.busy = false
+                if (e.response.status === 500) {
+                    _this.error = 'FAIL to send notification! ' + e.response.data.message
+                } else {
+                    _this.error = 'FAIL to send notification! Unhandled error.'
+                }
             })
         }
     }
