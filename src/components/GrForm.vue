@@ -161,6 +161,7 @@
 <script>
 import axios from 'axios'
 import fastXmlParser from 'fast-xml-parser'
+import SuccessPage from './SuccessPage'
 
 export default {
     computed: {
@@ -216,9 +217,14 @@ export default {
                 if (ret.item && ret.item.TYPE === 'E') {
                     _this.toast = { show: true, message: 'ERROR: ' + ret.item.MESSAGE }
                 } else {
-                    _this.toast = { show: true, message: 'GR creation SUCCESS!' }
-                    // TODO: go to main screen
-                    setTimeout(function () { _this.$emit('pop-page') }, 3000);
+                    _this.$emit('replace-page', {
+                        extends: SuccessPage,
+                        data: function() {
+                            return {
+                                message: 'GR creation success with number xxx'
+                            }
+                        }
+                    })
                 }
             })
             .catch(function(e) {

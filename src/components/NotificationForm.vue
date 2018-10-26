@@ -92,6 +92,7 @@
 import axios from 'axios'
 import PoHeader from './PoHeader'
 import fastXmlParser from 'fast-xml-parser'
+import SuccessPage from './SuccessPage'
 
 export default {
     components: { PoHeader },
@@ -165,8 +166,14 @@ export default {
                 if (ret.item && ret.item.TYPE === 'E') {
                     _this.error = 'ERROR: ' + ret.item.MESSAGE
                 } else {
-                    _this.error = 'SUCCESS: Notification sent. Notif No. ' + jsonData.Envelope.Body["ZFM_NOTIFICATION_INBOUND.Response"].E_NOTIFHEADER.NOTIF_NO
-                    setTimeout(function () { _this.$emit('pop-page') }, 3000);
+                    _this.$emit('replace-page', {
+                        extends: SuccessPage,
+                        data: function() {
+                            return {
+                                message: 'Notification created successfully with number ' + jsonData.Envelope.Body["ZFM_NOTIFICATION_INBOUND.Response"].E_NOTIFHEADER.NOTIF_NO
+                            }
+                        }
+                    })
                 }
             }).catch(function(e) {
                 _this.busy = false

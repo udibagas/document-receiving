@@ -56,7 +56,7 @@
                 </li>
                 <li class="list-item">
                     <div class="list-item__center">
-                        <input type="text" v-model="qty_compliant" class="text-input" placeholder="Main Work Center">
+                        <input type="number" v-model="qty_compliant" class="text-input" placeholder="Quantity Compliant">
                     </div>
                     <div class="list-item__right">
                         <div class="list-item__label">Quantity Compliant</div>
@@ -64,7 +64,7 @@
                 </li>
                 <li class="list-item">
                     <div class="list-item__center">
-                        <input type="text" v-model="qty_unit" class="text-input" placeholder="Main Work Center">
+                        <input type="number" v-model="qty_unit" class="text-input" placeholder="Quantity Unit">
                     </div>
                     <div class="list-item__right">
                         <div class="list-item__label">Quantity Unit</div>
@@ -97,6 +97,7 @@
 import axios from 'axios'
 import PoHeader from './PoHeader'
 import fastXmlParser from 'fast-xml-parser'
+import SuccessPage from './SuccessPage'
 
 export default {
     components: { PoHeader },
@@ -144,13 +145,20 @@ export default {
                     parseNodeValue: false
                 });
 
+                alert(jsonData.Envelope.Body["ZFM_QM_NOTIF_INBOUND.Response"])
                 let ret = jsonData.Envelope.Body["ZFM_QM_NOTIF_INBOUND.Response"].ET_RETURN
 
                 if (ret.item && ret.item.TYPE === 'E') {
                     _this.error = 'ERROR: ' + ret.item.MESSAGE
                 } else {
-                    _this.error = 'SUCCESS: MRIR Notification sent. Notif No. ' + jsonData.Envelope.Body["ZFM_QM_NOTIF_INBOUND.Response"].E_HEADER.NOTIF_NO
-                    setTimeout(function () { _this.$emit('pop-page') }, 3000);
+                    _this.$emit('replace-page', {
+                        extends: SuccessPage,
+                        data: function() {
+                            return {
+                                message: 'MRIR Notification created successfully with number ' + jsonData.Envelope.Body["ZFM_QM_NOTIF_INBOUND.Response"].E_HEADER.NOTIF_NO
+                            }
+                        }
+                    })
                 }
             }).catch(function(e) {
                 _this.busy = false

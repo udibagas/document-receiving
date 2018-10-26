@@ -104,6 +104,7 @@
 import axios from 'axios'
 import PoHeader from './PoHeader'
 import fastXmlParser from 'fast-xml-parser'
+import SuccessPage from './SuccessPage'
 
 export default {
     components: { PoHeader },
@@ -192,11 +193,14 @@ export default {
                 if (ret.item && ret.item.TYPE === 'E') {
                     _this.toast = { show: true, message: 'ERROR: ' + ret.item.MESSAGE }
                 } else {
-                    _this.toast = { show: true, message: 'Inbound creation SUCCESS!' }
-                    _this.$store.commit('update', _this.po.E_POHEADER.PO_NUMBER)
-                    setTimeout(function () {
-                        _this.$emit('pop-page')
-                    }, 3000);
+                    _this.$emit('replace-page', {
+                        extends: SuccessPage,
+                        data: function() {
+                            return {
+                                message: 'GR creation success with number xxx'
+                            }
+                        }
+                    })
                 }
             }).catch(function(e) {
                 _this.toast = { show: true, message: e.response.data }
