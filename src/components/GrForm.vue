@@ -15,7 +15,7 @@
         <ul class="list">
             <li class="list-item">
                 <div class="list-item__center">
-                    <input type="text" v-model="gr.po_number" class="text-input" placeholder="PO Number">
+                    {{po.E_POHEADER.PO_NUMBER}}
                 </div>
                 <div class="list-item__right">
                     <div class="list-item__label">PO Number</div>
@@ -23,63 +23,7 @@
             </li>
             <li class="list-item">
                 <div class="list-item__center">
-                    <input type="text" v-model="gr.part_number" class="text-input" placeholder="Part Number">
-                </div>
-                <div class="list-item__right">
-                    <div class="list-item__label">Part Number</div>
-                </div>
-            </li>
-            <li class="list-item">
-                <div class="list-item__center">
-                    <input type="text" v-model="gr.mat_description" class="text-input" placeholder="Mat. Description">
-                </div>
-                <div class="list-item__right">
-                    <div class="list-item__label">Mat. Description</div>
-                </div>
-            </li>
-            <li class="list-item">
-                <div class="list-item__center">
-                    <input type="text" v-model="gr.delivery_note" class="text-input" placeholder="Delivery Note/Invoice">
-                </div>
-                <div class="list-item__right">
-                    <div class="list-item__label">Delivery Note/Invoice</div>
-                </div>
-            </li>
-            <li class="list-item">
-                <div class="list-item__center">
-                    <input type="text" v-model="gr.bill_of_lading" class="text-input" placeholder="Bill of Ladding">
-                </div>
-                <div class="list-item__right">
-                    <div class="list-item__label">Bill of Ladding</div>
-                </div>
-            </li>
-            <li class="list-item">
-                <div class="list-item__center">
-                    <input type="text" v-model="gr.movement_type" class="text-input" placeholder="Movement Type">
-                </div>
-                <div class="list-item__right">
-                    <div class="list-item__label">Movement Type</div>
-                </div>
-            </li>
-            <li class="list-item">
-                <div class="list-item__center">
-                    <input type="text" v-model="gr.plant" class="text-input" placeholder="Plant">
-                </div>
-                <div class="list-item__right">
-                    <div class="list-item__label">Plant</div>
-                </div>
-            </li>
-            <li class="list-item">
-                <div class="list-item__center">
-                    <input type="text" v-model="gr.storage_location" class="text-input" placeholder="Storage Location">
-                </div>
-                <div class="list-item__right">
-                    <div class="list-item__label">Storage Location</div>
-                </div>
-            </li>
-            <li class="list-item">
-                <div class="list-item__center">
-                    <input type="text" v-model="gr.item" class="text-input" placeholder="Item">
+                    {{item.PO_ITEM}}
                 </div>
                 <div class="list-item__right">
                     <div class="list-item__label">Item</div>
@@ -87,15 +31,71 @@
             </li>
             <li class="list-item">
                 <div class="list-item__center">
-                    <input type="text" v-model="gr.quantity" class="text-input" placeholder="Quantity">
+                    {{item.MATERIAL_EXTERNAL}}
+                </div>
+                <div class="list-item__right">
+                    <div class="list-item__label">Part Number</div>
+                </div>
+            </li>
+            <li class="list-item">
+                <div class="list-item__center">
+                    {{item.SHORT_TEXT}}
+                </div>
+                <div class="list-item__right">
+                    <div class="list-item__label">Mat. Description</div>
+                </div>
+            </li>
+            <li class="list-item">
+                <div class="list-item__center">
+                    {{item.PLANT}}
+                </div>
+                <div class="list-item__right">
+                    <div class="list-item__label">Plant</div>
+                </div>
+            </li>
+            <li class="list-item">
+                <div class="list-item__center">
+                    {{item.MATL_GROUP}}
+                </div>
+                <div class="list-item__right">
+                    <div class="list-item__label">Material Group</div>
+                </div>
+            </li>
+            <li class="list-item">
+                <div class="list-item__center">
+                    {{item.STGE_LOC}}
+                </div>
+                <div class="list-item__right">
+                    <div class="list-item__label">Storage Location</div>
+                </div>
+            </li>
+            <li class="list-item">
+                <div class="list-item__center">
+                    {{inbound.BILL_OF_LADING}}
+                </div>
+                <div class="list-item__right">
+                    <div class="list-item__label">Bill of Ladding</div>
+                </div>
+            </li>
+            <li class="list-item">
+                <div class="list-item__center">
+                    {{inbound.CONF_TYPE}}
+                </div>
+                <div class="list-item__right">
+                    <div class="list-item__label">Movement Type</div>
+                </div>
+            </li>
+            <li class="list-item">
+                <div class="list-item__center">
+                    {{inbound.QUANTITY}}
                 </div>
                 <div class="list-item__right">
                     <div class="list-item__label">Quantity</div>
                 </div>
             </li>
-            <li class="list-item">
+            <!-- <li class="list-item">
                 <div class="list-item__center">
-                    <input type="text" v-model="gr.eun" class="text-input" placeholder="EUn">
+                    <input type="text" v-model="gr.eun" disabled class="text-input" placeholder="EUn">
                 </div>
                 <div class="list-item__right">
                     <div class="list-item__label">EUn</div>
@@ -103,7 +103,7 @@
             </li>
             <li class="list-item">
                 <div class="list-item__center">
-                    <input type="text" v-model="gr.bun" class="text-input" placeholder="BUn">
+                    <input type="text" v-model="gr.bun" disabled class="text-input" placeholder="BUn">
                 </div>
                 <div class="list-item__right">
                     <div class="list-item__label">BUn</div>
@@ -111,15 +111,23 @@
             </li>
             <li class="list-item">
                 <div class="list-item__center">
-                    <input type="text" v-model="gr.sloc" class="text-input" placeholder="Sloc">
+                    <input type="text" v-model="gr.sloc" disabled class="text-input" placeholder="Sloc">
                 </div>
                 <div class="list-item__right">
                     <div class="list-item__label">Sloc</div>
                 </div>
+            </li> -->
+            <li class="list-item">
+                <div class="list-item__center">
+                    <input type="text" v-model="delivery_note" class="text-input" placeholder="Delivery Note/Invoice">
+                </div>
+                <div class="list-item__right">
+                    <div class="list-item__label">Delivery Note/Invoice</div>
+                </div>
             </li>
             <li class="list-item">
                 <div class="list-item__center">
-                    <input type="text" v-model="gr.serial_number" class="text-input" placeholder="Serial Number">
+                    <input type="text" v-model="serial_no" class="text-input" placeholder="Serial Number">
                 </div>
                 <div class="list-item__right">
                     <div class="list-item__label">Serial Number</div>
@@ -127,13 +135,18 @@
             </li>
             <li class="list-item">
                 <div class="list-item__center">
-                    <input type="text" v-model="gr.text" class="text-input" placeholder="Text">
+                    <input type="text" v-model="item_text" class="text-input" placeholder="Text">
                 </div>
                 <div class="list-item__right">
                     <div class="list-item__label">Text</div>
                 </div>
             </li>
         </ul>
+
+        <div class="toast" v-show="toast.show">
+            <div class="toast__message">{{toast.message}}</div>
+            <button class="toast__button" @click="toast.show = false">OK</button>
+        </div>
 
         <v-ons-modal :visible="busy">
             <p style="text-align: center">
@@ -147,45 +160,84 @@
 
 <script>
 import axios from 'axios'
+import fastXmlParser from 'fast-xml-parser'
 
 export default {
+    computed: {
+        po() { return this.$store.state.po }
+    },
     data: function() {
         return {
-            gr: {},
+            item: {},
+            inbound: {},
             busy: false,
-            error: '',
-            alert: {
-                show: false,
-                message: ''
-            }
+            serial_no: '',
+            delivery_note: '',
+            item_text: '',
+            toast: { show: false, message: '' }
         }
     },
     methods: {
         submitGr: function() {
+            // TODO: validate first
             let _this = this
+            let pattern = new RegExp("ROT|REP|RT0")
+
+            if (pattern.test(_this.item.MATL_GROUP) && !_this.serial_no) {
+                _this.toast = { show: true, message: 'Serial Number harus diisi!' }
+                return
+            }
+
             _this.busy = true
-            _this.error = 'Saving data...'
-            axios.post(process.env.ROOT_API + 'gr', _this.gr).then(function(r) {
+            let data = {
+                api_token: window.localStorage.api_token,
+                po_number: _this.po.E_POHEADER.PO_NUMBER,
+                po_item: _this.item.PO_ITEM,
+                serial_no: _this.serial_no,
+                entry_qty: _this.inbound.QUANTITY,
+                item_text: _this.item_text,
+                bill_of_lading: _this.inbound.BILL_OF_LADING
+            }
+
+            axios.post(process.env.ROOT_API + 'gr', data).then(function(r) {
                 _this.busy = false
-                _this.error = ''
-                _this.$ons.notification.toast(r.data.message, { timeout: 3000, animation: 'fall' })
-                if (r.data.success) {
-                    _this.$emit('pop-page')
-                    _this.$store.commit('update', _this.gr.PO_NUMBER)
+                let jsonData = fastXmlParser.parse(r.data, {
+                    trimValues: true,
+                    ignoreNameSpace: true,
+                    ignoreAttributes: true,
+                    parseAttributeValue: false,
+                    parseNodeValue: false
+                });
+
+                // alert(JSON.stringify(jsonData.Envelope.Body["ZFM_IB_DLV_INBOUND.Response"]));
+
+                let ret = jsonData.Envelope.Body["ZFM_GR_INBOUND.Response"].ET_RETURN
+
+                if (ret.item && ret.item.TYPE === 'E') {
+                    _this.toast = { show: true, message: 'ERROR: ' + ret.item.MESSAGE }
+                } else {
+                    _this.toast = { show: true, message: 'GR creation SUCCESS!' }
+                    // TODO: go to main screen
+                    setTimeout(function () { _this.$emit('pop-page') }, 3000);
                 }
             })
             .catch(function(e) {
+                _this.toast = { show: true, message: e.response.data }
                 _this.busy = false
-                _this.error = ''
-                _this.$ons.notification.toast('GR creation FAILED!', { timeout: 3000, animation: 'fall' })
             })
         }
+    },
+    mounted: function() {
+        this.inbound.QUANTITY = parseInt(this.inbound.QUANTITY)
+        this.item.PO_ITEM = parseInt(this.item.PO_ITEM)
     }
 }
 </script>
 
 <style lang="css" scoped>
-.has-error {
-    background-color:#f2dede;
+
+input[type=text]:disabled {
+    color: #000 !important;
 }
+
 </style>

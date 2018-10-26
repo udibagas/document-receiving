@@ -126,10 +126,37 @@ export default {
             let _this = this
 
             if (_this.items.filter(i => i.qty === 0 || i.qty === '').length > 0) {
-                _this.toast = {
-                    show: true,
-                    message: 'Please fill the quantity!'
-                }
+                _this.toast = { show: true, message: 'Please fill the quantity!' }
+                return
+            }
+
+            if (_this.delivery_date === '') {
+                _this.toast = { show: true, message: 'Please fill delivery date!' }
+                return
+            }
+
+            if (_this.bill_of_lading === '') {
+                _this.toast = { show: true, message: 'Please fill bill of lading!' }
+                return
+            }
+
+            if (_this.invoice_date === '') {
+                _this.toast = { show: true, message: 'Please fill invoice date!' }
+                return
+            }
+
+            if (_this.invoice_number === '') {
+                _this.toast = { show: true, message: 'Please fill invoice number!' }
+                return
+            }
+
+            if (_this.prelim_doc_date === '') {
+                _this.toast = { show: true, message: 'Please fill prelim doc date!' }
+                return
+            }
+
+            if (_this.prelim_doc_number === '') {
+                _this.toast = { show: true, message: 'Please fill prelim doc number!' }
                 return
             }
 
@@ -137,10 +164,9 @@ export default {
             axios({
                 method: 'post',
                 url: process.env.ROOT_API + 'inbound',
-                // headers: {'Content-Type': 'text/xml'},
                 data: {
                     api_token: window.localStorage.api_token,
-                    po_number: _this.po.PO_NUMBER,
+                    po_number: _this.po.E_POHEADER.PO_NUMBER,
                     delivery_date: _this.delivery_date,
                     bill_of_lading: _this.bill_of_lading,
                     invoice_number: _this.invoice_number,
@@ -159,14 +185,18 @@ export default {
                     parseNodeValue: false
                 });
 
-                let ret = jsonData.Envelope.Body["ZFM_IB_DLV_INBOUND.Response"].ET_RETURN.item
+                // alert(JSON.stringify(jsonData.Envelope.Body["ZFM_IB_DLV_INBOUND.Response"]));
 
-                if (ret.type === 'E') {
-                    _this.toast = { show: true, message: ret.MESSAGE }
+                let ret = jsonData.Envelope.Body["ZFM_IB_DLV_INBOUND.Response"].ET_RETURN
+
+                if (ret.item && ret.item.TYPE === 'E') {
+                    _this.toast = { show: true, message: 'ERROR: ' + ret.item.MESSAGE }
                 } else {
                     _this.toast = { show: true, message: 'Inbound creation SUCCESS!' }
-                    _this.$emit('pop-page')
-                    // _this.$store.commit('update', _this.po.PO_NUMBER)
+                    _this.$store.commit('update', _this.po.E_POHEADER.PO_NUMBER)
+                    setTimeout(function () {
+                        _this.$emit('pop-page')
+                    }, 3000);
                 }
             }).catch(function(e) {
                 _this.toast = { show: true, message: e.response.data }

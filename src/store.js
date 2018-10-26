@@ -7,13 +7,6 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
     state: {
-        // po: {
-        //     PO_NUMBER: '0450001099',
-        //     VENDOR: 'PT ABC',
-        //     CREATED_BY: 'BAGAS',
-        //     CREAT_DATE: '2018-10-10',
-        //     PO_REL_IND: '2'
-        // },
         po: {},
         poConfirmation: [],
         poHistoryTotal: [],
@@ -32,7 +25,7 @@ export default new Vuex.Store({
             axios.get(process.env.ROOT_API + 'poDetail', {
                 headers: {'Content-Type': 'text/xml'},
                 params: {
-                    po_number: _this.po_number,
+                    po_number: po_number,
                     api_token: window.localStorage.api_token
                 }
             }).then(function(r) {

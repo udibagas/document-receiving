@@ -31,9 +31,7 @@
 export default {
     name: 'PoHeader',
     computed: {
-        po() {
-            return this.$store.state.po
-        }
+        po() { return this.$store.state.po }
     }
 }
 </script>

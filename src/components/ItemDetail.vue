@@ -45,12 +45,10 @@
                 <v-ons-col style="font-weight:normal;">: {{item.QTY_GR}}</v-ons-col>
             </v-ons-row>
         </div>
-        <v-ons-list>
-            <li class="list-header">Unreceived Inbound Delivery</li>
-            <v-ons-list-item v-for="c in poConfirmation"
-                v-if="parseInt(c.QUANTITY) > parseInt(c.QTY_REDUCED) && c.CONF_NAME === 'Inbound Delivery'"
-                tappable
-                @click="grProcess(c)">
+        <v-ons-list style="margin-bottom:45px;">
+            <li class="list-header">Unreceived Inbound Delivery ({{poConfirmation.filter(c => parseInt(c.QUANTITY) > parseInt(c.QTY_REDUCED) && c.CONF_NAME === 'Inbound Delivery').length}})</li>
+            <v-ons-list-item v-for="c in poConfirmation" :class="selectedInbound === c.DELIV_NUMB ? 'selected' : ''"
+                v-if="parseInt(c.QUANTITY) > parseInt(c.QTY_REDUCED) && c.CONF_NAME === 'Inbound Delivery'" tappable @click="selectedInbound = c.DELIV_NUMB">
                 <div class="center">
                     <span class="list-item__subtitle">
                         <span class="my-label">Delivery Number</span>: {{c.DELIV_NUMB}} <br>
@@ -65,6 +63,10 @@
                 </div>
             </v-ons-list-item>
         </v-ons-list>
+
+        <div class="btn-fixed-bottom">
+            <v-ons-button :disabled="selectedInbound === ''" style="width:95%" @click.prevent="createGr">CREATE GR</v-ons-button>
+        </div>
     </v-ons-page>
 </template>
 
@@ -77,19 +79,18 @@ export default {
             po: {},
             item: {},
             poConfirmation: [],
-            selectedItem: ''
+            selectedInbound: ''
         }
     },
     methods: {
-        grProcess: function(inbound) {
+        createGr: function() {
             let _this = this
             _this.$emit('push-page', {
                 extends: GrForm,
                 data: function() {
                     return {
-                        po: _this.po,
                         item: _this.item,
-                        inbound: inbound
+                        inbound: _this.poConfirmation.find(c => c.DELIV_NUMB === _this.selectedInbound)
                     }
                 }
             });
@@ -102,6 +103,10 @@ export default {
 .container {
     padding: 15px;
     background-color: #efefef;
+}
+
+.selected {
+    background-color: yellow;
 }
 
 .my-label {

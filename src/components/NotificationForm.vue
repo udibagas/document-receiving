@@ -40,10 +40,18 @@
                 </li>
                 <li class="list-item">
                     <div class="list-item__center">
-                        <input type="text" v-model="notification.main_work_center" class="text-input" placeholder="Main Work Center">
+                        <input type="text" v-model="notification.work_center" class="text-input" placeholder="Main Work Center">
                     </div>
                     <div class="list-item__right">
-                        <div class="list-item__label">Main Work Center</div>
+                        <div class="list-item__label">Work Center</div>
+                    </div>
+                </li>
+                <li class="list-item">
+                    <div class="list-item__center">
+                        <input type="text" v-model="notification.maint_plant" class="text-input" placeholder="Main Work Center">
+                    </div>
+                    <div class="list-item__right">
+                        <div class="list-item__label">Maint Plant</div>
                     </div>
                 </li>
                 <li class="list-item">
@@ -83,6 +91,7 @@
 <script>
 import axios from 'axios'
 import PoHeader from './PoHeader'
+import fastXmlParser from 'fast-xml-parser'
 
 export default {
     components: { PoHeader },
@@ -122,31 +131,47 @@ export default {
             if (!_this.notification.problem ||
                 !_this.notification.purchaser_name ||
                 !_this.notification.device_data ||
-                !_this.notification.main_work_center ||
+                !_this.notification.work_center ||
+                !_this.notification.maint_plant ||
                 !_this.notification.description) {
                 _this.error = 'Please fill the form correctly!'
                 return
             }
 
-            let data = {
-                api_token: window.localStorage.api_token,
-                po_number: _this.po.PO_NUMBER,
-                notification: _this.notification
-            }
-
             _this.error = ''
             _this.busy = true
 
-            axios.post(process.env.ROOT_API + 'notification', data, {timeout: 3000}).then(function(r) {
+            axios({
+                method: 'post',
+                url: process.env.ROOT_API + 'notification',
+                data: {
+                    api_token: window.localStorage.api_token,
+                    po_number: _this.po.E_POHEADER ? _this.po.E_POHEADER.PO_NUMBER : '',
+                    to: _this.po.E_USER_EMAIL,
+                    notification: _this.notification
+                }
+            }).then(function(r) {
                 _this.busy = false
-                _this.$ons.notification.toast(r.data.message, { timeout: 3000, animation: 'fall' })
-                if (r.data.success) {
-                    _this.$emit('pop-page')
+                let jsonData = fastXmlParser.parse(r.data, {
+                    trimValues: true,
+                    ignoreNameSpace: true,
+                    ignoreAttributes: true,
+                    parseAttributeValue: false,
+                    parseNodeValue: false
+                });
+
+                let ret = jsonData.Envelope.Body["ZFM_NOTIFICATION_INBOUND.Response"].T_RETURN
+
+                if (ret.item && ret.item.TYPE === 'E') {
+                    _this.error = 'ERROR: ' + ret.item.MESSAGE
+                } else {
+                    _this.error = 'SUCCESS: Notification sent. Notif No. ' + jsonData.Envelope.Body["ZFM_NOTIFICATION_INBOUND.Response"].E_NOTIFHEADER.NOTIF_NO
+                    setTimeout(function () { _this.$emit('pop-page') }, 3000);
                 }
             }).catch(function(e) {
                 _this.busy = false
                 if (e.response.status === 500) {
-                    _this.error = 'FAIL to send notification! ' + e.response.data.message
+                    _this.error = 'FAIL to send notification! ' + e.response.data
                 } else {
                     _this.error = 'FAIL to send notification! Unhandled error.'
                 }

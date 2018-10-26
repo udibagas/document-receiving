@@ -1,6 +1,9 @@
 - implement store!
 0450001086 : Not released
 
+- notifikasi kalau dia PO not release
+- notifikasi kalau dia berdasarkan material
+
 - yang belum receive (yang sudah receive sama)
 
     => send notification => otomatis kirim email ke purchaser
@@ -37,7 +40,4 @@ INBOUND (1x inbound)
 
 - GR Process
     - 1 material (di fix-kan form-nya)
-    - material diiliangin karena = part number
     - otomatis terisi tp editable
-    - quantity = 0 (harus diisi)
-    - masukin text (untuk isi siapa yg input)

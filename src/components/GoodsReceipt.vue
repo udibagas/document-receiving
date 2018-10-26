@@ -175,12 +175,9 @@ export default {
                 extends: NotificationForm,
                 data: function() {
                     return {
-                        po: {
-                            PO_NUMBER: _this.po_number
-                        },
                         notification: {
                             problem: 'PO NOT EXIST',
-                            description: ''
+                            description: 'PO NUMBER : ' + _this.po_number
                         }
                     }
                 }

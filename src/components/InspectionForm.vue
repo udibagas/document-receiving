@@ -78,15 +78,27 @@
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
     data: function() {
         return {
-            switchOn: 1,
-            switchOff: 0
+            formData: {},
+            inspection: {}
+        }
+    },
+    methods: {
+        submitData: function() {
+            let _this = this
+            axios.post('inspection', formData).then(function(r) {
+                alert(r.data)
+            }).catch(function(e) {
+                alert(e)
+            })
         }
     }
 }
 </script>
 
-<style lang="css">
+<style lang="css" scoped>
 </style>

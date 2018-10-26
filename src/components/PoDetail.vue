@@ -16,7 +16,7 @@
                 </label>
                 <label class="center" @click="showDetail(item)">
                     <div class="list-item__title">{{item.SHORT_TEXT}}</div>
-                    <span class="list-item__subtitle">
+                    <span class="list-item__subtitle" style="white-space: nowrap;text-overflow:ellipsis;overflow:hidden">
                         {{item.MATERIAL_EXTERNAL}}<br>
                         Qty PO: {{item.QUANTITY}} &bull;
                         Qty Inbound: {{item.QTY_INBOUND}} &bull;
@@ -82,7 +82,6 @@ export default {
                 extends: ItemDetail,
                 data: function() {
                     return {
-                        po: _this.po,
                         item: item,
                         poConfirmation: _this.poConfirmation.filter(p => p.PO_ITEM === item.PO_ITEM)
                     }
@@ -148,15 +147,18 @@ export default {
                     }
                 }
             })
+        },
+        countQuantity: function() {
+            let _this = this
+            _this.itemList.forEach(function(item) {
+                item.QUANTITY = parseInt(item.QUANTITY)
+                item.QTY_INBOUND = _this.inboundQty(item.PO_ITEM)
+                item.QTY_GR = _this.grQty(item.PO_ITEM)
+            })
         }
     },
     mounted: function() {
-        let _this = this
-        _this.itemList.forEach(function(item) {
-            item.QUANTITY = parseInt(item.QUANTITY)
-            item.QTY_INBOUND = _this.inboundQty(item.PO_ITEM)
-            item.QTY_GR = _this.grQty(item.PO_ITEM)
-        })
+        this.countQuantity()
     }
 }
 </script>
