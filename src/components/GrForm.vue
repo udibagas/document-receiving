@@ -241,9 +241,4 @@ export default {
 </script>
 
 <style lang="css" scoped>
-
-input[type=text]:disabled {
-    color: #000 !important;
-}
-
 </style>

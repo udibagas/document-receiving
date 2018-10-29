@@ -34,6 +34,11 @@ import fastXmlParser from 'fast-xml-parser'
 import InspectionForm from './InspectionForm'
 
 export default {
+    computed: {
+        inspectionCharacteristics() {
+            return this.$store.state.inspectionCharacteristics
+        }
+    },
     data: function() {
         return {
             inspection_number: '',
@@ -98,10 +103,9 @@ export default {
             _this.processing = true
             _this.error = ''
 
-            axios.get(process.env.ROOT_API + 'poDetail', {
-                headers: {'Content-Type': 'text/xml'},
+            axios.get(process.env.ROOT_API + 'inspection', {
                 params: {
-                    po_number: _this.po_number,
+                    inspection_number: _this.inspection_number,
                     api_token: window.localStorage.api_token
                 }
             }).then(function(r) {
@@ -116,15 +120,20 @@ export default {
                     parseNodeValue: false
                 });
 
-                let response = jsonData.Envelope.Body["BAPI_INSPOPER_GETDETAIL.Response"]
-                if (response.RETURN && response.RETURN.TYPE === 'E') {
-                    _this.error = response.RETURN.MESSAGE
+                let inspection = jsonData.Envelope.Body["BAPI_INSPOPER_GETDETAIL.Response"]
+                if (inspection.RETURN && inspection.RETURN.TYPE === 'E') {
+                    _this.error = inspection.RETURN.MESSAGE
                 } else {
+                    inspection.CHAR_REQUIREMENTS.item.forEach(function(cr, idx) {
+                        let c = _this.inspectionCharacteristics.find(ic => ic.mstr_char === cr.MSTR_CHAR)
+                        inspection.CHAR_RESULTS.item[idx].CHARACTERISTIC = c.options.find(o => o.code === inspection.CHAR_RESULTS.item[idx].CODE1) || {code: '', description: '[SELECT OPTIONS]'}
+                    })
+
                     _this.$emit('push-page', {
                         extends: InspectionForm,
                         data: function() {
                             return {
-                                inspection: response
+                                inspection: inspection
                             }
                         }
                     })

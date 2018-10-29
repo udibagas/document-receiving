@@ -117,7 +117,6 @@ export default {
             _this.error = ''
 
             axios.get(process.env.ROOT_API + 'poDetail', {
-                headers: {'Content-Type': 'text/xml'},
                 params: {
                     po_number: _this.po_number,
                     api_token: window.localStorage.api_token

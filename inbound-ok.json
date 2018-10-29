@@ -1,0 +1,38 @@
+{
+    "SOAP:Envelope": {
+        "SOAP:Header": "",
+        "SOAP:Body": {
+            "ns0:ZFM_IB_DLV_INBOUND.Response": {
+                "ET_DELIVERY": {
+                    "item": {
+                        "MANDT": 150,
+                        "SAMMG": 1161568,
+                        "VBELN_LIF": 180002278,
+                        "POSNR_LIF": 0,
+                        "VBELN": 450001097,
+                        "POSNR": 0,
+                        "VERUR": "",
+                        "VUPOS": 0,
+                        "UECHA": 0,
+                        "LFIMG": 0,
+                        "VRKME": "",
+                        "LFDAT": "0000-00-00",
+                        "MATNR": "",
+                        "SITUA": "",
+                        "VBTYP": "V",
+                        "ID": 0
+                    }
+                },
+                "ET_RETURN": "",
+                "IT_ITEM": {
+                    "item": {
+                        "PO_NUMBER": 450001097,
+                        "PO_ITEM": 50,
+                        "QTY": 1,
+                        "UOM": ""
+                    }
+                }
+            }
+        }
+    }
+}

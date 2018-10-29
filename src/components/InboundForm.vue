@@ -161,22 +161,20 @@ export default {
                 return
             }
 
+            let data = {
+                api_token: window.localStorage.api_token,
+                po_number: _this.po.E_POHEADER.PO_NUMBER,
+                delivery_date: _this.delivery_date,
+                bill_of_lading: _this.bill_of_lading,
+                invoice_number: _this.invoice_number,
+                invoice_date: _this.invoice_date,
+                prelim_doc_number: _this.prelim_doc_number,
+                prelim_doc_date: _this.prelim_doc_date,
+                items: _this.items
+            }
+
             _this.busy = true
-            axios({
-                method: 'post',
-                url: process.env.ROOT_API + 'inbound',
-                data: {
-                    api_token: window.localStorage.api_token,
-                    po_number: _this.po.E_POHEADER.PO_NUMBER,
-                    delivery_date: _this.delivery_date,
-                    bill_of_lading: _this.bill_of_lading,
-                    invoice_number: _this.invoice_number,
-                    invoice_date: _this.invoice_date,
-                    prelim_doc_number: _this.prelim_doc_number,
-                    prelim_doc_date: _this.prelim_doc_date,
-                    items: _this.items
-                }
-            }).then(function(r) {
+            axios.post(process.env.ROOT_API + 'inbound', data).then(function(r) {
                 _this.busy = false
                 let jsonData = fastXmlParser.parse(r.data, {
                     trimValues: true,
@@ -197,7 +195,7 @@ export default {
                         extends: SuccessPage,
                         data: function() {
                             return {
-                                message: 'GR creation success with number xxx'
+                                message: 'Inbound delivery SUCCESS'
                             }
                         }
                     })
@@ -212,10 +210,6 @@ export default {
 </script>
 
 <style lang="css" scoped>
-/* .background,.btn-fixed-bottom {
-    background-color: #eee;
-} */
-
 .btn-submit {
     width: 95%;
 }
@@ -230,24 +224,4 @@ export default {
     text-align: center;
     border-radius: 4px;
 }
-
-/* ::-webkit-input-placeholder {
-   text-align: center;
-   font-weight: lighter;
-}
-
-:-moz-placeholder {
-   text-align: center;
-   font-weight: lighter;
-}
-
-::-moz-placeholder {
-   text-align: center;
-   font-weight: lighter;
-}
-
-:-ms-input-placeholder {
-   text-align: center;
-   font-weight: lighter;
-} */
 </style>

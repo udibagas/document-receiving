@@ -48,7 +48,7 @@
                 </li>
                 <li class="list-item">
                     <div class="list-item__center">
-                        <input type="text" v-model="notification.maint_plant" class="text-input" placeholder="Main Work Center">
+                        <input type="text" v-model="notification.maint_plant" class="text-input" placeholder="Main Plant">
                     </div>
                     <div class="list-item__right">
                         <div class="list-item__label">Maint Plant</div>
@@ -189,7 +189,5 @@ export default {
 </script>
 
 <style lang="css" scoped>
-small {
-    color: #999;
-}
+
 </style>
