@@ -55,6 +55,8 @@ export default {
                 if (r.data.success) {
                     window.localStorage.isLoggedIn = 'true'
                     window.localStorage.api_token = r.data.user.api_token
+                    // TODO: ubah ini sesuai user lD LDAP
+                    window.localStorage.userId = r.data.user.name
                     _this.$emit('replace-page', Main)
                 } else {
                     _this.error = r.data.message

@@ -141,7 +141,15 @@ export default {
 
                 let po = jsonData.Envelope.Body["ZFM_PO_OUTBOUND.Response"]
                 let itemList = Array.isArray(po.ET_POITEM.item) ? po.ET_POITEM.item : [po.ET_POITEM.item];
-                let poConfirmation = Array.isArray(po.ET_POCONFIRMATION.item) ? po.ET_POCONFIRMATION.item : [po.ET_POCONFIRMATION.item];
+
+                let poConfirmation = []
+
+                if (po.ET_POCONFIRMATION === '') {
+                    poConfirmation = []
+                } else {
+                    poConfirmation = Array.isArray(po.ET_POCONFIRMATION.item) ? po.ET_POCONFIRMATION.item : [po.ET_POCONFIRMATION.item];
+                }
+
                 let poHistoryTotal = []
 
                 if (po.ET_POHISTORY_TOTALS === '') {
@@ -174,10 +182,8 @@ export default {
                 extends: NotificationForm,
                 data: function() {
                     return {
-                        notification: {
-                            problem: 'PO NOT EXIST',
-                            description: 'PO NUMBER : ' + _this.po_number
-                        }
+                        problem: { notifType: 'G3', description: 'PO NOT EXIST' },
+                        description: 'PO NUMBER : ' + _this.po_number
                     }
                 }
             })

@@ -43,7 +43,7 @@
             </li>
             <li class="list-item">
                 <div class="list-item__center">
-                    <input type="date" v-model="prelim_doc_date" class="text-input" placeholder="Date">
+                    <input type="date" style="width:120px" v-model="prelim_doc_date" class="text-input" placeholder="Date">
                 </div>
                 <div class="list-item__right">
                     <div class="list-item__label">Date</div>
@@ -60,7 +60,7 @@
             </li>
             <li class="list-item">
                 <div class="list-item__center">
-                    <input type="date" v-model="invoice_date" class="text-input" placeholder="Date">
+                    <input type="date" style="width:120px" v-model="invoice_date" class="text-input" placeholder="Date">
                 </div>
                 <div class="list-item__right">
                     <div class="list-item__label">Invoice Date</div>
@@ -77,7 +77,7 @@
             </li>
             <li class="list-item">
                 <div class="list-item__center">
-                    <input type="date" v-model="delivery_date" class="text-input" placeholder="Delivery Date">
+                    <input type="date" style="width:120px" v-model="delivery_date" class="text-input" placeholder="Delivery Date">
                 </div>
                 <div class="list-item__right">
                     <div class="list-item__label">Delivery Date</div>
@@ -93,9 +93,9 @@
             </p>
         </v-ons-modal>
 
-        <div class="toast" v-show="toast.show">
-            <div class="toast__message">{{toast.message}}</div>
-            <button class="toast__button" @click="toast.show = false">OK</button>
+        <div class="toast" v-show="error">
+            <div class="toast__message">{{error}}</div>
+            <button class="toast__button" @click="error = ''">OK</button>
         </div>
     </ons-page>
 </template>
@@ -113,7 +113,7 @@ export default {
             busy: false,
             po: {},
             items: [],
-            toast: { show: false, message: '' },
+            error: '',
             delivery_date: '',
             bill_of_lading: '',
             invoice_date: '',
@@ -126,38 +126,38 @@ export default {
         submitInbound: function() {
             let _this = this
 
-            if (_this.items.filter(i => i.qty === 0 || i.qty === '').length > 0) {
-                _this.toast = { show: true, message: 'Please fill the quantity!' }
-                return
-            }
-
-            if (_this.delivery_date === '') {
-                _this.toast = { show: true, message: 'Please fill delivery date!' }
-                return
-            }
-
-            if (_this.bill_of_lading === '') {
-                _this.toast = { show: true, message: 'Please fill bill of lading!' }
-                return
-            }
-
-            if (_this.invoice_date === '') {
-                _this.toast = { show: true, message: 'Please fill invoice date!' }
-                return
-            }
-
-            if (_this.invoice_number === '') {
-                _this.toast = { show: true, message: 'Please fill invoice number!' }
-                return
-            }
-
-            if (_this.prelim_doc_date === '') {
-                _this.toast = { show: true, message: 'Please fill prelim doc date!' }
+            if (_this.items.filter(i => i.qty === undefined).length > 0) {
+                _this.error = 'Please fill the quantity!'
                 return
             }
 
             if (_this.prelim_doc_number === '') {
-                _this.toast = { show: true, message: 'Please fill prelim doc number!' }
+                _this.error = 'Please fill prelim doc number!'
+                return
+            }
+
+            if (_this.prelim_doc_date === '') {
+                _this.error = 'Please fill prelim doc date!'
+                return
+            }
+
+            if (_this.invoice_number === '') {
+                _this.error = 'Please fill invoice number!'
+                return
+            }
+
+            if (_this.invoice_date === '') {
+                _this.error = 'Please fill invoice date!'
+                return
+            }
+
+            if (_this.bill_of_lading === '') {
+                _this.error = 'Please fill bill of lading!'
+                return
+            }
+
+            if (_this.delivery_date === '') {
+                _this.error = 'Please fill delivery date!'
                 return
             }
 
@@ -170,7 +170,9 @@ export default {
                 invoice_date: _this.invoice_date,
                 prelim_doc_number: _this.prelim_doc_number,
                 prelim_doc_date: _this.prelim_doc_date,
-                items: _this.items
+                items: _this.items,
+                // TODO: ini abil dari login LDAP
+                user_id: '580422'
             }
 
             _this.busy = true
@@ -189,7 +191,7 @@ export default {
                 let ret = jsonData.Envelope.Body["ZFM_IB_DLV_INBOUND.Response"].ET_RETURN
 
                 if (ret.item && ret.item.TYPE === 'E') {
-                    _this.toast = { show: true, message: 'ERROR: ' + ret.item.MESSAGE }
+                    _this.error = 'ERROR: ' + ret.item.MESSAGE
                 } else {
                     _this.$emit('replace-page', {
                         extends: SuccessPage,
@@ -201,7 +203,7 @@ export default {
                     })
                 }
             }).catch(function(e) {
-                _this.toast = { show: true, message: e.response.data }
+                _this.error = e.response.data
                 _this.busy = false
             })
         }

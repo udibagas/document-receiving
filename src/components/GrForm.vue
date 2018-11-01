@@ -5,25 +5,26 @@
                 <v-ons-back-button></v-ons-back-button>
             </div>
             <div class="center">GR PROCESS</div>
-            <div class="right">
+            <!-- <div class="right">
                 <v-ons-toolbar-button>
                     <v-ons-button icon="fa-save" style="border:1px solid #fff;" @click.prevent="submitGr"> SAVE</v-ons-button>
                 </v-ons-toolbar-button>
-            </div>
+            </div> -->
         </v-ons-toolbar>
         <div class="background"></div>
-        <ul class="list">
-            <li class="list-item">
+        <po-header></po-header>
+        <ul class="list" style="margin-bottom:45px">
+            <!-- <li class="list-item">
                 <div class="list-item__center">
                     {{po.E_POHEADER.PO_NUMBER}}
                 </div>
                 <div class="list-item__right">
                     <div class="list-item__label">PO Number</div>
                 </div>
-            </li>
+            </li> -->
             <li class="list-item">
                 <div class="list-item__center">
-                    {{item.PO_ITEM}}
+                    {{parseInt(item.PO_ITEM)}}
                 </div>
                 <div class="list-item__right">
                     <div class="list-item__label">Item</div>
@@ -69,12 +70,13 @@
                     <div class="list-item__label">Storage Location</div>
                 </div>
             </li>
+            <li class="list-header">Inbound Detail</li>
             <li class="list-item">
                 <div class="list-item__center">
-                    {{inbound.BILL_OF_LADING}}
+                    {{inbound.DELIV_NUMB}}
                 </div>
                 <div class="list-item__right">
-                    <div class="list-item__label">Bill of Ladding</div>
+                    <div class="list-item__label">Delivery Number</div>
                 </div>
             </li>
             <li class="list-item">
@@ -87,36 +89,61 @@
             </li>
             <li class="list-item">
                 <div class="list-item__center">
-                    {{inbound.QUANTITY}}
+                    {{parseInt(inbound.QUANTITY)}}
                 </div>
                 <div class="list-item__right">
                     <div class="list-item__label">Quantity</div>
                 </div>
             </li>
-            <!-- <li class="list-item">
+            <li class="list-item">
                 <div class="list-item__center">
-                    <input type="text" v-model="gr.eun" disabled class="text-input" placeholder="EUn">
+                    <input type="text" v-model="inbound.PREL_DOC_NO" class="text-input" placeholder="Prelim Doc Number">
                 </div>
                 <div class="list-item__right">
-                    <div class="list-item__label">EUn</div>
+                    <div class="list-item__label">Prelim Doc Number</div>
                 </div>
             </li>
             <li class="list-item">
                 <div class="list-item__center">
-                    <input type="text" v-model="gr.bun" disabled class="text-input" placeholder="BUn">
+                    <input type="date" style="width:120px" v-model="inbound.DATE_PREL_DOC" class="text-input" placeholder="Prelim Doc Date">
                 </div>
                 <div class="list-item__right">
-                    <div class="list-item__label">BUn</div>
+                    <div class="list-item__label">Prelim Doc Date</div>
                 </div>
             </li>
             <li class="list-item">
                 <div class="list-item__center">
-                    <input type="text" v-model="gr.sloc" disabled class="text-input" placeholder="Sloc">
+                    <input type="text" v-model="inbound.INVOICE_NO" class="text-input" placeholder="Invoice Number">
                 </div>
                 <div class="list-item__right">
-                    <div class="list-item__label">Sloc</div>
+                    <div class="list-item__label">Invoice Number</div>
                 </div>
-            </li> -->
+            </li>
+            <li class="list-item">
+                <div class="list-item__center">
+                    <input type="date" style="width:120px" v-model="inbound.INVOICE_DT" class="text-input" placeholder="Invoice Date">
+                </div>
+                <div class="list-item__right">
+                    <div class="list-item__label">Invoice Date</div>
+                </div>
+            </li>
+            <li class="list-item">
+                <div class="list-item__center">
+                    <input type="text" v-model="inbound.BILL_OF_LADING" class="text-input" placeholder="Bill Of Lading">
+                </div>
+                <div class="list-item__right">
+                    <div class="list-item__label">Bill of Lading</div>
+                </div>
+            </li>
+            <li class="list-item">
+                <div class="list-item__center">
+                    <input type="date" v-model="inbound.DELIV_DATE" class="text-input" placeholder="Delivery Date">
+                </div>
+                <div class="list-item__right">
+                    <div class="list-item__label">Delivery Date</div>
+                </div>
+            </li>
+            <li class="list-header">GR Detail</li>
             <li class="list-item">
                 <div class="list-item__center">
                     <input type="text" v-model="delivery_note" class="text-input" placeholder="Delivery Note/Invoice">
@@ -126,6 +153,14 @@
                 </div>
             </li>
             <li class="list-item">
+                <div class="list-item__center">
+                    <input type="text" v-model="ref_num" class="text-input" placeholder="Reference Number">
+                </div>
+                <div class="list-item__right">
+                    <div class="list-item__label">Reference Number</div>
+                </div>
+            </li>
+            <li class="list-item" v-if="RegExp('ROT|REP|RT0').test(item.MATL_GROUP)">
                 <div class="list-item__center">
                     <input type="text" v-model="serial_no" class="text-input" placeholder="Serial Number">
                 </div>
@@ -143,9 +178,13 @@
             </li>
         </ul>
 
-        <div class="toast" v-show="toast.show">
-            <div class="toast__message">{{toast.message}}</div>
-            <button class="toast__button" @click="toast.show = false">OK</button>
+        <div class="btn-fixed-bottom">
+            <v-ons-button style="width:95%" :disabled="busy" @click.prevent="submitGr"> SUMBIT</v-ons-button>
+        </div>
+
+        <div class="toast" v-show="error">
+            <div class="toast__message">{{error}}</div>
+            <button class="toast__button" @click="error = ''">OK</button>
         </div>
 
         <v-ons-modal :visible="busy">
@@ -162,8 +201,10 @@
 import axios from 'axios'
 import fastXmlParser from 'fast-xml-parser'
 import SuccessPage from './SuccessPage'
+import PoHeader from './PoHeader'
 
 export default {
+    components: { PoHeader },
     computed: {
         po() { return this.$store.state.po }
     },
@@ -175,17 +216,15 @@ export default {
             serial_no: '',
             delivery_note: '',
             item_text: '',
-            toast: { show: false, message: '' }
+            error: ''
         }
     },
     methods: {
         submitGr: function() {
-            // TODO: validate first
             let _this = this
-            let pattern = new RegExp("ROT|REP|RT0")
 
-            if (pattern.test(_this.item.MATL_GROUP) && !_this.serial_no) {
-                _this.toast = { show: true, message: 'Serial Number harus diisi!' }
+            if (RegExp("ROT|REP|RT0").test(_this.item.MATL_GROUP) && !_this.serial_no) {
+                _this.error = 'Serial Number harus diisi!'
                 return
             }
 
@@ -193,12 +232,15 @@ export default {
             let data = {
                 api_token: window.localStorage.api_token,
                 po_number: _this.po.E_POHEADER.PO_NUMBER,
-                po_item: _this.item.PO_ITEM,
                 serial_no: _this.serial_no,
-                entry_qty: _this.inbound.QUANTITY,
                 item_text: _this.item_text,
-                bill_of_lading: _this.inbound.BILL_OF_LADING
+                ref_num: _this.ref_num,
+                // TODO: ambil dari login LDAP
+                user_id: '580422',
+                inbound: _this.inbound
             }
+
+            // alert(JSON.stringify(data))
 
             axios.post(process.env.ROOT_API + 'gr', data).then(function(r) {
                 _this.busy = false
@@ -210,32 +252,28 @@ export default {
                     parseNodeValue: false
                 });
 
-                // alert(JSON.stringify(jsonData.Envelope.Body["ZFM_IB_DLV_INBOUND.Response"]));
+                // alert(JSON.stringify(jsonData.Envelope.Body["ZFM_GR_INBOUND.Response"]));
 
                 let ret = jsonData.Envelope.Body["ZFM_GR_INBOUND.Response"].ET_RETURN
 
                 if (ret.item && ret.item.TYPE === 'E') {
-                    _this.toast = { show: true, message: 'ERROR: ' + ret.item.MESSAGE }
+                    _this.error = 'ERROR: ' + ret.item.MESSAGE
                 } else {
                     _this.$emit('replace-page', {
                         extends: SuccessPage,
                         data: function() {
                             return {
-                                message: 'GR creation success with number xxx'
+                                message: 'GR creation success. Material Document : ' + jsonData.Envelope.Body["ZFM_GR_INBOUND.Response"].E_MATDOC.MAT_DOC
                             }
                         }
                     })
                 }
             })
             .catch(function(e) {
-                _this.toast = { show: true, message: e.response.data }
+                _this.error = e.response.data
                 _this.busy = false
             })
         }
-    },
-    mounted: function() {
-        this.inbound.QUANTITY = parseInt(this.inbound.QUANTITY)
-        this.item.PO_ITEM = parseInt(this.item.PO_ITEM)
     }
 }
 </script>

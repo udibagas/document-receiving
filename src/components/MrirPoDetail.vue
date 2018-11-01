@@ -68,6 +68,6 @@ export default {
 
 <style lang="css" scoped>
 .selected {
-    background-color: yellow;
+    background-color: #D1ECF1;
 }
 </style>

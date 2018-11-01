@@ -98,7 +98,7 @@ export default {
         },
         grQty: function(poItem) {
             let totalGr = 0;
-            let poHistoryTotal = this.poHistoryTotal.filter(ph => ph.PO_ITEM === poItem);
+            let poHistoryTotal = this.poHistoryTotal.filter(ph => ph.PO_ITEM === poItem)
             poHistoryTotal.forEach(function(i) {
                 totalGr += parseInt(i.DELIV_QTY)
             })
@@ -107,6 +107,18 @@ export default {
         createNotification: function() {
             let _this = this
             let item = {}
+
+            let problemDescription = '[TULIS PESAN ANDA]'
+            problemDescription += '\n\n\n'
+            problemDescription += '------------------------------------' + '\n'
+            problemDescription += 'Detail PO' + '\n'
+            problemDescription += '------------------------------------' + '\n'
+            problemDescription += 'PO Number: ' + _this.po.E_POHEADER.PO_NUMBER + '\n'
+            problemDescription += 'Vendor: ' + _this.po.E_VENDOR_NAME + '\n'
+            problemDescription += 'Created By: ' + _this.po.E_POHEADER.CREATED_BY + '/' + _this.po.E_USER_FULLNAME + '\n'
+            problemDescription += 'Created Date: ' + _this.po.E_POHEADER.CREAT_DATE + '\n'
+            problemDescription += 'Release Status: '
+            problemDescription += parseInt(_this.po.E_POHEADER.PO_REL_IND) === 2 ? 'RELEASED' : 'NOT RELEASED'
 
             if (_this.selectedItem.length > 0) {
                 item = _this.itemList.find(item => item.PO_ITEM.toString() === _this.selectedItem[0])
@@ -117,20 +129,28 @@ export default {
                     }
                     return
                 }
+
+                problemDescription += '\n\n\n'
+                problemDescription += '------------------------------------' + '\n'
+                problemDescription += 'Detail Item' + '\n'
+                problemDescription += '------------------------------------' + '\n'
+                problemDescription += 'PO Item: ' + item.PO_ITEM + '\n'
+                problemDescription += 'Material : ' + item.MATERIAL_EXTERNAL + '\n'
+                problemDescription += 'Material Description: ' + item.SHORT_TEXT + '\n'
             }
+
             _this.$emit('push-page', {
                 extends: NotificationForm,
                 data: function() {
                     return {
-                        po: _this.po,
-                        item: item
+                        description: problemDescription
                     }
                 }
             })
         },
         createInbound: function() {
             let _this = this
-            let items = _this.itemList.filter(item => _this.selectedItem.indexOf(item.PO_ITEM.toString()) !== -1 && parseInt(item.QUANTITY) > item.QTY_INBOUND);
+            let items = _this.itemList.filter(item => _this.selectedItem.indexOf(item.PO_ITEM.toString()) !== -1 && parseInt(item.QUANTITY) > item.QTY_INBOUND)
             if (items.length === 0) {
                 _this.toast = {
                     show: true,

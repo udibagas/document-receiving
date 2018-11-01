@@ -47,7 +47,7 @@
         </div>
         <v-ons-list style="margin-bottom:45px;">
             <li class="list-header">Unreceived Inbound Delivery ({{poConfirmation.filter(c => parseInt(c.QUANTITY) > parseInt(c.QTY_REDUCED) && c.CONF_NAME === 'Inbound Delivery').length}})</li>
-            <v-ons-list-item v-for="c in poConfirmation" :class="selectedInbound === c.DELIV_NUMB ? 'selected' : ''"
+            <v-ons-list-item v-for="c in poConfirmation" :key="c.DELIV_NUMB" :class="selectedInbound === c.DELIV_NUMB ? 'selected' : ''"
                 v-if="parseInt(c.QUANTITY) > parseInt(c.QTY_REDUCED) && c.CONF_NAME === 'Inbound Delivery'" tappable @click="selectedInbound = c.DELIV_NUMB">
                 <div class="center">
                     <span class="list-item__subtitle">
@@ -106,7 +106,7 @@ export default {
 }
 
 .selected {
-    background-color: yellow;
+    background-color: #D1ECF1;
 }
 
 .my-label {

@@ -5,61 +5,49 @@
                 <v-ons-back-button></v-ons-back-button>
             </div>
             <div class="center">CREATE NOTIFICATION</div>
-            <div class="right">
+            <!-- <div class="right">
                 <v-ons-toolbar-button>
                     <v-ons-button icon="fa-send" :disabled="busy" style="border:1px solid #fff;" @click.prevent="sendNotification"> SEND</v-ons-button>
                 </v-ons-toolbar-button>
-            </div>
+            </div> -->
         </v-ons-toolbar>
         <div class="background"></div>
-        <div>
-            <ul class="list">
-                <li class="list-item">
-                    <div class="list-item__center">
-                        <input type="text" @click.prevent="problemDialog = true" readonly v-model="notification.problem" class="text-input" placeholder="Problem">
+        <ul class="list" style="margin-bottom:45px">
+            <li class="list-item" tappable>
+                <div class="list-item__center" @click.prevent="problemDialog = true">
+                    <div class="list-item__title">
+                        <i class="fa fa-edit"></i> {{problem.description}}
                     </div>
-                    <div class="list-item__right">
-                        <div class="list-item__label">Problem</div>
-                    </div>
-                </li>
-                <li class="list-item">
-                    <div class="list-item__center">
-                        <input type="text" v-model="notification.purchaser_name" class="text-input" placeholder="Purchaser Name">
-                    </div>
-                    <div class="list-item__right">
-                        <div class="list-item__label">Purchaser Name</div>
-                    </div>
-                </li>
-                <li class="list-item">
-                    <div class="list-item__center">
-                        <input type="text" v-model="notification.device_data" class="text-input" placeholder="Device Data">
-                    </div>
-                    <div class="list-item__right">
-                        <div class="list-item__label">Device Data</div>
-                    </div>
-                </li>
-                <li class="list-item">
-                    <div class="list-item__center">
-                        <input type="text" v-model="notification.work_center" class="text-input" placeholder="Main Work Center">
-                    </div>
-                    <div class="list-item__right">
-                        <div class="list-item__label">Work Center</div>
-                    </div>
-                </li>
-                <li class="list-item">
-                    <div class="list-item__center">
-                        <input type="text" v-model="notification.maint_plant" class="text-input" placeholder="Main Plant">
-                    </div>
-                    <div class="list-item__right">
-                        <div class="list-item__label">Maint Plant</div>
-                    </div>
-                </li>
-                <li class="list-item">
-                    <div class="list-item__center">
-                        <textarea v-model="notification.description" class="textarea textarea--transparent" rows="18" placeholder="Detail Description" style="width:100%"></textarea>
-                    </div>
-                </li>
-            </ul>
+                </div>
+                <div class="list-item__right">
+                    <div class="list-item__label">Problem</div>
+                </div>
+            </li>
+            <li class="list-item">
+                <div class="list-item__center">
+                    <input type="text" v-model="purchaser_name" class="text-input" placeholder="Purchaser Name">
+                </div>
+                <div class="list-item__right">
+                    <div class="list-item__label">Purchaser Name</div>
+                </div>
+            </li>
+            <li class="list-item">
+                <div class="list-item__center">
+                    <input type="text" v-model="device_data" class="text-input" placeholder="Device Data">
+                </div>
+                <div class="list-item__right">
+                    <div class="list-item__label">Device Data</div>
+                </div>
+            </li>
+            <li class="list-item">
+                <div class="list-item__center">
+                    <textarea v-model="description" class="textarea textarea--transparent" rows="20" placeholder="Detail Description" style="width:100%"></textarea>
+                </div>
+            </li>
+        </ul>
+
+        <div class="btn-fixed-bottom">
+            <v-ons-button style="width:95%" :disabled="busy" @click.prevent="sendNotification"> SEND NOTIFICATION</v-ons-button>
         </div>
 
         <div class="toast" v-show="error">
@@ -69,11 +57,8 @@
 
         <v-ons-dialog :visible.sync="problemDialog">
             <v-ons-list>
-                <v-ons-list-item v-for="(p, $index) in problems" tappable :key="p">
-                    <label class="left">
-                        <v-ons-radio :input-id="'radio-' + $index" :value="p" v-model="notification.problem"> </v-ons-radio>
-                    </label>
-                    <label :for="'radio-' + $index" class="center">{{ p }}</label>
+                <v-ons-list-item v-for="(p, i) in problems" tappable :key="i" @click="problem = p; problemDialog = false">
+                    <div class="center">{{p.description}}</div>
                 </v-ons-list-item>
             </v-ons-list>
         </v-ons-dialog>
@@ -96,32 +81,24 @@ import SuccessPage from './SuccessPage'
 
 export default {
     components: { PoHeader },
-    watch: {
-        'notification.problem': function(v, o) {
-            this.problemDialog = false
-        }
-    },
     data: function() {
         return {
-            po: {},
-            item: {},
             error: '',
             busy: false,
-            notification: {
-                problem: '',
-                // TODO: isi ini dengan PO dan atau material
-                description: ''
-            },
+            purchaser_name: '',
+            device_data: '',
+            description: '',
             problemDialog: false,
+            problem: { notifType: '', description: '[SELECT PROBLEM]' },
             problems: [
-                'CREATE SN',
-                'RELEASE PO',
-                'DIFF PIN',
-                'INSERT QTY',
-                'CHANGE SN STATUS',
-                'INSERT PN',
-                'PO NOT EXIST',
-                'OTHER'
+                { notifType: 'W2', description: 'SN NOT EXISTS' },
+                { notifType: 'G3', description: 'RELEASE PO' },
+                { notifType: 'G3', description: 'DIFF PIN' },
+                { notifType: 'G3', description: 'INSERT QTY' },
+                { notifType: 'W2', description: 'CHANGE SN STATUS' },
+                { notifType: 'G3', description: 'INSERT PN' },
+                { notifType: 'G3', description: 'PO NOT EXIST' },
+                { notifType: 'G3', description: 'OTHER' }
             ]
         }
     },
@@ -129,29 +106,38 @@ export default {
         sendNotification: function() {
             let _this = this
 
-            if (!_this.notification.problem ||
-                !_this.notification.purchaser_name ||
-                !_this.notification.device_data ||
-                !_this.notification.work_center ||
-                !_this.notification.maint_plant ||
-                !_this.notification.description) {
-                _this.error = 'Please fill the form correctly!'
+            if (!_this.problem.notifType) {
+                _this.error = 'Problem field is required!'
                 return
+            }
+
+            if (!_this.purchaser_name) {
+                _this.error = 'Purchaser Name field is required!'
+                return
+            }
+
+            if (!_this.device_data) {
+                _this.error = 'Device Data field is required!'
+                return
+            }
+
+            if (!_this.description) {
+                _this.error = 'Description field is required!'
+                return
+            }
+
+            let data = {
+                api_token: window.localStorage.api_token,
+                problem: _this.problem,
+                purchaser_name: _this.purchaser_name,
+                device_data: _this.device_data,
+                description: _this.description
             }
 
             _this.error = ''
             _this.busy = true
 
-            axios({
-                method: 'post',
-                url: process.env.ROOT_API + 'notification',
-                data: {
-                    api_token: window.localStorage.api_token,
-                    po_number: _this.po.E_POHEADER ? _this.po.E_POHEADER.PO_NUMBER : '',
-                    to: _this.po.E_USER_EMAIL,
-                    notification: _this.notification
-                }
-            }).then(function(r) {
+            axios.post(process.env.ROOT_API + 'notification', data).then(function(r) {
                 _this.busy = false
                 let jsonData = fastXmlParser.parse(r.data, {
                     trimValues: true,

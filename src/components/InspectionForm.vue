@@ -25,23 +25,28 @@
                     <div class="list-item__title">{{inspection.OPERATION.PLANT}}</div>
                 </div>
             </v-ons-list-item>
-            <v-ons-list-item v-for="(r, i) in inspection.CHAR_REQUIREMENTS.item" tappable>
+            <v-ons-list-item v-for="(r, i) in inspection.CHAR_REQUIREMENTS.item" tappable :key="r.INSPCHAR">
                 <div class="center">
                     <small>{{r.CHAR_DESCR}}</small>
                     <div class="list-item__title" @click="selectCharacteristic(r.MSTR_CHAR)">
-                        {{inspection.CHAR_RESULTS.item[i].CHARACTERISTIC.description}}
+                        <i class="fa fa-edit"></i> {{inspection.CHAR_RESULTS.item[i].CHARACTERISTIC.description}}
                     </div>
-                    <div class="list-item__subtitle">Status: <span class="danger">Rejected</span></div>
+                    <div class="list-item__subtitle">
+                        Status:
+                        <span :class="evaluation[r.INSPCHAR] ? 'success' : 'danger'">
+                            {{evaluation[r.INSPCHAR] ? 'Approved' : 'Rejected'}}
+                        </span>
+                    </div>
                 </div>
                 <div class="right">
-                    <v-ons-switch v-model="switchOff"> </v-ons-switch>
+                    <v-ons-switch v-model="evaluation[r.INSPCHAR]"> </v-ons-switch>
                 </div>
             </v-ons-list-item>
         </v-ons-list>
 
         <v-ons-dialog :visible="characteristicDialog">
             <v-ons-list>
-                <v-ons-list-item v-for="c in selectedCharacteristic.options" @click="setCharacteristic(c)">
+                <v-ons-list-item v-for="c in selectedCharacteristic.options" :key="c.code" @click="setCharacteristic(c)">
                     {{c.description}}
                 </v-ons-list-item>
             </v-ons-list>
@@ -82,7 +87,8 @@ export default {
             switchOff: 0,
             switchOn: 1,
             characteristicDialog: false,
-            selectedCharacteristic: {}
+            selectedCharacteristic: {},
+            evaluation: {}
         }
     },
     methods: {
@@ -99,12 +105,25 @@ export default {
         submitInspection: function() {
             // TODO: validation
             let _this = this
+
+            let charResults = []
+            _this.inspection.CHAR_RESULTS.item.forEach(function(cr, i) {
+                charResults.push({
+                    INSPCHAR: cr.INSPCHAR,
+                    EVALUATION: _this.evaluation[cr.INSPCHAR] ? 'A' : 'R',
+                    CODE1: cr.CHARACTERISTIC.code,
+                    CODE_GRP1: cr.CHARACTERISTIC.group
+                })
+            })
+
             let data = {
                 api_token: window.localStorage.api_token,
-                inspection_number: _this.inspection.OPERATION.INSPLOT
-                // charResults: _this.inspection.CHAR_RESULTS
+                inspection_number: _this.inspection.OPERATION.INSPLOT,
+                charResults: charResults
             }
 
+            // alert(JSON.stringify(data))
+            _this.busy = true
             axios.post(process.env.ROOT_API + 'inspection', data).then(function(r) {
                 _this.busy = false
                 let jsonData = fastXmlParser.parse(r.data, {
@@ -115,18 +134,19 @@ export default {
                     parseNodeValue: false
                 });
 
-                // alert(JSON.stringify(jsonData.Envelope.Body["ZFM_IB_DLV_INBOUND.Response"]));
+                // alert(JSON.stringify(jsonData.Envelope.Body["ZFM_INSP_RESULT_INBOUND.Response"]));
 
-                let ret = jsonData.Envelope.Body["ZFM_IB_DLV_INBOUND.Response"].ET_RETURN
+                let ret = jsonData.Envelope.Body["ZFM_INSP_RESULT_INBOUND.Response"].ET_RETURN
+                // alert(JSON.stringify(ret))
 
-                if (ret.item && ret.item.TYPE === 'E') {
-                    _this.toast = { show: true, message: 'ERROR: ' + ret.item.MESSAGE }
+                if (ret.item && Array.isArray(ret.item)) {
+                    _this.toast = { show: true, message: 'ERROR: ' + ret.item[0].MESSAGE }
                 } else {
                     _this.$emit('replace-page', {
                         extends: SuccessPage,
                         data: function() {
                             return {
-                                message: 'Inspection created successfully with number xxx'
+                                message: 'Inspection created successfully'
                             }
                         }
                     })
@@ -136,9 +156,6 @@ export default {
                 _this.busy = false
             })
         }
-    },
-    mounted: function() {
-        // alert(JSON.stringify(this.inspection.CHAR_RESULTS.item))
     }
 }
 </script>

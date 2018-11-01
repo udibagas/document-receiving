@@ -129,11 +129,17 @@ export default {
                         inspection.CHAR_RESULTS.item[idx].CHARACTERISTIC = c.options.find(o => o.code === inspection.CHAR_RESULTS.item[idx].CODE1) || {code: '', description: '[SELECT OPTIONS]'}
                     })
 
+                    let evaluation = {}
+                    inspection.CHAR_RESULTS.item.forEach(function(cr) {
+                        evaluation[cr.INSPCHAR] = cr.EVALUATION === 'A'
+                    })
+
                     _this.$emit('push-page', {
                         extends: InspectionForm,
                         data: function() {
                             return {
-                                inspection: inspection
+                                inspection: inspection,
+                                evaluation: evaluation
                             }
                         }
                     })
