@@ -143,6 +143,7 @@ export default {
                 extends: NotificationForm,
                 data: function() {
                     return {
+                        problem: parseInt(_this.po.E_POHEADER.PO_REL_IND) === 2 ? { notifType: '', description: '[SELECT PROBLEM]' } : { notifType: 'G3', description: 'RELEASE PO' },
                         description: problemDescription
                     }
                 }
