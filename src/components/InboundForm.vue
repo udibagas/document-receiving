@@ -5,15 +5,15 @@
                 <v-ons-back-button></v-ons-back-button>
             </div>
             <div class="center">CREATE INBOUND</div>
-            <div class="right">
+            <!-- <div class="right">
                 <v-ons-toolbar-button>
                     <v-ons-button icon="fa-save" style="border:1px solid #fff;" @click.prevent="submitInbound"> SAVE</v-ons-button>
                 </v-ons-toolbar-button>
-            </div>
+            </div> -->
         </v-ons-toolbar>
         <div class="background"></div>
         <po-header></po-header>
-        <v-ons-list>
+        <v-ons-list style="margin-bottom:45px">
             <li class="list-header">Item</li>
             <li class="list-item" v-for="item in items" :key="item.PO_ITEM" v-if="parseInt(item.QUANTITY) > item.QTY_INBOUND">
                 <div class="list-item__left">
@@ -32,27 +32,27 @@
                     <input type="number" v-model="item.qty" class="my-input" placeholder="qty">
                 </div>
             </li>
-            <li class="list-header">Document Beacukai (Prelim Doc.)</li>
+            <li class="list-header">Inbound Detail</li>
             <li class="list-item">
                 <div class="list-item__center">
-                    <input type="text" v-model="prelim_doc_number" class="text-input" placeholder="Number">
+                    <input type="text" v-model="prelim_doc_number" class="text-input" placeholder="Prelim Doc Number">
                 </div>
                 <div class="list-item__right">
-                    <div class="list-item__label">Number</div>
+                    <div class="list-item__label">Prelim Doc Number</div>
                 </div>
             </li>
             <li class="list-item">
                 <div class="list-item__center">
-                    <input type="date" style="width:120px" v-model="prelim_doc_date" class="text-input" placeholder="Date">
+                    <input type="date" style="width:120px" v-model="prelim_doc_date" class="text-input" placeholder="Prelim Doc Date">
                 </div>
                 <div class="list-item__right">
-                    <div class="list-item__label">Date</div>
+                    <div class="list-item__label">Prelim Doc Date</div>
                 </div>
             </li>
-            <li class="list-header">Invoice</li>
+            <!-- <li class="list-header">Invoice</li> -->
             <li class="list-item">
                 <div class="list-item__center">
-                    <input type="text" v-model="invoice_number" class="text-input" placeholder="Number">
+                    <input type="text" v-model="invoice_number" class="text-input" placeholder="Invoice Number">
                 </div>
                 <div class="list-item__right">
                     <div class="list-item__label">Invoice Number</div>
@@ -60,13 +60,13 @@
             </li>
             <li class="list-item">
                 <div class="list-item__center">
-                    <input type="date" style="width:120px" v-model="invoice_date" class="text-input" placeholder="Date">
+                    <input type="date" style="width:120px" v-model="invoice_date" class="text-input" placeholder="Invoice Date">
                 </div>
                 <div class="list-item__right">
                     <div class="list-item__label">Invoice Date</div>
                 </div>
             </li>
-            <li class="list-header">Airway Bill</li>
+            <!-- <li class="list-header">Airway Bill</li> -->
             <li class="list-item">
                 <div class="list-item__center">
                     <input type="text" v-model="bill_of_lading" class="text-input" placeholder="Bill Of Lading">
@@ -84,6 +84,10 @@
                 </div>
             </li>
         </v-ons-list>
+
+        <div class="btn-fixed-bottom">
+            <v-ons-button style="width:95%" :disabled="busy" @click.prevent="submitInbound">SUBMIT</v-ons-button>
+        </div>
 
         <v-ons-modal :visible="busy">
             <p style="text-align: center">
@@ -131,6 +135,16 @@ export default {
                 return
             }
 
+            if (_this.items.filter(i => i.qty > i.QUANTITY).length > 0) {
+                _this.error = 'Inbound Quanty > PO Quantity!'
+                return
+            }
+
+            if (_this.items.filter(i => i.qty > (i.QUANTITY - i.QTY_INBOUND)).length > 0) {
+                _this.error = 'Inbound Quanty > Remining Item!'
+                return
+            }
+
             if (_this.prelim_doc_number === '') {
                 _this.error = 'Please fill prelim doc number!'
                 return
@@ -171,8 +185,7 @@ export default {
                 prelim_doc_number: _this.prelim_doc_number,
                 prelim_doc_date: _this.prelim_doc_date,
                 items: _this.items,
-                // TODO: ini abil dari login LDAP
-                user_id: '580422'
+                user_id: window.localStorage.userId
             }
 
             _this.busy = true
@@ -197,7 +210,7 @@ export default {
                         extends: SuccessPage,
                         data: function() {
                             return {
-                                message: 'Inbound delivery SUCCESS'
+                                message: 'Inbound delivery success. ' + jsonData.Envelope.Body["ZFM_IB_DLV_INBOUND.Response"].ET_DELIVERY.item.VBELN_LIF
                             }
                         }
                     })

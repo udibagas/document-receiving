@@ -5,11 +5,6 @@
                 <v-ons-back-button></v-ons-back-button>
             </div>
             <div class="center">CREATE NOTIFICATION</div>
-            <!-- <div class="right">
-                <v-ons-toolbar-button>
-                    <v-ons-button icon="fa-send" :disabled="busy" style="border:1px solid #fff;" @click.prevent="sendNotification"> SEND</v-ons-button>
-                </v-ons-toolbar-button>
-            </div> -->
         </v-ons-toolbar>
         <div class="background"></div>
         <ul class="list" style="margin-bottom:45px">
@@ -131,7 +126,8 @@ export default {
                 problem: _this.problem,
                 purchaser_name: _this.purchaser_name,
                 device_data: _this.device_data,
-                description: _this.description
+                description: 'User ID : ' + window.localStorage.userId + '\n' + _this.description,
+                user_id: window.localStorage.userId
             }
 
             _this.error = ''
@@ -146,6 +142,8 @@ export default {
                     parseAttributeValue: false,
                     parseNodeValue: false
                 });
+
+                // alert(JSON.stringify(jsonData.Envelope.Body["ZFM_NOTIFICATION_INBOUND.Response"]))
 
                 let ret = jsonData.Envelope.Body["ZFM_NOTIFICATION_INBOUND.Response"].T_RETURN
 

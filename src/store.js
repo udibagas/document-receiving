@@ -6,11 +6,39 @@ import fastXmlParser from 'fast-xml-parser'
 Vue.use(Vuex)
 
 export default new Vuex.Store({
+    getters: {
+        poConfirmation: state => {
+            if (state.po.ET_POCONFIRMATION !== '' && state.po.ET_POCONFIRMATION !== undefined) {
+                return Array.isArray(state.po.ET_POCONFIRMATION.item)
+                ? state.po.ET_POCONFIRMATION.item
+                : [state.po.ET_POCONFIRMATION.item];
+            }
+
+            return []
+        },
+        poHistoryTotal: state => {
+            if (state.po.ET_POHISTORY_TOTALS !== '' && state.po.ET_POHISTORY_TOTALS !== undefined) {
+                return Array.isArray(state.po.ET_POHISTORY_TOTALS.item)
+                    ? state.po.ET_POHISTORY_TOTALS.item
+                    : [state.po.ET_POHISTORY_TOTALS.item];
+            }
+
+            return []
+        },
+        itemList: state => {
+            if (state.po.ET_POITEM === undefined) {
+                return []
+            }
+
+            let itemList = Array.isArray(state.po.ET_POITEM.item)
+                ? state.po.ET_POITEM.item
+                : [state.po.ET_POITEM.item];
+
+            return itemList.filter(i => i.DELETE_IND !== 'X' && i.RET_TEM !== 'X')
+        }
+    },
     state: {
         po: {},
-        poConfirmation: [],
-        poHistoryTotal: [],
-        itemList: [],
         inspectionCharacteristics: [
             {
                 mstr_char: '50000000',
@@ -209,17 +237,8 @@ export default new Vuex.Store({
         ]
     },
     mutations: {
-        update: function(state, po_number) {
-            if (typeof po_number === 'object') {
-                state.po = po_number.po
-                state.poConfirmation = po_number.poConfirmation
-                state.poHistoryTotal = po_number.poHistoryTotal
-                state.itemList = po_number.itemList
-                return
-            }
-
+        refresh: function(state, po_number) {
             axios.get(process.env.ROOT_API + 'poDetail', {
-                headers: {'Content-Type': 'text/xml'},
                 params: {
                     po_number: po_number,
                     api_token: window.localStorage.api_token
@@ -235,30 +254,11 @@ export default new Vuex.Store({
 
                 if (jsonData.Envelope.Body["ZFM_PO_OUTBOUND.Response"].E_POHEADER.PO_NUMBER === '') {
                     state.po = {}
-                    state.poConfirmation = []
-                    state.poHistoryTotal = []
-                    state.itemList = []
-                    return
-                }
-
-                state.po = jsonData.Envelope.Body["ZFM_PO_OUTBOUND.Response"]
-                state.itemList = Array.isArray(state.po.ET_POITEM.item)
-                    ? state.po.ET_POITEM.item
-                    : [state.po.ET_POITEM.item];
-                state.poConfirmation = Array.isArray(state.po.ET_POCONFIRMATION.item)
-                    ? state.po.ET_POCONFIRMATION.item
-                    : [state.po.ET_POCONFIRMATION.item];
-
-                if (po.ET_POHISTORY_TOTALS !== '') {
-                    state.poHistoryTotal = Array.isArray(state.po.ET_POHISTORY_TOTALS.item)
-                        ? state.po.ET_POHISTORY_TOTALS.item
-                        : [state.po.ET_POHISTORY_TOTALS.item];
+                } else {
+                    state.po = jsonData.Envelope.Body["ZFM_PO_OUTBOUND.Response"]
                 }
             }).catch(function(e) {
                 state.po = {}
-                state.poConfirmation = []
-                state.poHistoryTotal = []
-                state.itemList = []
             })
         }
     }

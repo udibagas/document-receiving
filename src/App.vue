@@ -59,6 +59,10 @@ body {
     background-color: #396080;
 }
 
+.btn-action {
+    background-color: #38c172;
+}
+
 .background {
     background-color: #fff;
 }
@@ -90,7 +94,7 @@ body {
 
 img.logo {
     width: 200px;
-    margin: 10px auto;
+    margin: 0 auto 10px;
 }
 
 .text-primary, .list-header--material {

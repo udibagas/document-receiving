@@ -1,4 +1,4 @@
-<template>
+<template lang="html">
     <v-ons-page>
         <v-ons-toolbar>
             <div class="left">
@@ -7,183 +7,95 @@
             <div class="center">GOODS RECEIPT</div>
         </v-ons-toolbar>
         <div class="background"></div>
-        <div class="content">
-            <div class="form">
-                <p><input type="number" :disabled="processing" v-model="po_number" class="po-number-input" placeholder="PO NUMBER"></p>
-                <p><v-ons-button :disabled="!po_number || processing" @click.prevent="po_number = ''; error = ''" class="scan-document-btn" modifier="material">CLEAR</v-ons-button></p>
-                <p><v-ons-button :disabled="processing" @click.prevent="scanText" class="scan-document-btn">SCAN TEXT</v-ons-button></p>
-                <p><v-ons-button :disabled="processing" @click.prevent="scanCode" class="scan-document-btn">SCAN QR/BAR CODE</v-ons-button></p>
-                <p><v-ons-button :disabled="!po_number || processing" @click.prevent="submitData" :class="['submit-data-btn', po_number && !processing ? 'btn-red' : '']" modifier="material">SUBMIT</v-ons-button></p>
-                <p class="error" v-if="error">{{error}}</p>
-            </div>
+        <po-header></po-header>
+
+        <v-ons-list style="margin-bottom:15px;">
+            <li class="list-header">Unprocessed Inbound</li>
+            <v-ons-list-item v-for="c in poConfirmation"
+                :key="c.DELIV_NUMB"
+                v-if="parseInt(c.QUANTITY) > parseInt(c.QTY_REDUCED) && c.CONF_NAME === 'Inbound Delivery'"
+                tappable modifier="chevron"
+                @click="createGr(c)">
+                <div class="center">
+                    <div class="list-item__title">
+                        {{c.DELIV_NUMB}}
+                    </div>
+                    <div class="list-item__subtitle">
+                        <span class="my-label">Prelim Doc No.</span> : {{c.PREL_DOC_NO}}<br>
+                        <span class="my-label">Invoice Number</span> : {{c.INVOICE_NO}}<br>
+                        <span class="my-label">Bill of Lading</span> : {{c.BILL_OF_LADING}}<br>
+                    </div>
+                </div>
+            </v-ons-list-item>
+        </v-ons-list>
+
+        <h4 class="danger" style="text-align:center;text-transform:uppercase;margin-top:50px;" v-if="poConfirmation.filter(c => parseInt(c.QUANTITY) > parseInt(c.QTY_REDUCED)).length === 0">
+            No Unprocessed Inbund Found
+        </h4>
+
+        <div class="btn-fixed-bottom">
+            <v-ons-button v-if="parseInt(po.E_POHEADER.PO_REL_IND) !== 2" style="width:95%;" @click.prevent="createNotification">CREATE NOTIFICATION</v-ons-button>
         </div>
 
-        <div class="alert-dialog-mask" v-show="poNotFoundDialog"></div>
-        <div class="alert-dialog">
-            <div class="alert-dialog-container" v-show="poNotFoundDialog">
-                <div class="alert-dialog-title">PO NOT FOUND</div>
-                <div class="alert-dialog-content">
-                    <p> PO Number {{po_number}} not found. If you sure you typed it correctly press SEND NOTIFICATION. </p>
-                </div>
-
-                <div class="alert-dialog-footer">
-                    <button class="alert-dialog-button alert-dialog-button--primal" @click="createNotification">SEND NOTIFICATION</button>
-                    <button class="alert-dialog-button alert-dialog-button--primal" @click="poNotFoundDialog = false">CANCEL</button>
-                </div>
-            </div>
+        <div class="toast" v-show="error" style="bottom:45px;">
+            <div class="toast__message">{{error}}</div>
+            <button class="toast__button" @click="error = ''">OK</button>
         </div>
 
-        <v-ons-modal :visible="processing">
-            <p style="text-align: center">
-                <v-ons-icon icon="fa-spinner" spin size="40px"></v-ons-icon>
-                <br><br>
-                Getting data...
-            </p>
-        </v-ons-modal>
     </v-ons-page>
 </template>
 
 <script>
 import axios from 'axios'
-import fastXmlParser from 'fast-xml-parser'
-import PoDetail from './PoDetail'
 import NotificationForm from './NotificationForm'
+import GrForm from './GrForm'
+import PoHeader from './PoHeader'
 
 export default {
-    name: 'GoodsReceipt',
+    components: { PoHeader },
+    computed: {
+        po() { return this.$store.state.po },
+        poConfirmation() { return this.$store.getters.poConfirmation },
+        itemList() { return this.$store.getters.itemList }
+    },
     data: function() {
         return {
-            poNotFoundDialog: false,
-            po_number: '',
-            error: '',
-            processing: false
+            error: ''
         }
     },
     methods: {
-        scanText: function() {
-            let _this = this;
-            _this.po_number = ''
-            let cameraOptions = {
-                quality: 100,
-                correctOrientation: true,
-                destinationType: Camera.DestinationType.NATIVE_URI
-            };
-
-            _this.$ons.ready(function() {
-                navigator.camera.getPicture(function(imageData) {
-                    textocr.recText(0, 2, imageData, function(recognizedText) {
-                        _this.po_number = recognizedText.replace(/\D/g, '')
-                        if (_this.po_number) {
-                            _this.submitData()
-                        }
-                    }, function(message) {
-                        _this.error = 'Failed to read text: ' + message
-                    });
-                }, function(message) {
-                    _this.error = message
-                }, cameraOptions);
-            });
-        },
-        scanCode: function() {
-            let _this = this
-            _this.$ons.ready(function() {
-                cordova.plugins.barcodeScanner.scan(
-                    function (result) {
-                        _this.po_number = result.text
-                        if (_this.po_number) {
-                            _this.submitData()
-                        }
-                    },
-                    function (error) {
-                        alert('Scanning failed: ' + error);
-                    },
-                    {
-                        preferFrontCamera: false,
-                        showFlipCameraButton: true,
-                        showTorchButton: true,
-                        torchOn: false,
-                        saveHistory: true,
-                        prompt: 'Place a barcode inside the scan area',
-                        resultDisplayDuration: 500,
-                        orientation: 'portrait',
-                        disableSuccessBeep: false
-                    }
-                );
-            })
-        },
-        submitData: function() {
-            let _this = this
-            _this.processing = true
-            _this.error = ''
-
-            axios.get(process.env.ROOT_API + 'poDetail', {
-                params: {
-                    po_number: _this.po_number,
-                    api_token: window.localStorage.api_token
-                }
-            }).then(function(r) {
-                _this.processing = false
-                _this.error = ''
-
-                let jsonData = fastXmlParser.parse(r.data, {
-                    trimValues: true,
-                    ignoreNameSpace: true,
-                    ignoreAttributes: true,
-                    parseAttributeValue: false,
-                    parseNodeValue: false
-                });
-
-                if (jsonData.Envelope.Body["ZFM_PO_OUTBOUND.Response"].E_POHEADER.PO_NUMBER === '') {
-                    _this.error = ''
-                    _this.poNotFoundDialog = true
-                    return
-                }
-
-                let po = jsonData.Envelope.Body["ZFM_PO_OUTBOUND.Response"]
-                let itemList = Array.isArray(po.ET_POITEM.item) ? po.ET_POITEM.item : [po.ET_POITEM.item];
-
-                let poConfirmation = []
-
-                if (po.ET_POCONFIRMATION === '') {
-                    poConfirmation = []
-                } else {
-                    poConfirmation = Array.isArray(po.ET_POCONFIRMATION.item) ? po.ET_POCONFIRMATION.item : [po.ET_POCONFIRMATION.item];
-                }
-
-                let poHistoryTotal = []
-
-                if (po.ET_POHISTORY_TOTALS === '') {
-                    poHistoryTotal = []
-                } else {
-                    poHistoryTotal = Array.isArray(po.ET_POHISTORY_TOTALS.item) ? po.ET_POHISTORY_TOTALS.item : [po.ET_POHISTORY_TOTALS.item];
-                }
-
-                _this.$store.commit('update', {
-                    po: po,
-                    poConfirmation: poConfirmation,
-                    poHistoryTotal: poHistoryTotal,
-                    itemList: itemList
-                })
-
-                _this.$emit('push-page', PoDetail)
-            }).catch(function(e) {
-                _this.processing = false
-                if (e.response && e.response.status === 500) {
-                    _this.error = e.response.data
-                } else {
-                    _this.error = "Unhandled error!"
-                }
-            })
-        },
         createNotification: function() {
+            let problemDescription = '[TULIS PESAN ANDA]'
+            problemDescription += '\n\n\n'
+            problemDescription += '------------------------------------' + '\n'
+            problemDescription += 'Detail PO' + '\n'
+            problemDescription += '------------------------------------' + '\n'
+            problemDescription += 'PO Number: ' + this.po.E_POHEADER.PO_NUMBER + '\n'
+            problemDescription += 'Vendor: ' + this.po.E_VENDOR_NAME + '\n'
+            problemDescription += 'Created By: ' + this.po.E_POHEADER.CREATED_BY + '/' + this.po.E_USER_FULLNAME + '\n'
+            problemDescription += 'Created Date: ' + this.po.E_POHEADER.CREAT_DATE + '\n'
+            problemDescription += 'Release Status: NOT RELEASED'
+
             let _this = this
-            _this.poNotFoundDialog = false
-            _this.$emit('push-page', {
+            this.$emit('push-page', {
                 extends: NotificationForm,
                 data: function() {
                     return {
-                        problem: { notifType: 'G3', description: 'PO NOT EXIST' },
-                        description: 'PO NUMBER : ' + _this.po_number
+                        problem: { notifType: 'G3', description: 'RELEASE PO' },
+                        purchaser_name: _this.po.E_USER_FULLNAME,
+                        description: problemDescription
+                    }
+                }
+            })
+        },
+        createGr: function(inbound) {
+            let item = this.itemList.find(i => i.PO_ITEM === inbound.PO_ITEM)
+            this.$emit('push-page', {
+                extends: GrForm,
+                data: function() {
+                    return {
+                        inbound: inbound,
+                        item: item
                     }
                 }
             })
@@ -192,54 +104,9 @@ export default {
 }
 </script>
 
-<style scoped>
-.content {
-    text-align: center;
-    margin: 50px auto 0;
-}
-
-.form {
-    margin: 80px auto 10px;
-    width: 270px;
-}
-
-.po-number-input {
-    width: 100%;
-    font-size: 32px;
-    color: #e3342f;
-    background-color: #eee;
-    text-align: center;
-    border: none;
-    border-radius: 20px;
-}
-
-.submit-data-btn, .scan-document-btn {
-    height: 30px;
-    border-radius: 20px;
-    width: 100%;
-}
-
-.btn-red {
-    background-color: #e3342f;
-}
-
-::-webkit-input-placeholder {
-   text-align: center;
-   font-weight: lighter;
-}
-
-:-moz-placeholder { /* Firefox 18- */
-   text-align: center;
-   font-weight: lighter;
-}
-
-::-moz-placeholder {  /* Firefox 19+ */
-   text-align: center;
-   font-weight: lighter;
-}
-
-:-ms-input-placeholder {
-   text-align: center;
-   font-weight: lighter;
+<style lang="css" scoped>
+.my-label {
+    width: 100px;
+    display: inline-block;
 }
 </style>

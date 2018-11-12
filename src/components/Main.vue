@@ -5,15 +5,29 @@
             <img class="logo" src="../assets/logo.png"><br>
             <strong class="text-primary" style="font-size:13px">MATERIAL RECEIVING AND INSPECTION</strong><br>
 
-            <v-ons-row style="padding:0 20px;margin-top:80px;">
+            <v-ons-row style="padding:0 20px;margin-top:40px;">
                 <v-ons-col>
-                    <v-ons-card style="background-color:#396080;" class="text-center text-white" @click="goTo('GoodsReceipt')">
+                    <v-ons-card style="background-color:#396080;" class="text-center text-white" @click="inbound">
+                        <i class="zmdi zmdi-download" style="font-size:90px;"></i><br>
+                        <span style="font-size:10px">INBOUND</span>
+                    </v-ons-card>
+                </v-ons-col>
+                <v-ons-col>
+                    <v-ons-card style="background-color:#396080;" class="text-center text-white" @click="gr">
                         <i class="zmdi zmdi-widgets" style="font-size:90px;"></i><br>
                         <span style="font-size:10px">GOODS RECEIPT</span>
                     </v-ons-card>
                 </v-ons-col>
+            </v-ons-row>
+            <v-ons-row style="padding:0 20px;">
                 <v-ons-col>
-                    <v-ons-card style="background-color:#396080;" class="text-center text-white" @click="goTo('QualityInspection')">
+                    <v-ons-card style="background-color:#396080;" class="text-center text-white" @click="mrir">
+                        <i class="zmdi zmdi-notifications" style="font-size:90px;"></i><br>
+                        <span style="font-size:10px">MRIR NOTIFICATION</span>
+                    </v-ons-card>
+                </v-ons-col>
+                <v-ons-col>
+                    <v-ons-card style="background-color:#396080;" class="text-center text-white" @click="qi">
                         <i class="zmdi zmdi-assignment-check" style="font-size:90px;"></i><br>
                         <span style="font-size:10px">QUALITY INSPECTION</span>
                     </v-ons-card>
@@ -21,32 +35,12 @@
             </v-ons-row>
             <v-ons-row style="padding:0 20px;">
                 <v-ons-col>
-                    <v-ons-card style="background-color:#396080;" class="text-center text-white" @click="goTo('MrirNotification')">
-                        <i class="zmdi zmdi-notifications" style="font-size:90px;"></i><br>
-                        <span style="font-size:10px">MRIR NOTIFICATION</span>
-                    </v-ons-card>
-                </v-ons-col>
-                <v-ons-col>
-                    <v-ons-card style="background-color:#396080;" class="text-center text-white" @click="goTo('DeclareServiceable')">
+                    <v-ons-card style="background-color:#396080;" class="text-center text-white" @click="ds">
                         <i class="zmdi zmdi-wrench" style="font-size:90px;"></i><br>
                         <span style="font-size:10px">DECLARE SERVICEABLE</span>
                     </v-ons-card>
                 </v-ons-col>
             </v-ons-row>
-            <!-- <v-ons-row style="padding:0 20px;">
-                <v-ons-col>
-                    <v-ons-card style="background-color:#396080;" class="text-center text-white" @click="logout">
-                        <v-ons-icon icon="ion-log-out" size="90px"></v-ons-icon><br>
-                        <span style="font-size:10px">LOGOUT</span>
-                    </v-ons-card>
-                </v-ons-col>
-                <v-ons-col>
-                    <v-ons-card style="background-color:#396080;" class="text-center text-white" @click="exit">
-                        <v-ons-icon icon="ion-power" size="90px"></v-ons-icon><br>
-                        <span style="font-size:10px">EXIT</span>
-                    </v-ons-card>
-                </v-ons-col>
-            </v-ons-row> -->
         </div>
 
         <div class="btn-fixed-bottom">
@@ -69,19 +63,11 @@
 <script>
 import moment from 'moment'
 import Login from './Login'
-import GoodsReceipt from './GoodsReceipt'
-import QualityInspection from './QualityInspection'
+import SearchPo from './SearchPo'
+import SearchBatchNumber from './SearchBatchNumber'
 import DeclareServiceable from './DeclareServiceable'
-import MrirNotification from './MrirNotification'
 
 export default {
-    components: {
-        GoodsReceipt,
-        QualityInspection,
-        DeclareServiceable,
-        MrirNotification,
-        Login
-    },
     data: function() {
         return {
             year: moment().format('YYYY')
@@ -98,14 +84,41 @@ export default {
             window.localStorage.user = null
             navigator.app.exitApp()
         },
-        goTo: function(page) {
-            let components = {
-                'GoodsReceipt': GoodsReceipt,
-                'QualityInspection': QualityInspection,
-                'DeclareServiceable': DeclareServiceable,
-                'MrirNotification': MrirNotification
-            }
-            this.$emit('push-page', components[page])
+        inbound: function() {
+            this.$emit('push-page', {
+                extends: SearchPo,
+                data: function() {
+                    return {
+                        action: 'inbound'
+                    }
+                }
+            })
+        },
+        gr: function() {
+            this.$emit('push-page', {
+                extends: SearchPo,
+                data: function() {
+                    return {
+                        action: 'gr'
+                    }
+                }
+            })
+        },
+        mrir: function() {
+            this.$emit('push-page', {
+                extends: SearchPo,
+                data: function() {
+                    return {
+                        action: 'mrir'
+                    }
+                }
+            })
+        },
+        qi: function() {
+            this.$emit('push-page', SearchBatchNumber)
+        },
+        ds: function() {
+            this.$emit('push-page', DeclareServiceable)
         }
     }
 }

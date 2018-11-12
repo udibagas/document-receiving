@@ -1,17 +1,19 @@
 <template>
     <ons-page>
-        <div class="background"></div>
+        <div class="background">
+            <img class="logo" src="../assets/bg.jpeg" style="height:100%;width:100%;">
+        </div>
         <div class="content">
-            <img class="logo" src="../assets/logo.png"><br>
-            <strong class="text-primary" style="font-size:13px">MATERIAL RECEIVING AND INSPECTION</strong><br>
+            <img class="logo" src="../assets/logo-white.png"><br>
+            <strong style="font-size:13px;color:#fff;">MATERIAL RECEIVING AND INSPECTION</strong><br>
             <div class="form">
-                <p><v-ons-input v-model="username" placeholder="Username" class="full-width"></v-ons-input></p>
-                <p> <v-ons-input type="password" v-model="password" placeholder="Password" class="full-width"></v-ons-input> </p>
-                <p><v-ons-button :disabled="busy" class="full-width" @click.prevent="login">LOGIN</v-ons-button></p>
-                <p class="error" v-if="error">{{error}}</p>
+                <p><input type="text" v-model="username" class="my-input" placeholder="Username" /></p>
+                <p><input type="password" v-model="password" class="my-input" placeholder="Password" /></p>
+                <p><v-ons-button class="full-width" @click.prevent="login">LOGIN</v-ons-button></p>
+                <p class="white" v-if="error">{{error}}</p>
 
                 <br><br>
-                <small>&copy; {{year}} | GMF AeroAsia</small>
+                <small style="color:#fff;">&copy; {{year}} | GMF AeroAsia</small>
             </div>
         </div>
     </ons-page>
@@ -34,46 +36,30 @@ export default {
     },
     methods: {
         login() {
-            if (!this.username || !this.password) {
+            if (!this.username || !this.password || this.busy) {
                 return
             }
-
-            // if (navigator.connection.type !== Connection.WIFI) {
-            //     this.error = 'Check your WiFi connection!'
-            //     return
-            // }
 
             let _this = this
             _this.busy = true
             _this.error = 'Logging in...'
 
-            axios.post(process.env.ROOT_API + 'login', {
+            axios.post(process.env.ROOT_API + 'ldap-login', {
                 username: _this.username,
                 password: _this.password
             }).then(function(r) {
                 _this.busy = false
-                if (r.data.success) {
+                if (r.data.status) {
+                    window.localStorage.api_token = r.data.api_token
                     window.localStorage.isLoggedIn = 'true'
-                    window.localStorage.api_token = r.data.user.api_token
-                    // TODO: ubah ini sesuai user lD LDAP
-                    window.localStorage.userId = r.data.user.name
+                    window.localStorage.userId = _this.username
                     _this.$emit('replace-page', Main)
                 } else {
                     _this.error = r.data.message
                 }
             }).catch(function(e) {
                 _this.busy = false
-                if (e.response) {
-                    if (e.response.status === 500) {
-                        _this.error = e.response.data.message
-                    }
-
-                    if (e.response.status === 404) {
-                        _this.error = 'Page not found!'
-                    }
-                } else {
-                    _this.error = 'Failed to connect to server! ' + process.env.ROOT_API
-                }
+                _this.error = e.response.data.message || e.response.message
             })
         }
     }
@@ -89,5 +75,20 @@ export default {
 .form {
     margin: 100px auto 10px;
     width: 250px;
+}
+
+.white {
+    color: #fff;
+}
+
+.my-input {
+    border-radius: 2px;
+    padding: 8px;
+    width: 100%;
+    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+    box-sizing: border-box;
+    border: none;
+    font-size: 16px;
 }
 </style>

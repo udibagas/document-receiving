@@ -16,20 +16,38 @@
             <v-ons-list-item>
                 <div class="center">
                     <small>INSPECTION LOT NUMBER</small>
-                    <div class="list-item__title">{{inspection.OPERATION.INSPLOT}}</div>
+                    <div class="list-item__title">{{inspection.ET_OPERATION.item.INSPLOT}}</div>
+                </div>
+            </v-ons-list-item>
+            <v-ons-list-item>
+                <div class="center">
+                    <small>BATCH NUMBER</small>
+                    <div class="list-item__title">{{batch_number}}</div>
                 </div>
             </v-ons-list-item>
             <v-ons-list-item>
                 <div class="center">
                     <small>PLANT</small>
-                    <div class="list-item__title">{{inspection.OPERATION.PLANT}}</div>
+                    <div class="list-item__title">{{inspection.ET_OPERATION.item.PLANT}}</div>
                 </div>
             </v-ons-list-item>
-            <v-ons-list-item v-for="(r, i) in inspection.CHAR_REQUIREMENTS.item" tappable :key="r.INSPCHAR">
+            <v-ons-list-item>
+                <div class="center">
+                    <small>TEXT OPERATION</small>
+                    <div class="list-item__title">{{inspection.ET_OPERATION.item.TXT_OPER}}</div>
+                </div>
+            </v-ons-list-item>
+            <v-ons-list-item>
+                <div class="center">
+                    <small>WORK CENTER</small>
+                    <div class="list-item__title">{{inspection.ET_OPERATION.item.WORKCENTER}}</div>
+                </div>
+            </v-ons-list-item>
+            <v-ons-list-item v-for="(r, i) in inspection.ET_CHAR_REQUIREMENTS.item" tappable :key="r.INSPCHAR">
                 <div class="center">
                     <small>{{r.CHAR_DESCR}}</small>
                     <div class="list-item__title" @click="selectCharacteristic(r.MSTR_CHAR)">
-                        <i class="fa fa-edit"></i> {{inspection.CHAR_RESULTS.item[i].CHARACTERISTIC.description}}
+                        <i class="fa fa-edit"></i> {{inspection.ET_CHAR_RESULTS.item[i].CHARACTERISTIC.description}}
                     </div>
                     <div class="list-item__subtitle">
                         Status:
@@ -60,9 +78,9 @@
             </p>
         </v-ons-modal>
 
-        <div class="toast" v-show="toast.show">
-            <div class="toast__message">{{toast.message}}</div>
-            <button class="toast__button" @click="toast.show = false">OK</button>
+        <div class="toast" v-show="error">
+            <div class="toast__message">{{error}}</div>
+            <button class="toast__button" @click="error = false">OK</button>
         </div>
     </v-ons-page>
 </template>
@@ -80,12 +98,10 @@ export default {
     },
     data: function() {
         return {
+            batch_number: '',
             busy: false,
-            formData: {},
             inspection: {},
-            toast: { show: false, message: '' },
-            switchOff: 0,
-            switchOn: 1,
+            error: '',
             characteristicDialog: false,
             selectedCharacteristic: {},
             evaluation: {}
@@ -99,15 +115,14 @@ export default {
         setCharacteristic: function(c) {
             let _this = this
             _this.characteristicDialog = false
-            let idx = _this.inspection.CHAR_REQUIREMENTS.item.findIndex(cr => cr.MSTR_CHAR === _this.selectedCharacteristic.mstr_char)
-            _this.inspection.CHAR_RESULTS.item[idx].CHARACTERISTIC = c
+            let idx = _this.inspection.ET_CHAR_REQUIREMENTS.item.findIndex(cr => cr.MSTR_CHAR === _this.selectedCharacteristic.mstr_char)
+            _this.inspection.ET_CHAR_RESULTS.item[idx].CHARACTERISTIC = c
         },
         submitInspection: function() {
-            // TODO: validation
             let _this = this
 
             let charResults = []
-            _this.inspection.CHAR_RESULTS.item.forEach(function(cr, i) {
+            _this.inspection.ET_CHAR_RESULTS.item.forEach(function(cr, i) {
                 charResults.push({
                     INSPCHAR: cr.INSPCHAR,
                     EVALUATION: _this.evaluation[cr.INSPCHAR] ? 'A' : 'R',
@@ -116,10 +131,17 @@ export default {
                 })
             })
 
+            // ini nunggu api-nya final
+            // if (charResults.filter(cr => cr.CODE1 === '').length > 0) {
+            //     _this.error = 'Please fill the form correctly!'
+            //     return
+            // }
+
             let data = {
                 api_token: window.localStorage.api_token,
-                inspection_number: _this.inspection.OPERATION.INSPLOT,
-                charResults: charResults
+                inspection_number: _this.inspection.ET_OPERATION.item.INSPLOT,
+                charResults: charResults,
+                user_id: window.localStorage.userId
             }
 
             // alert(JSON.stringify(data))
@@ -140,7 +162,7 @@ export default {
                 // alert(JSON.stringify(ret))
 
                 if (ret.item && Array.isArray(ret.item)) {
-                    _this.toast = { show: true, message: 'ERROR: ' + ret.item[0].MESSAGE }
+                    _this.error = 'ERROR: ' + ret.item[0].MESSAGE
                 } else {
                     _this.$emit('replace-page', {
                         extends: SuccessPage,
@@ -152,7 +174,7 @@ export default {
                     })
                 }
             }).catch(function(e) {
-                _this.toast = { show: true, message: e.response.data }
+                _this.error = e.response.data
                 _this.busy = false
             })
         }

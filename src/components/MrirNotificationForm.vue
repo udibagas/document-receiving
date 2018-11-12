@@ -4,12 +4,7 @@
             <div class="left">
                 <v-ons-back-button></v-ons-back-button>
             </div>
-            <div class="center">CREATE MRIR NOTIFICATION</div>
-            <!-- <div class="right">
-                <v-ons-toolbar-button>
-                    <v-ons-button icon="fa-send" :disabled="busy" style="border:1px solid #fff;" @click.prevent="sendMrirNotification"> SEND</v-ons-button>
-                </v-ons-toolbar-button>
-            </div> -->
+            <div class="center">MRIR NOTIFICATION FORM</div>
         </v-ons-toolbar>
         <div class="background"></div>
         <ul class="list" style="margin-bottom:45px;">
@@ -23,7 +18,7 @@
             </li>
             <li class="list-item">
                 <div class="list-item__center">
-                    {{item.PO_ITEM}}
+                    {{parseInt(item.PO_ITEM)}}
                 </div>
                 <div class="list-item__right">
                     <div class="list-item__label">PO Item</div>
@@ -47,18 +42,10 @@
             </li>
             <li class="list-item">
                 <div class="list-item__center">
-                    <input type="number" v-model="qty_compliant" class="text-input" placeholder="Quantity Compliant">
+                    <input type="number" v-model="qty_complaint" class="text-input" placeholder="Quantity Complaint">
                 </div>
                 <div class="list-item__right">
-                    <div class="list-item__label">Quantity Compliant</div>
-                </div>
-            </li>
-            <li class="list-item">
-                <div class="list-item__center">
-                    <input type="number" v-model="qty_unit" class="text-input" placeholder="Quantity Unit">
-                </div>
-                <div class="list-item__right">
-                    <div class="list-item__label">Quantity Unit</div>
+                    <div class="list-item__label">Quantity Complaint</div>
                 </div>
             </li>
             <li class="list-item">
@@ -77,7 +64,7 @@
         </ul>
 
         <div class="btn-fixed-bottom">
-            <v-ons-button style="width:95%" :disabled="busy" @click.prevent="sendMrirNotification"> SEND NOTIFICATION</v-ons-button>
+            <v-ons-button style="width:95%" :disabled="busy" @click.prevent="sendMrirNotification">SEND MRIR  NOTIFICATION</v-ons-button>
         </div>
 
         <v-ons-modal :visible="busy">
@@ -113,8 +100,7 @@ export default {
             busy: false,
             short_text: '',
             description: '',
-            qty_compliant: '',
-            qty_unit: ''
+            qty_complaint: ''
         }
     },
     methods: {
@@ -126,13 +112,8 @@ export default {
                 return
             }
 
-            if (!_this.qty_compliant) {
-                _this.error = 'Quantity Compliant is required!'
-                return
-            }
-
-            if (!_this.qty_unit) {
-                _this.error = 'Quantity Unit is required!'
+            if (!_this.qty_complaint) {
+                _this.error = 'Quantity Complaint is required!'
                 return
             }
 
@@ -154,19 +135,14 @@ export default {
                 po_number: _this.po.E_POHEADER.PO_NUMBER,
                 to: _this.po.E_USER_EMAIL,
                 short_text: _this.short_text,
-                description: _this.description,
+                description: 'User ID : ' + window.localStorage.userId + '\n' + _this.description,
                 device_data: window.localStorage.userId,
-                qty_compliant: _this.qty_compliant,
-                qty_unit: _this.qty_unit,
+                qty_complaint: _this.qty_complaint,
                 material: _this.item.MATERIAL_EXTERNAL,
                 vendor: _this.po.E_POHEADER.VENDOR,
-                // TODO: ini masih jadi pertanyaan!
-                // person_responsible: _this.po.E_POHEADER.CREATED_BY,
-                // author: window.localStorage.userId,
-                // coordinator: window.localStorage.userId
-                person_responsible: 'G580422',
-                author: 'G580422',
-                coordinator: 'G580422'
+                user_id: window.localStorage.userId,
+                po_creator: _this.po.E_POHEADER.CREATED_BY,
+                ref_num: _this.ref_num
             }
 
             axios.post(process.env.ROOT_API + 'mrirNotification', data).then(function(r) {

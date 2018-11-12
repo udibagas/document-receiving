@@ -5,23 +5,15 @@
                 <v-ons-back-button></v-ons-back-button>
             </div>
             <div class="center">GR PROCESS</div>
-            <!-- <div class="right">
+            <div class="right">
                 <v-ons-toolbar-button>
-                    <v-ons-button icon="fa-save" style="border:1px solid #fff;" @click.prevent="submitGr"> SAVE</v-ons-button>
+                    <v-ons-button icon="fa-bell" class="btn-action" style="border:1px solid #fff;" @click.prevent="createNotification"> CREATE NOTIF</v-ons-button>
                 </v-ons-toolbar-button>
-            </div> -->
+            </div>
         </v-ons-toolbar>
         <div class="background"></div>
         <po-header></po-header>
         <ul class="list" style="margin-bottom:45px">
-            <!-- <li class="list-item">
-                <div class="list-item__center">
-                    {{po.E_POHEADER.PO_NUMBER}}
-                </div>
-                <div class="list-item__right">
-                    <div class="list-item__label">PO Number</div>
-                </div>
-            </li> -->
             <li class="list-item">
                 <div class="list-item__center">
                     {{parseInt(item.PO_ITEM)}}
@@ -44,6 +36,14 @@
                 </div>
                 <div class="list-item__right">
                     <div class="list-item__label">Mat. Description</div>
+                </div>
+            </li>
+            <li class="list-item">
+                <div class="list-item__center">
+                    {{parseInt(item.QUANTITY)}}
+                </div>
+                <div class="list-item__right">
+                    <div class="list-item__label">Quantity</div>
                 </div>
             </li>
             <li class="list-item">
@@ -152,15 +152,7 @@
                     <div class="list-item__label">Delivery Note/Invoice</div>
                 </div>
             </li>
-            <li class="list-item">
-                <div class="list-item__center">
-                    <input type="text" v-model="ref_num" class="text-input" placeholder="Reference Number">
-                </div>
-                <div class="list-item__right">
-                    <div class="list-item__label">Reference Number</div>
-                </div>
-            </li>
-            <li class="list-item" v-if="RegExp('ROT|REP|RT0').test(item.MATL_GROUP)">
+            <li class="list-item" v-if="RegExp('EXP').test(item.MATL_GROUP) === false">
                 <div class="list-item__center">
                     <input type="text" v-model="serial_no" class="text-input" placeholder="Serial Number">
                 </div>
@@ -179,7 +171,7 @@
         </ul>
 
         <div class="btn-fixed-bottom">
-            <v-ons-button style="width:95%" :disabled="busy" @click.prevent="submitGr"> SUMBIT</v-ons-button>
+            <v-ons-button style="width:95%" :disabled="busy" @click.prevent="submitGr"> SUBMIT</v-ons-button>
         </div>
 
         <div class="toast" v-show="error">
@@ -202,6 +194,7 @@ import axios from 'axios'
 import fastXmlParser from 'fast-xml-parser'
 import SuccessPage from './SuccessPage'
 import PoHeader from './PoHeader'
+import NotificationForm from './NotificationForm'
 
 export default {
     components: { PoHeader },
@@ -223,8 +216,49 @@ export default {
         submitGr: function() {
             let _this = this
 
-            if (RegExp("ROT|REP|RT0").test(_this.item.MATL_GROUP) && !_this.serial_no) {
-                _this.error = 'Serial Number harus diisi!'
+            // validasi ibound
+            if (!_this.inbound.PREL_DOC_NO) {
+                _this.error = 'Prelim Doc Number is required'
+                return
+            }
+
+            if (!_this.inbound.DATE_PREL_DOC) {
+                _this.error = 'Prelim Doc Date is required'
+                return
+            }
+
+            if (!_this.inbound.INVOICE_NO) {
+                _this.error = 'Invoice Number is required'
+                return
+            }
+
+            if (!_this.inbound.INVOICE_DT) {
+                _this.error = 'Invoice Date is required'
+                return
+            }
+
+            if (!_this.inbound.BILL_OF_LADING) {
+                _this.error = 'Bill of Lading is required'
+                return
+            }
+
+            if (!_this.inbound.DELIV_DATE) {
+                _this.error = 'Delivery Date is required'
+                return
+            }
+
+            if (RegExp("ROT|RT").test(_this.item.MATL_GROUP) && !_this.serial_no) {
+                _this.error = 'Serial Number is required!'
+                return
+            }
+
+            if (!_this.delivery_note) {
+                _this.error = 'Delivery Note is required!'
+                return
+            }
+
+            if (!_this.item_text) {
+                _this.error = 'Item Text is required!'
                 return
             }
 
@@ -234,13 +268,10 @@ export default {
                 po_number: _this.po.E_POHEADER.PO_NUMBER,
                 serial_no: _this.serial_no,
                 item_text: _this.item_text,
-                ref_num: _this.ref_num,
-                // TODO: ambil dari login LDAP
-                user_id: '580422',
+                user_id: window.localStorage.userId,
+                delivery_note: _this.delivery_note,
                 inbound: _this.inbound
             }
-
-            // alert(JSON.stringify(data))
 
             axios.post(process.env.ROOT_API + 'gr', data).then(function(r) {
                 _this.busy = false
@@ -259,19 +290,44 @@ export default {
                 if (ret.item && ret.item.TYPE === 'E') {
                     _this.error = 'ERROR: ' + ret.item.MESSAGE
                 } else {
-                    _this.$emit('replace-page', {
-                        extends: SuccessPage,
-                        data: function() {
-                            return {
-                                message: 'GR creation success. Material Document : ' + jsonData.Envelope.Body["ZFM_GR_INBOUND.Response"].E_MATDOC.MAT_DOC
-                            }
-                        }
-                    })
+                    _this.$store.commit('refresh', _this.po.E_POHEADER.PO_NUMBER);
+                    _this.$emit('pop-page');
                 }
             })
             .catch(function(e) {
                 _this.error = e.response.data
                 _this.busy = false
+            })
+        },
+        createNotification: function() {
+            let problemDescription = '[TULIS PESAN ANDA]'
+            problemDescription += '\n\n\n'
+            problemDescription += '------------------------------------' + '\n'
+            problemDescription += 'Detail PO' + '\n'
+            problemDescription += '------------------------------------' + '\n'
+            problemDescription += 'PO Number: ' + this.po.E_POHEADER.PO_NUMBER + '\n'
+            problemDescription += 'Vendor: ' + this.po.E_VENDOR_NAME + '\n'
+            problemDescription += 'Created By: ' + this.po.E_POHEADER.CREATED_BY + '/' + this.po.E_USER_FULLNAME + '\n'
+            problemDescription += 'Created Date: ' + this.po.E_POHEADER.CREAT_DATE + '\n'
+            problemDescription += 'Release Status: '
+            problemDescription += parseInt(this.po.E_POHEADER.PO_REL_IND) === 2 ? 'RELEASED' : 'NOT RELEASED'
+            problemDescription += '\n\n\n'
+            problemDescription += '------------------------------------' + '\n'
+            problemDescription += 'Detail Item' + '\n'
+            problemDescription += '------------------------------------' + '\n'
+            problemDescription += 'PO Item: ' + this.item.PO_ITEM + '\n'
+            problemDescription += 'Material : ' + this.item.MATERIAL_EXTERNAL + '\n'
+            problemDescription += 'Material Description: ' + this.item.SHORT_TEXT + '\n'
+
+            let _this = this
+            this.$emit('push-page', {
+                extends: NotificationForm,
+                data: function() {
+                    return {
+                        purchaser_name: _this.po.E_USER_FULLNAME,
+                        description: problemDescription
+                    }
+                }
             })
         }
     }
