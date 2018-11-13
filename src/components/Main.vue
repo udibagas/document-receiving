@@ -5,7 +5,7 @@
             <img class="logo" src="../assets/logo.png"><br>
             <strong class="text-primary" style="font-size:13px">MATERIAL RECEIVING AND INSPECTION</strong><br>
 
-            <v-ons-row style="padding:0 20px;margin-top:40px;">
+            <v-ons-row style="padding:0 20px;margin-top:80px;">
                 <v-ons-col>
                     <v-ons-card style="background-color:#396080;" class="text-center text-white" @click="inbound">
                         <i class="zmdi zmdi-download" style="font-size:90px;"></i><br>
@@ -33,14 +33,14 @@
                     </v-ons-card>
                 </v-ons-col>
             </v-ons-row>
-            <v-ons-row style="padding:0 20px;">
+            <!-- <v-ons-row style="padding:0 20px;">
                 <v-ons-col>
                     <v-ons-card style="background-color:#396080;" class="text-center text-white" @click="ds">
                         <i class="zmdi zmdi-wrench" style="font-size:90px;"></i><br>
                         <span style="font-size:10px">DECLARE SERVICEABLE</span>
                     </v-ons-card>
                 </v-ons-col>
-            </v-ons-row>
+            </v-ons-row> -->
         </div>
 
         <div class="btn-fixed-bottom">

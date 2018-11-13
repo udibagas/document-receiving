@@ -23,6 +23,7 @@
 import axios from 'axios'
 import moment from 'moment'
 import Main from './Main'
+import Register from './Register'
 
 export default {
     data: function() {
@@ -44,16 +45,33 @@ export default {
             _this.busy = true
             _this.error = 'Logging in...'
 
-            axios.post(process.env.ROOT_API + 'ldap-login', {
+            axios.post(process.env.ROOT_API + 'login', {
                 username: _this.username,
                 password: _this.password
             }).then(function(r) {
                 _this.busy = false
-                if (r.data.status) {
-                    window.localStorage.api_token = r.data.api_token
-                    window.localStorage.isLoggedIn = 'true'
-                    window.localStorage.userId = _this.username
-                    _this.$emit('replace-page', Main)
+                _this.error = ''
+                if (r.data.success) {
+                    if (r.data.registered) {
+                        if (r.data.active) {
+                            window.localStorage.api_token = r.data.api_token
+                            window.localStorage.isLoggedIn = 'true'
+                            window.localStorage.userId = _this.username
+                            _this.$emit('replace-page', Main)
+                        } else {
+                            _this.error = r.data.message
+                        }
+                    } else {
+                        _this.$emit('push-page', {
+                            extends: Register,
+                            data: function() {
+                                return {
+                                    username: _this.username,
+                                    password: _this.password
+                                }
+                            }
+                        })
+                    }
                 } else {
                     _this.error = r.data.message
                 }

@@ -175,7 +175,9 @@ export default {
                 data: function() {
                     return {
                         problem: { notifType: 'G3', description: 'PO NOT EXIST' },
-                        description: '[TULIS PESAN ANDA] \n\n\nPO NUMBER : ' + _this.po_number
+                        description: '[TULIS PESAN ANDA] \n\n\nPO NUMBER : ' + _this.po_number,
+                        to: 'admin',
+                        po_number: _this.po_number
                     }
                 }
             })

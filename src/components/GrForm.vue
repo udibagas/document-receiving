@@ -325,7 +325,9 @@ export default {
                 data: function() {
                     return {
                         purchaser_name: _this.po.E_USER_FULLNAME,
-                        description: problemDescription
+                        description: problemDescription,
+                        to: _this.po.E_USER_EMAIL,
+                        po_number: _this.po.E_POHEADER.PO_NUMBER
                     }
                 }
             })

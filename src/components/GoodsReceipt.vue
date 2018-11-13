@@ -24,6 +24,8 @@
                         <span class="my-label">Prelim Doc No.</span> : {{c.PREL_DOC_NO}}<br>
                         <span class="my-label">Invoice Number</span> : {{c.INVOICE_NO}}<br>
                         <span class="my-label">Bill of Lading</span> : {{c.BILL_OF_LADING}}<br>
+                        <span class="my-label">Part Number</span> : {{itemList.find(i => i.PO_ITEM === c.PO_ITEM).MATERIAL_EXTERNAL}}<br>
+                        <span class="my-label">Mat. Decription</span> : {{itemList.find(i => i.PO_ITEM === c.PO_ITEM).SHORT_TEXT}}<br>
                     </div>
                 </div>
             </v-ons-list-item>
@@ -83,7 +85,9 @@ export default {
                     return {
                         problem: { notifType: 'G3', description: 'RELEASE PO' },
                         purchaser_name: _this.po.E_USER_FULLNAME,
-                        description: problemDescription
+                        description: problemDescription,
+                        to: _this.po.E_USER_EMAIL,
+                        po_number: _this.po.E_POHEADER.PO_NUMBER
                     }
                 }
             })

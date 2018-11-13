@@ -83,6 +83,8 @@ export default {
             purchaser_name: '',
             device_data: '',
             description: '',
+            to: '',
+            po_number: '',
             problemDialog: false,
             problem: { notifType: '', description: '[SELECT PROBLEM]' },
             problems: [
@@ -127,7 +129,9 @@ export default {
                 purchaser_name: _this.purchaser_name,
                 device_data: _this.device_data,
                 description: 'User ID : ' + window.localStorage.userId + '\n' + _this.description,
-                user_id: window.localStorage.userId
+                user_id: window.localStorage.userId,
+                to: _this.to,
+                po_number: _this.po_number
             }
 
             _this.error = ''

@@ -40,14 +40,17 @@
             <v-ons-list-item>
                 <div class="center">
                     <small>WORK CENTER</small>
-                    <div class="list-item__title">{{inspection.ET_OPERATION.item.WORKCENTER}}</div>
+                    <div class="list-item__title">{{inspection.ET_OPERATION.item.WORKCENTER || '-'}}</div>
                 </div>
             </v-ons-list-item>
             <v-ons-list-item v-for="(r, i) in inspection.ET_CHAR_REQUIREMENTS.item" tappable :key="r.INSPCHAR">
                 <div class="center">
                     <small>{{r.CHAR_DESCR}}</small>
-                    <div class="list-item__title" @click="selectCharacteristic(r.MSTR_CHAR)">
+                    <div class="list-item__title" @click="selectCharacteristic(r.MSTR_CHAR)" v-if="r.MSTR_CHAR !== '50000018'">
                         <i class="fa fa-edit"></i> {{inspection.ET_CHAR_RESULTS.item[i].CHARACTERISTIC.description}}
+                    </div>
+                    <div class="list-item__title" v-if="r.MSTR_CHAR === '50000018'">
+                        <i class="fa fa-edit"></i> <v-ons-input type="date" style="width:150px;" v-model="inspection.ET_CHAR_RESULTS.item[i].ORIGINAL_INPUT" placeholder="Best Before Date"></v-ons-input>
                     </div>
                     <div class="list-item__subtitle">
                         Status:
@@ -127,15 +130,16 @@ export default {
                     INSPCHAR: cr.INSPCHAR,
                     EVALUATION: _this.evaluation[cr.INSPCHAR] ? 'A' : 'R',
                     CODE1: cr.CHARACTERISTIC.code,
-                    CODE_GRP1: cr.CHARACTERISTIC.group
+                    CODE_GRP1: cr.CHARACTERISTIC.group,
+                    ORIGINAL_INPUT: cr.ORIGINAL_INPUT
                 })
             })
 
             // ini nunggu api-nya final
-            // if (charResults.filter(cr => cr.CODE1 === '').length > 0) {
-            //     _this.error = 'Please fill the form correctly!'
-            //     return
-            // }
+            if (charResults.filter((cr, i) => cr.CODE1 === '' && _this.inspection.ET_CHAR_REQUIREMENTS.item[i].MSTR_CHAR !== '50000018').length > 0) {
+                _this.error = 'Please fill the form correctly!'
+                return
+            }
 
             let data = {
                 api_token: window.localStorage.api_token,

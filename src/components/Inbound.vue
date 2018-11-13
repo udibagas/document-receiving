@@ -132,7 +132,9 @@ export default {
                     return {
                         problem: { notifType: 'G3', description: 'RELEASE PO' },
                         purchaser_name: _this.po.E_USER_FULLNAME,
-                        description: problemDescription
+                        description: problemDescription,
+                        to: _this.po.E_USER_EMAIL,
+                        po_number: _this.po.E_POHEADER.PO_NUMBER
                     }
                 }
             })

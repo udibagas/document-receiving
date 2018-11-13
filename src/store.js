@@ -229,9 +229,9 @@ export default new Vuex.Store({
             },
             {
                 mstr_char: '50000018',
-                description: 'Best Before Date - DDMMYYYY format',
+                description: 'Best Before Date',
                 options: [
-                    { group: '', code: '', description: 'Best Before Date - DDMMYYYY format' }
+                    { group: '', code: '', description: 'Best Before Date' }
                 ]
             }
         ]
