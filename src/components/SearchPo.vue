@@ -1,20 +1,34 @@
 <template>
     <v-ons-page>
-        <v-ons-toolbar>
+        <!-- <v-ons-toolbar>
             <div class="left">
                 <v-ons-back-button></v-ons-back-button>
             </div>
             <div class="center">SEARCH PO FOR {{action.toUpperCase()}}</div>
-        </v-ons-toolbar>
+        </v-ons-toolbar> -->
         <div class="background"></div>
         <div class="content">
+            <img style="width:80%;margin:0 auto 0;" src="../assets/logo-white.png"><br>
             <div class="form">
-                <p><input type="number" :disabled="processing" v-model="po_number" class="po-number-input" placeholder="PO NUMBER"></p>
-                <p><v-ons-button :disabled="!po_number || processing" @click.prevent="po_number = ''; error = ''" class="scan-document-btn" modifier="material">CLEAR</v-ons-button></p>
-                <p><v-ons-button :disabled="processing" @click.prevent="scanText" class="scan-document-btn">SCAN TEXT</v-ons-button></p>
-                <p><v-ons-button :disabled="processing" @click.prevent="scanCode" class="scan-document-btn">SCAN QR/BAR CODE</v-ons-button></p>
-                <p><v-ons-button :disabled="!po_number || processing" @click.prevent="submitData" :class="['submit-data-btn', po_number && !processing ? 'btn-red' : '']" modifier="material">{{submitButtonLabel}}</v-ons-button></p>
-                <p class="error" v-if="error">{{error}}</p>
+                <input type="number" v-model="po_number" class="po-number-input" placeholder="PO NUMBER">
+                <br><br>
+                <v-ons-row>
+                    <v-ons-col width="50%" class="btn-submit" @click.prevent="submitData">
+                        <div style="line-height:120px;"> SUBMIT </div>
+                    </v-ons-col>
+                    <v-ons-col width="50%" class="btn-reset" @click.prevent="po_number = ''; error = ''">
+                        <div style="line-height:120px;"> RESET </div>
+                    </v-ons-col>
+                </v-ons-row>
+                <v-ons-row>
+                    <v-ons-col width="50%" class="btn-ocr" @click.prevent="scanText">
+                        <div style="line-height:120px;"> SCAN TEXT </div>
+                    </v-ons-col>
+                    <v-ons-col width="50%" class="btn-barcode" @click.prevent="scanCode">
+                        <div style="line-height:120px;"> SCAN CODE </div>
+                    </v-ons-col>
+                </v-ons-row>
+                <p class="text-white" v-if="error">{{error}}</p>
             </div>
         </div>
 
@@ -37,7 +51,7 @@
             <p style="text-align: center">
                 <v-ons-icon icon="fa-spinner" spin size="40px"></v-ons-icon>
                 <br><br>
-                Getting data...
+                Requesting data...
             </p>
         </v-ons-modal>
     </v-ons-page>
@@ -116,6 +130,10 @@ export default {
             })
         },
         submitData: function() {
+            if (!this.po_number) {
+                return
+            }
+
             let _this = this
             _this.processing = true
             _this.error = ''
@@ -190,53 +208,81 @@ export default {
 </script>
 
 <style scoped>
+
+.background {
+    background-color:#3355aa;
+    /* background-image: url('../assets/bg_main_cropped.jpg'); */
+    background-image: url('http://13.76.153.42/material-receiving-and-inspection-dev/images/bg_main_cropped.jpg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-blend-mode: color-dodge;
+}
+
 .content {
     text-align: center;
     margin: 50px auto 0;
 }
 
 .form {
-    margin: 80px auto 10px;
-    width: 270px;
+    margin: 40px auto 10px;
+    width: 80%;
 }
 
 .po-number-input {
     width: 100%;
     font-size: 32px;
-    color: #e3342f;
+    /* color: #e3342f; */
     background-color: #eee;
     text-align: center;
     border: none;
-    border-radius: 20px;
+    border-radius: 2px;
+    height: 80px;
+    line-height: 80px;
 }
 
-.submit-data-btn, .scan-document-btn {
-    height: 30px;
-    border-radius: 20px;
-    width: 100%;
+.btn-submit, .btn-reset, .btn-ocr, .btn-barcode {
+    height: 120px;
+    /* border-radius: 30px; */
+    text-align: center;
+    color: #fff;
+    opacity: 0.8;
+    font-size: 20px;
 }
 
-.btn-red {
-    background-color: #e3342f;
+.btn-submit {
+    background-color: #e17d7d;
+    border-top-left-radius: 2px;
+}
+
+.btn-reset {
+    background-color: #5073a1;
+    border-top-right-radius: 2px;
+}
+
+.btn-ocr {
+    background-color: #89ef90;
+    border-bottom-left-radius: 2px;
+}
+
+.btn-barcode {
+    background-color: #dfd369;
+    border-bottom-right-radius: 2px;
 }
 
 ::-webkit-input-placeholder {
-   text-align: center;
    font-weight: lighter;
 }
 
 :-moz-placeholder { /* Firefox 18- */
-   text-align: center;
    font-weight: lighter;
 }
 
 ::-moz-placeholder {  /* Firefox 19+ */
-   text-align: center;
    font-weight: lighter;
 }
 
 :-ms-input-placeholder {
-   text-align: center;
    font-weight: lighter;
 }
 </style>

@@ -25,7 +25,7 @@
                         <span class="my-label">Invoice Number</span> : {{c.INVOICE_NO}}<br>
                         <span class="my-label">Bill of Lading</span> : {{c.BILL_OF_LADING}}<br>
                         <span class="my-label">Part Number</span> : {{itemList.find(i => i.PO_ITEM === c.PO_ITEM).MATERIAL_EXTERNAL}}<br>
-                        <span class="my-label">Mat. Decription</span> : {{itemList.find(i => i.PO_ITEM === c.PO_ITEM).SHORT_TEXT}}<br>
+                        <span class="my-label">Mat. Description</span> : <span style="white-space: nowrap;text-overflow:ellipsis;overflow:hidden">{{itemList.find(i => i.PO_ITEM === c.PO_ITEM).SHORT_TEXT}}</span>
                     </div>
                 </div>
             </v-ons-list-item>
@@ -37,11 +37,6 @@
 
         <div class="btn-fixed-bottom">
             <v-ons-button v-if="parseInt(po.E_POHEADER.PO_REL_IND) !== 2" style="width:95%;" @click.prevent="createNotification">CREATE NOTIFICATION</v-ons-button>
-        </div>
-
-        <div class="toast" v-show="error" style="bottom:45px;">
-            <div class="toast__message">{{error}}</div>
-            <button class="toast__button" @click="error = ''">OK</button>
         </div>
 
     </v-ons-page>
@@ -59,11 +54,6 @@ export default {
         po() { return this.$store.state.po },
         poConfirmation() { return this.$store.getters.poConfirmation },
         itemList() { return this.$store.getters.itemList }
-    },
-    data: function() {
-        return {
-            error: ''
-        }
     },
     methods: {
         createNotification: function() {
@@ -110,7 +100,7 @@ export default {
 
 <style lang="css" scoped>
 .my-label {
-    width: 100px;
+    width: 110px;
     display: inline-block;
 }
 </style>

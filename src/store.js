@@ -43,6 +43,7 @@ export default new Vuex.Store({
             {
                 mstr_char: '50000000',
                 description: 'SERVICEABILITY AUTHORITY',
+                default: { group: '', code: '', description: '[SELECT OPTION]' },
                 options: [
                     { group: 'AUTHORTY', code: 'DGCA', description: 'DGCA approved part' },
                     { group: 'AUTHORTY', code: 'EASA', description: 'EASA approved part' },
@@ -52,6 +53,7 @@ export default new Vuex.Store({
             {
                 mstr_char: '50000001',
                 description: 'SEC SERVICEABLE AUTHORITY 1',
+                default: { group: '', code: '', description: '[SELECT OPTION]' },
                 options: [
                     { group: 'AUTHORTY', code: 'DGCA', description: 'DGCA approved part' },
                     { group: 'AUTHORTY', code: 'EASA', description: 'EASA approved part' },
@@ -62,6 +64,7 @@ export default new Vuex.Store({
             {
                 mstr_char: '50000002',
                 description: 'SEC SERVICEABLE AUTHORITY 2',
+                default: { group: '', code: '', description: '[SELECT OPTION]' },
                 options: [
                     { group: 'AUTHORTY', code: 'DGCA', description: 'DGCA approved part' },
                     { group: 'AUTHORTY', code: 'EASA', description: 'EASA approved part' },
@@ -72,15 +75,17 @@ export default new Vuex.Store({
             {
                 mstr_char: '50000003',
                 description: 'SERVICEABILITY STATUS',
+                default: { group: '', code: '', description: '[SELECT OPTION]' },
                 options: [
                     { group: 'STATUS', code: 'SERV', description: 'Serviceable' },
                     { group: 'STATUS', code: 'STAC', description: 'STAC' },
                     { group: 'STATUS', code: 'UNSV', description: 'Unserviceable' }
-                ]
+                ],
             },
             {
                 mstr_char: '50000004',
                 description: 'General Document - Invoice',
+                default: { group: 'INVOICE', code: 'GD01', description: 'INVOICE AVAILABLE (ACCEPTED)' },
                 options: [
                     { group: 'INVOICE', code: 'GD01', description: 'INVOICE AVAILABLE (ACCEPTED)' },
                     { group: 'INVOICE', code: 'GD02', description: 'INVOICE NOT AVAILABLE (ACCEPTED)' },
@@ -91,6 +96,7 @@ export default new Vuex.Store({
             {
                 mstr_char: '50000005',
                 description: 'General Document - Airway Bill',
+                default: { group: '', code: '', description: '[SELECT OPTION]' },
                 options: [
                     { group: 'ARWYBILL', code: 'GD03', description: 'AIRWAYBILL AVAILABLE (ACCEPTED)' },
                     { group: 'ARWYBILL', code: 'GD04', description: 'AIRWAYBILL NOT AVAILABLE (ACCEPTED)' },
@@ -101,6 +107,7 @@ export default new Vuex.Store({
             {
                 mstr_char: '50000006',
                 description: 'General Document - Shipping Document',
+                default: { group: '', code: '', description: '[SELECT OPTION]' },
                 options: [
                     { group: 'SHIPDOC', code: 'GD05', description: 'SHIPPNG DOCUMENT AVAILABLE (ACCEPTED)' },
                     { group: 'SHIPDOC', code: 'GD06', description: 'SHIPPNG DOCUMENT NOT AVAILABLE (ACCEPT)' },
@@ -111,6 +118,7 @@ export default new Vuex.Store({
             {
                 mstr_char: '50000007',
                 description: 'Certificate of Conformity',
+                default: { group: 'CERTCONF', code: 'CC01', description: 'CERTIFICATE OF CONFORMITY AVAILABLE(ACC)' },
                 options: [
                     { group: 'CERTCONF', code: 'CC01', description: 'CERTIFICATE OF CONFORMITY AVAILABLE(ACC)' },
                     { group: 'CERTCONF', code: 'CC02', description: 'CERTIFICATE OF CONFORMITY NOT AVAIL(ACC)' },
@@ -121,6 +129,7 @@ export default new Vuex.Store({
             {
                 mstr_char: '50000008',
                 description: 'Calibration Certificate',
+                default: { group: '', code: '', description: '[SELECT OPTION]' },
                 options: [
                     { group: 'CERTCALB', code: 'CL01', description: 'CALIBRATION CERTIFICATE AVAILABLE(ACCEP)' },
                     { group: 'CERTCALB', code: 'CL02', description: 'CALIBRATION CERTIFICATE NOT AVAIL(ACCEP)' },
@@ -131,6 +140,7 @@ export default new Vuex.Store({
             {
                 mstr_char: '50000009',
                 description: 'Servicable Tag',
+                default: { group: '', code: '', description: '[SELECT OPTION]' },
                 options: [
                     { group: 'SERVTAG', code: 'ST01', description: 'SERVICABLE TAG AVAILABLE (ACCEPTED)' },
                     { group: 'SERVTAG', code: 'ST02', description: 'SERVICABLE TAG NOT AVAILABLE (ACCEPTED)' },
@@ -141,6 +151,7 @@ export default new Vuex.Store({
             {
                 mstr_char: '50000010',
                 description: 'Test Certificate',
+                default: { group: '', code: '', description: '[SELECT OPTION]' },
                 options: [
                     { group: 'TESTCERT', code: 'TC01', description: 'TEST CERTIFICATE AVAILABLE (ACCEPTED)' },
                     { group: 'TESTCERT', code: 'TC02', description: 'TEST CERTIFICATE NOT AVAILABLE (ACCEPT)' },
@@ -151,6 +162,7 @@ export default new Vuex.Store({
             {
                 mstr_char: '50000011',
                 description: 'Technical Data and Document',
+                default: { group: 'MIC', code: '0001', description: 'ACCEPTABLE' },
                 options: [
                     { group: 'MIC', code: '0001', description: 'ACCEPTABLE' },
                     { group: 'MIC', code: '9900', description: 'OTHER EXPLANATION FOR REJECTION' },
@@ -163,6 +175,7 @@ export default new Vuex.Store({
             {
                 mstr_char: '50000012',
                 description: 'Packaging Type',
+                default: { group: '', code: '', description: '[SELECT OPTION]' },
                 options: [
                     { group: 'PACKTYPE', code: 'PT01', description: 'REUSABLE CONTAINER USED' },
                     { group: 'PACKTYPE', code: 'PT02', description: 'WOODEN BOX USED' },
@@ -173,6 +186,7 @@ export default new Vuex.Store({
             {
                 mstr_char: '50000013',
                 description: 'Packaging Condition',
+                default: { group: 'MIC', code: '0001', description: 'ACCEPTABLE' },
                 options: [
                     { group: 'MIC', code: '0001', description: 'ACCEPTABLE' },
                     { group: 'MIC', code: '9900', description: 'OTHER EXPLANATION FOR REJECTION' },
@@ -184,6 +198,7 @@ export default new Vuex.Store({
             {
                 mstr_char: '50000014',
                 description: 'Physical Condition',
+                default: { group: 'MIC', code: '0001', description: 'ACCEPTABLE' },
                 options: [
                     { group: 'MIC', code: '0001', description: 'ACCEPTABLE' },
                     { group: 'MIC', code: '9900', description: 'OTHER EXPLANATION FOR REJECTION' },
@@ -196,6 +211,7 @@ export default new Vuex.Store({
             {
                 mstr_char: '50000015',
                 description: 'Quantity',
+                default: { group: 'MIC', code: '0001', description: 'ACCEPTABLE' },
                 options: [
                     { group: 'MIC', code: '0001', description: 'ACCEPTABLE' },
                     { group: 'MIC', code: '9900', description: 'OTHER EXPLANATION FOR REJECTION' },
@@ -206,6 +222,7 @@ export default new Vuex.Store({
             {
                 mstr_char: '50000016',
                 description: 'Material Status',
+                default: { group: '', code: '', description: '[SELECT OPTION]' },
                 options: [
                     { group: 'MATLSTAT', code: 'MS01', description: 'NEW ITEM' },
                     { group: 'MATLSTAT', code: 'MS02', description: 'REPAIR/INSPECT' },
@@ -217,6 +234,7 @@ export default new Vuex.Store({
             {
                 mstr_char: '50000017',
                 description: 'Preservation Check',
+                default: { group: 'MIC', code: '0001', description: 'ACCEPTABLE' },
                 options: [
                     { group: 'MIC', code: '0001', description: 'ACCEPTABLE' },
                     { group: 'MIC', code: '9900', description: 'OTHER EXPLANATION FOR REJECTION' },

@@ -1,11 +1,13 @@
 <template>
-    <v-ons-navigator swipeable
+    <div>
+        <v-ons-navigator swipeable
         :page-stack="pageStack"
         :options="{animation: 'slide'}"
         @push-page="pageStack.push($event)"
         @replace-page="pageStack = []; pageStack.push($event)"
         @pop-page="pageStack.pop()"
-    ></v-ons-navigator>
+        ></v-ons-navigator>
+    </div>
 </template>
 
 <script>
@@ -24,12 +26,30 @@ export default {
 </script>
 
 <style>
+@font-face {
+    font-family: "MyriadMM";
+    src: url("assets/fonts/MyriadMM.ttf");
+}
+
 body {
+    font-family: "MyriadMM", sans-serif;
     color: #5a5a5a;
 }
 
 .page--material__content {
+    font-family: "MyriadMM", sans-serif;
     color: #5a5a5a;
+}
+
+.page--material,
+.page,
+.button--material,
+.list,
+.list-item,
+.text-input,
+.textarea,
+.textarea--transparent {
+    font-family: "MyriadMM", sans-serif !important;
 }
 
 .back-button--material {
@@ -90,11 +110,6 @@ body {
     text-align: center;
     background-color: #fff;
     padding: 10px 0;
-}
-
-img.logo {
-    width: 200px;
-    margin: 0 auto 10px;
 }
 
 .text-primary, .list-header--material {

@@ -180,7 +180,19 @@
         </div>
 
         <v-ons-modal :visible="busy">
-            <p style="text-align: center">
+            <div class="alert-dialog" v-show="successDialog">
+                <div class="alert-dialog-container">
+                    <div class="alert-dialog-title">GR SUCCESS</div>
+                    <div class="alert-dialog-content">
+                        <p>Material Document : {{matDoc}}</p>
+                    </div>
+
+                    <div class="alert-dialog-footer">
+                        <button class="alert-dialog-button alert-dialog-button--primal" @click="successDialog = false; $emit('pop-page')">OK</button>
+                    </div>
+                </div>
+            </div>
+            <p style="text-align: center" v-if="!successDialog">
                 <v-ons-icon icon="fa-spinner" spin size="40px"></v-ons-icon>
                 <br><br>
                 Saving data...
@@ -209,7 +221,9 @@ export default {
             serial_no: '',
             delivery_note: '',
             item_text: '',
-            error: ''
+            error: '',
+            successDialog: false,
+            matDoc: ''
         }
     },
     methods: {
@@ -274,7 +288,7 @@ export default {
             }
 
             axios.post(process.env.ROOT_API + 'gr', data).then(function(r) {
-                _this.busy = false
+                // _this.busy = false
                 let jsonData = fastXmlParser.parse(r.data, {
                     trimValues: true,
                     ignoreNameSpace: true,
@@ -291,7 +305,8 @@ export default {
                     _this.error = 'ERROR: ' + ret.item.MESSAGE
                 } else {
                     _this.$store.commit('refresh', _this.po.E_POHEADER.PO_NUMBER);
-                    _this.$emit('pop-page');
+                    _this.matDoc = jsonData.Envelope.Body["ZFM_GR_INBOUND.Response"].E_MATDOC.MAT_DOC
+                    _this.successDialog = true
                 }
             })
             .catch(function(e) {

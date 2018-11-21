@@ -1,19 +1,14 @@
 <template>
     <ons-page>
-        <div class="background">
-            <img class="logo" src="../assets/bg.jpeg" style="height:100%;width:100%;">
-        </div>
+        <div class="background"></div>
         <div class="content">
-            <img class="logo" src="../assets/logo-white.png"><br>
-            <strong style="font-size:13px;color:#fff;">MATERIAL RECEIVING AND INSPECTION</strong><br>
+            <img style="width:80%;margin:10px auto;" src="../assets/logo-white.png"><br>
+            <span style="font-size:18px;color:#fff;">MATERIAL RECEIVING AND INSPECTION<br>MOBILE APP</span><br>
             <div class="form">
-                <p><input type="text" v-model="username" class="my-input" placeholder="Username" /></p>
-                <p><input type="password" v-model="password" class="my-input" placeholder="Password" /></p>
-                <p><v-ons-button class="full-width" @click.prevent="login">LOGIN</v-ons-button></p>
+                <p><input type="text" v-model="username" class="my-input" placeholder="Enter Your Username" /></p>
+                <p><input type="password" v-model="password" class="my-input" placeholder="Enter Your Password" /></p>
+                <p><v-ons-button @click.prevent="login" class="login-btn">SUBMIT</v-ons-button></p>
                 <p class="white" v-if="error">{{error}}</p>
-
-                <br><br>
-                <small style="color:#fff;">&copy; {{year}} | GMF AeroAsia</small>
             </div>
         </div>
     </ons-page>
@@ -85,28 +80,79 @@ export default {
 </script>
 
 <style scoped>
+.background {
+    background-color:#3355aa;
+    /* background-image: url('../assets/bg_login_cropped.jpg'); */
+    background-image: url('http://13.76.153.42/material-receiving-and-inspection-dev/images/bg_login_cropped.jpg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-blend-mode: color-dodge;
+}
+
 .content {
     text-align: center;
     margin: 50px auto 0;
 }
 
 .form {
-    margin: 100px auto 10px;
-    width: 250px;
+    margin: 60px auto 10px;
 }
 
 .white {
     color: #fff;
 }
 
-.my-input {
+/* .my-input {
     border-radius: 2px;
     padding: 8px;
     width: 100%;
-    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-    -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
     box-sizing: border-box;
     border: none;
     font-size: 16px;
+} */
+
+.login-btn {
+    width: 60%;
+    background-color:#55c284;
+    height:50px;
+    line-height:50px;
+    font-size:20px;
+}
+
+.my-input {
+    height: 50px;
+    line-height: 50px;
+    width: 100%;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    border: none;
+    font-size: 20px;
+    background-color: #396080;
+    opacity: 0.8;
+    background-blend-mode: darken;
+    border-top: 1px solid #555;
+    border-bottom: 1px solid #555;
+    text-align: center;
+    color: #ddd;
+}
+
+::-webkit-input-placeholder {
+   color: #ddd;
+}
+
+:-moz-placeholder {
+   color: #ddd;
+}
+
+::-moz-placeholder {
+   color: #ddd;
+}
+
+:-ms-input-placeholder {
+   color: #ddd;
 }
 </style>
