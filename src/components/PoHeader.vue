@@ -6,7 +6,11 @@
         </v-ons-row>
         <v-ons-row style="margin-bottom:5px;">
             <v-ons-col width="120px">Vendor</v-ons-col>
-            <v-ons-col style="font-weight:normal;white-space: nowrap;text-overflow:ellipsis;overflow:hidden">: {{po.E_VENDOR_NAME}}</v-ons-col>
+            <v-ons-col style="white-space: nowrap;text-overflow:ellipsis;overflow:hidden">: {{po.E_VENDOR_NAME}}</v-ons-col>
+        </v-ons-row>
+        <v-ons-row style="margin-bottom:5px;">
+            <v-ons-col width="120px">PO Type</v-ons-col>
+            <v-ons-col>: {{po.E_POHEADER.DOC_TYPE}}</v-ons-col>
         </v-ons-row>
         <v-ons-row style="margin-bottom:5px;white-space: nowrap;">
             <v-ons-col width="120px">Created By</v-ons-col>
@@ -16,7 +20,7 @@
             <v-ons-col width="120px">Create Date</v-ons-col>
             <v-ons-col>: {{po.E_POHEADER.CREAT_DATE}}</v-ons-col>
         </v-ons-row>
-        <v-ons-row>
+        <v-ons-row v-if="!hasNoRelStrategy">
             <v-ons-col width="120px">Release Status</v-ons-col>
             <v-ons-col>
                 : <span :class="parseInt(po.E_POHEADER.PO_REL_IND) === 2 ? 'success' : 'danger'">
@@ -31,7 +35,11 @@
 export default {
     name: 'PoHeader',
     computed: {
-        po() { return this.$store.state.po }
+        po() { return this.$store.state.po },
+        hasNoRelStrategy() {
+            let poTypes = 'ZAOG,ZCON,ZPOL,ZVMI,ZSSM,ZCUS,ZCST'.split(',')
+            return poTypes.indexOf(this.po.E_POHEADER.DOC_TYPE) >= 0
+        }
     }
 }
 </script>

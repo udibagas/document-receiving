@@ -34,7 +34,25 @@ export default new Vuex.Store({
                 ? state.po.ET_POITEM.item
                 : [state.po.ET_POITEM.item];
 
-            return itemList.filter(i => i.DELETE_IND !== 'X' && i.RET_TEM !== 'X')
+            return itemList.filter(i => i.DELETE_IND === '' && i.RET_ITEM !== 'X' && i.MATERIAL_EXTERNAL !== 'ZCOST' && i.GR_IND === 'X')
+        },
+        itemListAll: state => {
+            if (state.po.ET_POITEM === undefined) {
+                return []
+            }
+
+            return Array.isArray(state.po.ET_POITEM.item)
+                ? state.po.ET_POITEM.item
+                : [state.po.ET_POITEM.item];
+        },
+        allowProcess: state => {
+            let allowList = 'ZAOG,ZCON,ZPOL,ZVMI,ZSSM,ZCUS,ZCST'.split(',')
+            if (allowList.indexOf(state.po.E_POHEADER.DOC_TYPE) >= 0) {
+                return true
+            }
+            if (parseInt(state.po.E_POHEADER.PO_REL_IND) === 2) {
+                return true
+            }
         }
     },
     state: {
@@ -80,7 +98,7 @@ export default new Vuex.Store({
                     { group: 'STATUS', code: 'SERV', description: 'Serviceable' },
                     { group: 'STATUS', code: 'STAC', description: 'STAC' },
                     { group: 'STATUS', code: 'UNSV', description: 'Unserviceable' }
-                ],
+                ]
             },
             {
                 mstr_char: '50000004',

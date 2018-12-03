@@ -23,18 +23,18 @@
                         Qty GR: {{item.QTY_GR}}
                     </span>
                 </label>
-                <label class="right" v-if="parseInt(po.E_POHEADER.PO_REL_IND) === 2">
-                    <v-ons-checkbox v-if="parseInt(item.QUANTITY) > item.QTY_GR" :input-id="'checkbox-' + item.PO_ITEM" :value="item.PO_ITEM" v-model="selectedItem"> </v-ons-checkbox>
+                <label class="right" v-if="allowProcess">
+                    <v-ons-checkbox v-if="item.QUANTITY > item.QTY_GR" :input-id="'checkbox-' + item.PO_ITEM" :value="item.PO_ITEM" v-model="selectedItem"> </v-ons-checkbox>
                 </label>
             </v-ons-list-item>
         </v-ons-list>
 
         <div class="btn-fixed-bottom">
-            <v-ons-button v-if="parseInt(po.E_POHEADER.PO_REL_IND) !== 2" style="width:95%;" @click.prevent="createNotification">CREATE NOTIFICATION</v-ons-button>
-            <v-ons-button :disabled="selectedItem.length === 0" v-if="parseInt(po.E_POHEADER.PO_REL_IND) === 2" style="width:95%" @click.prevent="createInbound">CREATE INBOUND</v-ons-button>
+            <v-ons-button v-if="!allowProcess" style="width:95%;" @click.prevent="createNotification">CREATE NOTIFICATION</v-ons-button>
+            <v-ons-button :disabled="selectedItem.length === 0" v-if="allowProcess" style="width:95%" @click.prevent="createInbound">CREATE INBOUND</v-ons-button>
         </div>
 
-        <div class="toast" v-show="error" style="bottom:45px;">
+        <div class="toast" v-show="error" style="bottom:5px;">
             <div class="toast__message">{{error}}</div>
             <button class="toast__button" @click="error = false">OK</button>
         </div>
@@ -55,7 +55,8 @@ export default {
         po() { return this.$store.state.po },
         itemList() { return this.$store.getters.itemList },
         poConfirmation() { return this.$store.getters.poConfirmation },
-        poHistoryTotal() { return this.$store.getters.poHistoryTotal }
+        poHistoryTotal() { return this.$store.getters.poHistoryTotal },
+        allowProcess() { return this.$store.getters.allowProcess }
     },
     data: function() {
         return {
@@ -76,7 +77,7 @@ export default {
             let totalInbound = 0;
             let inboundDelivery = this.poConfirmation.filter(pc => pc.PO_ITEM === poItem && pc.CONF_NAME === 'Inbound Delivery');
             inboundDelivery.forEach(function(i) {
-                totalInbound += parseInt(i.QUANTITY)
+                totalInbound += parseFloat(i.QUANTITY)
             })
             return totalInbound
         },
@@ -84,13 +85,13 @@ export default {
             let totalGr = 0;
             let poHistoryTotal = this.poHistoryTotal.filter(ph => ph.PO_ITEM === poItem)
             poHistoryTotal.forEach(function(i) {
-                totalGr += parseInt(i.DELIV_QTY)
+                totalGr += parseFloat(i.DELIV_QTY)
             })
             return totalGr
         },
         createInbound: function() {
             let _this = this
-            let items = _this.itemList.filter(item => _this.selectedItem.indexOf(item.PO_ITEM.toString()) !== -1 && parseInt(item.QUANTITY) > item.QTY_INBOUND)
+            let items = _this.itemList.filter(item => _this.selectedItem.indexOf(item.PO_ITEM.toString()) !== -1 && item.QUANTITY > item.QTY_INBOUND)
             if (items.length === 0) {
                 _this.error = 'Action not allowed. All item has been received.'
                 return
@@ -108,7 +109,7 @@ export default {
         countQuantity: function() {
             let _this = this
             _this.itemList.forEach(function(item) {
-                item.QUANTITY = parseInt(item.QUANTITY)
+                item.QUANTITY = parseFloat(item.QUANTITY)
                 item.QTY_INBOUND = _this.inboundQty(item.PO_ITEM)
                 item.QTY_GR = _this.grQty(item.PO_ITEM)
             })
@@ -130,7 +131,7 @@ export default {
                 extends: NotificationForm,
                 data: function() {
                     return {
-                        problem: { notifType: 'G3', description: 'RELEASE PO' },
+                        problem: { notifGroup: 'ZGPP', notifType: 'G3', notifCode: '14', description: 'RELEASE PO' },
                         purchaser_name: _this.po.E_USER_FULLNAME,
                         description: problemDescription,
                         to: _this.po.E_USER_EMAIL,

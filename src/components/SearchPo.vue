@@ -1,11 +1,11 @@
 <template>
     <v-ons-page>
-        <!-- <v-ons-toolbar>
+        <v-ons-toolbar>
             <div class="left">
                 <v-ons-back-button></v-ons-back-button>
             </div>
             <div class="center">SEARCH PO FOR {{action.toUpperCase()}}</div>
-        </v-ons-toolbar> -->
+        </v-ons-toolbar>
         <div class="background"></div>
         <div class="content">
             <img style="width:80%;margin:0 auto 0;" src="../assets/logo-white.png"><br>
@@ -14,21 +14,34 @@
                 <br><br>
                 <v-ons-row>
                     <v-ons-col width="50%" class="btn-submit" @click.prevent="submitData">
-                        <div style="line-height:120px;"> SUBMIT </div>
+                        <div style="line-height:120px;">
+                            <v-ons-ripple></v-ons-ripple>
+                            SUBMIT
+                        </div>
                     </v-ons-col>
                     <v-ons-col width="50%" class="btn-reset" @click.prevent="po_number = ''; error = ''">
-                        <div style="line-height:120px;"> RESET </div>
+
+                        <div style="line-height:120px;">
+                            <v-ons-ripple></v-ons-ripple>
+                            RESET
+                        </div>
                     </v-ons-col>
                 </v-ons-row>
                 <v-ons-row>
                     <v-ons-col width="50%" class="btn-ocr" @click.prevent="scanText">
-                        <div style="line-height:120px;"> SCAN TEXT </div>
+                        <div style="line-height:120px;">
+                            <v-ons-ripple></v-ons-ripple>
+                            SCAN TEXT
+                        </div>
                     </v-ons-col>
                     <v-ons-col width="50%" class="btn-barcode" @click.prevent="scanCode">
-                        <div style="line-height:120px;"> SCAN CODE </div>
+                        <div style="line-height:120px;">
+                            <v-ons-ripple></v-ons-ripple>
+                            SCAN CODE
+                        </div>
                     </v-ons-col>
                 </v-ons-row>
-                <p class="text-white" v-if="error">{{error}}</p>
+                <!-- <p class="error" v-if="error">{{error}}</p> -->
             </div>
         </div>
 
@@ -47,6 +60,11 @@
             </div>
         </div>
 
+        <div class="toast" v-show="error" style="position:fixed;bottom:5px;">
+            <div class="toast__message">{{error}}</div>
+            <button class="toast__button" @click="error = ''">OK</button>
+        </div>
+
         <v-ons-modal :visible="processing">
             <p style="text-align: center">
                 <v-ons-icon icon="fa-spinner" spin size="40px"></v-ons-icon>
@@ -54,6 +72,12 @@
                 Requesting data...
             </p>
         </v-ons-modal>
+
+        <div class="action-sheet-mask" v-show="selectPoActionSheet"></div>
+        <div class="action-sheet" v-show="selectPoActionSheet">
+            <button class="action-sheet-button" v-for="p in poNumberList" @click="selectPoNumber(p)">{{ p }}</button>
+            <button class="action-sheet-button" @click="selectPoActionSheet = false">Cancel</button>
+        </div>
     </v-ons-page>
 </template>
 
@@ -74,15 +98,22 @@ export default {
             po_number: '',
             error: '',
             processing: false,
-            submitButtonLabel: 'SEARCH PO FOR '
+            submitButtonLabel: 'SEARCH PO FOR ',
+            selectPoActionSheet: false,
+            poNumberList: []
         }
     },
     methods: {
+        selectPoNumber: function(po_number) {
+            this.po_number = po_number
+            this.selectPoActionSheet = false
+            this.submitData()
+        },
         scanText: function() {
             let _this = this;
             _this.po_number = ''
             let cameraOptions = {
-                quality: 100,
+                quality: 80,
                 correctOrientation: true,
                 destinationType: Camera.DestinationType.NATIVE_URI
             };
@@ -90,9 +121,23 @@ export default {
             _this.$ons.ready(function() {
                 navigator.camera.getPicture(function(imageData) {
                     textocr.recText(0, 2, imageData, function(recognizedText) {
-                        _this.po_number = recognizedText.replace(/\D/g, '')
-                        if (_this.po_number) {
+                        let match = recognizedText.split(',')
+                            .filter(t => t.trim().length >= 9)
+                            .map(m => m.replace(/\D/g, ''))
+                            .filter(m => m.length === 9)
+
+                        if (match.length === 1) {
+                            _this.po_number = match[0]
                             _this.submitData()
+                        }
+
+                        if (match.length === 0) {
+                            _this.error = 'PO Number pattern not found!'
+                        }
+
+                        if (match.length > 1) {
+                            _this.poNumberList = match
+                            _this.selectPoActionSheet = true
                         }
                     }, function(message) {
                         _this.error = 'Failed to read text: ' + message
@@ -164,6 +209,7 @@ export default {
                 }
 
                 _this.$store.state.po = jsonData.Envelope.Body["ZFM_PO_OUTBOUND.Response"]
+                // alert(JSON.stringify(_this.$store.state.po))
 
                 if (_this.action === 'inbound') {
                     _this.$emit('push-page', Inbound)
@@ -192,7 +238,7 @@ export default {
                 extends: NotificationForm,
                 data: function() {
                     return {
-                        problem: { notifType: 'G3', description: 'PO NOT EXIST' },
+                        problem: { notifGroup: 'ZGPP', notifType: 'G3', notifCode: '14', description: 'PO NOT EXIST' },
                         description: '[TULIS PESAN ANDA] \n\n\nPO NUMBER : ' + _this.po_number,
                         to: 'admin',
                         po_number: _this.po_number
@@ -232,7 +278,6 @@ export default {
 .po-number-input {
     width: 100%;
     font-size: 32px;
-    /* color: #e3342f; */
     background-color: #eee;
     text-align: center;
     border: none;
@@ -245,7 +290,7 @@ export default {
     height: 120px;
     /* border-radius: 30px; */
     text-align: center;
-    color: #fff;
+    color: #000;
     opacity: 0.8;
     font-size: 20px;
 }

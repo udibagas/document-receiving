@@ -34,7 +34,7 @@
             </li>
             <li class="list-item">
                 <div class="list-item__center">
-                    {{parseInt(item.QUANTITY)}}
+                    {{item.QUANTITY}}
                 </div>
                 <div class="list-item__right">
                     <div class="list-item__label">Quantity</div>
@@ -67,7 +67,7 @@
         </ul>
 
         <div class="btn-fixed-bottom">
-            <v-ons-button v-if="parseInt(po.E_POHEADER.PO_REL_IND) === 2 && parseInt(item.QUANTITY) > item.QTY_INBOUND" style="width:95%" @click.prevent="createInbound">CREATE INBOUND</v-ons-button>
+            <v-ons-button v-if="allowProcess && item.QUANTITY > item.QTY_INBOUND" style="width:95%" @click.prevent="createInbound">CREATE INBOUND</v-ons-button>
         </div>
     </v-ons-page>
 </template>
@@ -77,7 +77,8 @@ import InboundForm from './InboundForm'
 
 export default {
     computed: {
-        po() { return this.$store.state.po }
+        po() { return this.$store.state.po },
+        allowProcess() { return this.$store.getters.allowProcess }
     },
     data: function() {
         return {

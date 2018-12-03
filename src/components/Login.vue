@@ -8,8 +8,13 @@
                 <p><input type="text" v-model="username" class="my-input" placeholder="Enter Your Username" /></p>
                 <p><input type="password" v-model="password" class="my-input" placeholder="Enter Your Password" /></p>
                 <p><v-ons-button @click.prevent="login" class="login-btn">SUBMIT</v-ons-button></p>
-                <p class="white" v-if="error">{{error}}</p>
+                <!-- <p class="white" v-if="error">{{error}}</p> -->
             </div>
+        </div>
+
+        <div class="toast" v-show="error" style="position:fixed;bottom:5px;">
+            <div class="toast__message">{{error}}</div>
+            <button class="toast__button" @click="error = ''">OK</button>
         </div>
     </ons-page>
 </template>

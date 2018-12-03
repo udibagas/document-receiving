@@ -7,6 +7,11 @@ import Vue from 'vue'
 import VueOnsen from 'vue-onsenui'
 import store from './store'
 import App from './App'
+import Datetime from 'vue-datetime'
+// You need a specific loader for CSS files
+import 'vue-datetime/dist/vue-datetime.css'
+
+Vue.use(Datetime)
 
 Vue.config.productionTip = false
 

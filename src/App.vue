@@ -13,14 +13,20 @@
 <script>
 import Login from './components/Login'
 import Main from './components/Main'
+// import Test from './components/Test'
 
 export default {
     name: 'app',
     data: function() {
         return {
             pageStack: [(window.localStorage.isLoggedIn === 'true') ? Main : Login]
-            // pageStack: [Main]
+            // pageStack: [Test]
         }
+    },
+    mounted: function() {
+        this.$ons.ready(function() {
+            window.plugins.insomnia.keepAwake()
+        });
     }
 }
 </script>

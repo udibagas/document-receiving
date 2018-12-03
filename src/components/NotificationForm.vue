@@ -86,16 +86,17 @@ export default {
             to: '',
             po_number: '',
             problemDialog: false,
-            problem: { notifType: '', description: '[SELECT PROBLEM]' },
+            problem: { notifGroup: '', notifType: '', notifCode: '', description: '[SELECT PROBLEM]' },
             problems: [
-                { notifType: 'W2', description: 'SN NOT EXISTS' },
-                { notifType: 'G3', description: 'RELEASE PO' },
-                { notifType: 'G3', description: 'DIFF PIN' },
-                { notifType: 'G3', description: 'INSERT QTY' },
-                { notifType: 'W2', description: 'CHANGE SN STATUS' },
-                { notifType: 'G3', description: 'INSERT PN' },
-                { notifType: 'G3', description: 'PO NOT EXIST' },
-                { notifType: 'G3', description: 'OTHER' }
+                { notifGroup: 'ZCO', notifType: 'W2', notifCode: '11', description: 'SN NOT EXISTS' },
+                { notifGroup: 'ZGPP', notifType: 'G3', notifCode: '14', description: 'RELEASE PO' },
+                { notifGroup: 'ZGPP', notifType: 'G3', notifCode: '14', description: 'DIFF PN' },
+                { notifGroup: 'ZGPP', notifType: 'G3', notifCode: '14', description: 'INSERT QTY' },
+                { notifGroup: 'ZGPP', notifType: 'G3', notifCode: '14', description: 'NEED OUTBOUND PROCESS' },
+                { notifGroup: 'ZGPP', notifType: 'G3', notifCode: '14', description: 'INSERT PN' },
+                { notifGroup: 'ZGPP', notifType: 'G3', notifCode: '14', description: 'PO NOT EXIST' },
+                { notifGroup: 'ZGPP', notifType: 'G3', notifCode: '14', description: 'ADD QTY' },
+                { notifGroup: 'ZGPP', notifType: 'G3', notifCode: '14', description: 'OTHER' }
             ]
         }
     },

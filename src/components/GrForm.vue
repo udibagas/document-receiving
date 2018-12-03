@@ -40,7 +40,7 @@
             </li>
             <li class="list-item">
                 <div class="list-item__center">
-                    {{parseInt(item.QUANTITY)}}
+                    {{item.QUANTITY}}
                 </div>
                 <div class="list-item__right">
                     <div class="list-item__label">Quantity</div>
@@ -89,10 +89,18 @@
             </li>
             <li class="list-item">
                 <div class="list-item__center">
-                    {{parseInt(inbound.QUANTITY)}}
+                    {{inbound.QUANTITY}}
                 </div>
                 <div class="list-item__right">
                     <div class="list-item__label">Quantity</div>
+                </div>
+            </li>
+            <li class="list-item">
+                <div class="list-item__center">
+                    {{inbound.QTY_REDUCED}}
+                </div>
+                <div class="list-item__right">
+                    <div class="list-item__label">Quantity Reduced</div>
                 </div>
             </li>
             <li class="list-item">
@@ -105,7 +113,7 @@
             </li>
             <li class="list-item">
                 <div class="list-item__center">
-                    <input type="date" style="width:120px" v-model="inbound.DATE_PREL_DOC" class="text-input" placeholder="Prelim Doc Date">
+                    <datetime type="date" v-model="inbound.DATE_PREL_DOC" class="text-input" placeholder="Prelim Doc Date" format="dd/MM/yyyy" zone="Asia/Jakarta" value-zone="Asia/Jakarta"></datetime>
                 </div>
                 <div class="list-item__right">
                     <div class="list-item__label">Prelim Doc Date</div>
@@ -121,7 +129,7 @@
             </li>
             <li class="list-item">
                 <div class="list-item__center">
-                    <input type="date" style="width:120px" v-model="inbound.INVOICE_DT" class="text-input" placeholder="Invoice Date">
+                    <datetime type="date" v-model="inbound.INVOICE_DT" placeholder="Invoice Date" format="dd/MM/yyyy"  zone="Asia/Jakarta" value-zone="Asia/Jakarta"></datetime>
                 </div>
                 <div class="list-item__right">
                     <div class="list-item__label">Invoice Date</div>
@@ -137,7 +145,7 @@
             </li>
             <li class="list-item">
                 <div class="list-item__center">
-                    <input type="date" v-model="inbound.DELIV_DATE" class="text-input" placeholder="Delivery Date">
+                    <datetime type="date" v-model="inbound.DELIV_DATE" placeholder="Delivery Date" format="dd/MM/yyyy"  zone="Asia/Jakarta" value-zone="Asia/Jakarta"></datetime>
                 </div>
                 <div class="list-item__right">
                     <div class="list-item__label">Delivery Date</div>
@@ -146,13 +154,21 @@
             <li class="list-header">GR Detail</li>
             <li class="list-item">
                 <div class="list-item__center">
+                    <input type="number" step="any" style="width: 150px" v-model="entry_qty" class="text-input" placeholder="Entry Quantity">
+                </div>
+                <div class="list-item__right">
+                    <div class="list-item__label">Entry Quantity</div>
+                </div>
+            </li>
+            <li class="list-item">
+                <div class="list-item__center">
                     <input type="text" v-model="delivery_note" class="text-input" placeholder="Delivery Note/Invoice">
                 </div>
                 <div class="list-item__right">
                     <div class="list-item__label">Delivery Note/Invoice</div>
                 </div>
             </li>
-            <li class="list-item" v-if="RegExp('EXP').test(item.MATL_GROUP) === false">
+            <li class="list-item" v-if="item.SERNO_PROF">
                 <div class="list-item__center">
                     <input type="text" v-model="serial_no" class="text-input" placeholder="Serial Number">
                 </div>
@@ -174,7 +190,7 @@
             <v-ons-button style="width:95%" :disabled="busy" @click.prevent="submitGr"> SUBMIT</v-ons-button>
         </div>
 
-        <div class="toast" v-show="error">
+        <div class="toast" v-show="error" style="position:fixed;bottom:5px;">
             <div class="toast__message">{{error}}</div>
             <button class="toast__button" @click="error = ''">OK</button>
         </div>
@@ -207,6 +223,7 @@ import fastXmlParser from 'fast-xml-parser'
 import SuccessPage from './SuccessPage'
 import PoHeader from './PoHeader'
 import NotificationForm from './NotificationForm'
+import moment from 'moment'
 
 export default {
     components: { PoHeader },
@@ -223,7 +240,8 @@ export default {
             item_text: '',
             error: '',
             successDialog: false,
-            matDoc: ''
+            matDoc: '',
+            entry_qty: 1
         }
     },
     methods: {
@@ -261,7 +279,17 @@ export default {
                 return
             }
 
-            if (RegExp("ROT|RT").test(_this.item.MATL_GROUP) && !_this.serial_no) {
+            if (_this.item.SERNO_PROF && _this.entry_qty > 1) {
+                _this.error = 'Entry quantity must be 1 for this material type'
+                return
+            }
+
+            if (_this.entry_qty > parseFloat(_this.inbound.QUANTITY)) {
+                _this.error = 'Entry quantity more than inbound quantity'
+                return
+            }
+
+            if (_this.item.SERNO_PROF && !_this.serial_no) {
                 _this.error = 'Serial Number is required!'
                 return
             }
@@ -276,19 +304,26 @@ export default {
                 return
             }
 
+            let inbound = JSON.parse(JSON.stringify(_this.inbound));
+            inbound.DELIV_DATE = moment(inbound.DELIV_DATE).format('YYYYMMDD')
+            inbound.INVOICE_DT = moment(inbound.INVOICE_DT).format('YYYYMMDD')
+            inbound.DATE_PREL_DOC = moment(inbound.DATE_PREL_DOC).format('YYYYMMDD')
+
             _this.busy = true
             let data = {
                 api_token: window.localStorage.api_token,
-                po_number: _this.po.E_POHEADER.PO_NUMBER,
+                po_number: parseInt(_this.po.E_POHEADER.PO_NUMBER),
                 serial_no: _this.serial_no,
                 item_text: _this.item_text,
                 user_id: window.localStorage.userId,
                 delivery_note: _this.delivery_note,
-                inbound: _this.inbound
+                inbound: inbound,
+                entry_qty: _this.entry_qty
             }
 
+            // alert(JSON.stringify(inbound));
+
             axios.post(process.env.ROOT_API + 'gr', data).then(function(r) {
-                // _this.busy = false
                 let jsonData = fastXmlParser.parse(r.data, {
                     trimValues: true,
                     ignoreNameSpace: true,
@@ -301,8 +336,9 @@ export default {
 
                 let ret = jsonData.Envelope.Body["ZFM_GR_INBOUND.Response"].ET_RETURN
 
-                if (ret.item && ret.item.TYPE === 'E') {
-                    _this.error = 'ERROR: ' + ret.item.MESSAGE
+                if ((ret.item && ret.item.TYPE === 'E') || (Array.isArray(ret.item) && ret.item[0].TYPE === 'E')) {
+                    _this.busy = false
+                    _this.error = 'ERROR: ' + (Array.isArray(ret.item) ? ret.item[0].MESSAGE : ret.item.MESSAGE)
                 } else {
                     _this.$store.commit('refresh', _this.po.E_POHEADER.PO_NUMBER);
                     _this.matDoc = jsonData.Envelope.Body["ZFM_GR_INBOUND.Response"].E_MATDOC.MAT_DOC

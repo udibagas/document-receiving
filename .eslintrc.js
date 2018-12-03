@@ -26,6 +26,7 @@ module.exports = {
     'no-multi-str': 'off',
     'quotes': 'off',
     'camelcase': 'off',
+    'eqeqeq': 'off',
     // allow debugger during development
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off'
 

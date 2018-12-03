@@ -47,10 +47,15 @@
                 <div class="center">
                     <small>{{r.CHAR_DESCR}}</small>
                     <div class="list-item__title" @click="selectCharacteristic(r.MSTR_CHAR)" v-if="r.MSTR_CHAR !== '50000018'">
-                        <i class="fa fa-edit"></i> {{inspection.ET_CHAR_RESULTS.item[i].CHARACTERISTIC.description}}
+                        <i class="fa fa-edit"></i>
+                        <span :class="inspection.ET_CHAR_RESULTS.item[i].CHARACTERISTIC.code === '' ? 'danger' : ''">
+                            {{inspection.ET_CHAR_RESULTS.item[i].CHARACTERISTIC.description}}
+                        </span>
                     </div>
                     <div class="list-item__title" v-if="r.MSTR_CHAR === '50000018'">
-                        <i class="fa fa-edit"></i> <v-ons-input type="date" style="width:150px;" v-model="inspection.ET_CHAR_RESULTS.item[i].ORIGINAL_INPUT" placeholder="Best Before Date"></v-ons-input>
+                        <datetime v-model="inspection.ET_CHAR_RESULTS.item[i].ORIGINAL_INPUT" placeholder="Best Before Date" format="dd/MM/yyyy" zone="Asia/Jakarta" value-zone="Asia/Jakarta"></datetime>
+
+                        <!-- <v-ons-input type="date" style="width:150px;" v-model="inspection.ET_CHAR_RESULTS.item[i].ORIGINAL_INPUT" placeholder="Best Before Date"></v-ons-input> -->
                     </div>
                     <div class="list-item__subtitle">
                         Status:
@@ -81,7 +86,7 @@
             </p>
         </v-ons-modal>
 
-        <div class="toast" v-show="error">
+        <div class="toast" v-show="error" style="position:fixed;bottom:5px;">
             <div class="toast__message">{{error}}</div>
             <button class="toast__button" @click="error = false">OK</button>
         </div>
@@ -92,6 +97,7 @@
 import axios from 'axios'
 import fastXmlParser from 'fast-xml-parser'
 import SuccessPage from './SuccessPage'
+import moment from 'moment'
 
 export default {
     computed: {
@@ -131,9 +137,12 @@ export default {
                     EVALUATION: _this.evaluation[cr.INSPCHAR] ? 'A' : 'R',
                     CODE1: cr.CHARACTERISTIC.code,
                     CODE_GRP1: cr.CHARACTERISTIC.group,
-                    ORIGINAL_INPUT: cr.ORIGINAL_INPUT
+                    ORIGINAL_INPUT: cr.ORIGINAL_INPUT ? moment(cr.ORIGINAL_INPUT).format('DDMMYYYY') : ''
                 })
             })
+
+            // alert(JSON.stringify(charResults))
+            // return
 
             // ini nunggu api-nya final
             if (charResults.filter((cr, i) => cr.CODE1 === '' && _this.inspection.ET_CHAR_REQUIREMENTS.item[i].MSTR_CHAR !== '50000018').length > 0) {
@@ -165,8 +174,8 @@ export default {
                 let ret = jsonData.Envelope.Body["ZFM_INSP_RESULT_INBOUND.Response"].ET_RETURN
                 // alert(JSON.stringify(ret))
 
-                if (ret.item && Array.isArray(ret.item)) {
-                    _this.error = 'ERROR: ' + ret.item[0].MESSAGE
+                if ((ret.item && ret.item.TYPE === 'E') || (Array.isArray(ret.item) && ret.item[0].TYPE === 'E')) {
+                    _this.error = 'ERROR: ' + (Array.isArray(ret.item) ? ret.item[0].MESSAGE : ret.item.MESSAGE)
                 } else {
                     _this.$emit('replace-page', {
                         extends: SuccessPage,

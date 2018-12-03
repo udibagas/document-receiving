@@ -15,19 +15,25 @@
     "axios": "^0.18.0",
     "cordova-android": "^7.0.0",
     "cordova-plugin-camera": "git+https://github.com/apache/cordova-plugin-camera.git",
+    "cordova-plugin-camera-preview": "git+https://github.com/cordova-plugin-camera-preview/cordova-plugin-camera-preview.git",
     "cordova-plugin-file": "git+https://github.com/apache/cordova-plugin-file.git",
+    "cordova-plugin-insomnia": "^4.3.0",
     "cordova-plugin-media": "git+https://github.com/apache/cordova-plugin-media.git",
     "cordova-plugin-mobile-ocr": "git+https://github.com/NeutrinosPlatform/cordova-plugin-mobile-ocr.git",
     "cordova-plugin-network-information": "git+https://github.com/apache/cordova-plugin-network-information.git",
     "cordova-plugin-whitelist": "^1.3.3",
     "fast-xml-parser": "^3.12.5",
+    "luxon": "^1.7.1",
     "moment": "^2.22.2",
     "onsenui": "^2.9.1",
     "phonegap-plugin-barcodescanner": "git+https://github.com/phonegap/phonegap-plugin-barcodescanner.git",
     "requirejs": "^2.3.6",
+    "tesseract.js": "^1.0.14",
     "vue": "^2.5.0",
+    "vue-datetime": "^1.0.0-beta.8",
     "vue-onsenui": "^2.5.0",
-    "vuex": "^3.0.0"
+    "vuex": "^3.0.0",
+    "weekstart": "^1.0.0"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",
@@ -100,7 +106,11 @@
       "phonegap-plugin-barcodescanner": {
         "ANDROID_SUPPORT_V4_VERSION": "27.+"
       },
-      "cordova-plugin-mobile-ocr": {}
+      "cordova-plugin-mobile-ocr": {},
+      "cordova-plugin-insomnia": {},
+      "cordova-plugin-camera-preview": {
+        "ANDROID_SUPPORT_LIBRARY_VERSION": "25+"
+      }
     },
     "platforms": [
       "android"

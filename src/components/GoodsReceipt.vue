@@ -13,7 +13,7 @@
             <li class="list-header">Unprocessed Inbound</li>
             <v-ons-list-item v-for="c in poConfirmation"
                 :key="c.DELIV_NUMB"
-                v-if="parseInt(c.QUANTITY) > parseInt(c.QTY_REDUCED) && c.CONF_NAME === 'Inbound Delivery'"
+                v-if="parseFloat(c.QUANTITY) > parseFloat(c.QTY_REDUCED) && c.CONF_NAME === 'Inbound Delivery'"
                 tappable modifier="chevron"
                 @click="createGr(c)">
                 <div class="center">
@@ -31,12 +31,12 @@
             </v-ons-list-item>
         </v-ons-list>
 
-        <h4 class="danger" style="text-align:center;text-transform:uppercase;margin-top:50px;" v-if="poConfirmation.filter(c => parseInt(c.QUANTITY) > parseInt(c.QTY_REDUCED)).length === 0">
-            No Unprocessed Inbund Found
+        <h4 class="danger" style="text-align:center;text-transform:uppercase;margin-top:50px;" v-if="poConfirmation.filter(c => parseFloat(c.QUANTITY) > parseFloat(c.QTY_REDUCED)).length === 0">
+            No Unprocessed Inbound Found
         </h4>
 
         <div class="btn-fixed-bottom">
-            <v-ons-button v-if="parseInt(po.E_POHEADER.PO_REL_IND) !== 2" style="width:95%;" @click.prevent="createNotification">CREATE NOTIFICATION</v-ons-button>
+            <v-ons-button v-if="!allowProcess" style="width:95%;" @click.prevent="createNotification">CREATE NOTIFICATION</v-ons-button>
         </div>
 
     </v-ons-page>
@@ -53,7 +53,8 @@ export default {
     computed: {
         po() { return this.$store.state.po },
         poConfirmation() { return this.$store.getters.poConfirmation },
-        itemList() { return this.$store.getters.itemList }
+        itemList() { return this.$store.getters.itemListAll },
+        allowProcess() { return this.$store.getters.allowProcess }
     },
     methods: {
         createNotification: function() {
@@ -73,7 +74,7 @@ export default {
                 extends: NotificationForm,
                 data: function() {
                     return {
-                        problem: { notifType: 'G3', description: 'RELEASE PO' },
+                        problem: { notifGroup: 'ZGPP', notifType: 'G3', notifCode: '14', description: 'RELEASE PO' },
                         purchaser_name: _this.po.E_USER_FULLNAME,
                         description: problemDescription,
                         to: _this.po.E_USER_EMAIL,
@@ -83,6 +84,10 @@ export default {
             })
         },
         createGr: function(inbound) {
+            if (!this.allowProcess) {
+                return
+            }
+
             let item = this.itemList.find(i => i.PO_ITEM === inbound.PO_ITEM)
             this.$emit('push-page', {
                 extends: GrForm,

@@ -1,11 +1,11 @@
 <template>
     <v-ons-page>
-        <!-- <v-ons-toolbar>
+        <v-ons-toolbar>
             <div class="left">
                 <v-ons-back-button></v-ons-back-button>
             </div>
             <div class="center">SEARCH BATCH NUMBER</div>
-        </v-ons-toolbar> -->
+        </v-ons-toolbar>
         <div class="background"></div>
         <div class="content">
             <img style="width:80%;margin:0 auto 0;" src="../assets/logo-white.png"><br>
@@ -14,22 +14,45 @@
                 <br><br>
                 <v-ons-row>
                     <v-ons-col width="50%" class="btn-submit" @click.prevent="submitData">
-                        <div style="line-height:120px;"> SUBMIT </div>
+                        <div style="line-height:120px;">
+                            <v-ons-ripple></v-ons-ripple>
+                            SUBMIT
+                        </div>
                     </v-ons-col>
                     <v-ons-col width="50%" class="btn-reset" @click.prevent="batch_number = ''; error = ''">
-                        <div style="line-height:120px;"> RESET </div>
+                        <div style="line-height:120px;">
+                            <v-ons-ripple></v-ons-ripple>
+                            RESET
+                        </div>
                     </v-ons-col>
                 </v-ons-row>
                 <v-ons-row>
                     <v-ons-col width="50%" class="btn-ocr" @click.prevent="scanText">
-                        <div style="line-height:120px;"> SCAN TEXT </div>
+                        <div style="line-height:120px;">
+                            <v-ons-ripple></v-ons-ripple>
+                            SCAN TEXT
+                        </div>
                     </v-ons-col>
                     <v-ons-col width="50%" class="btn-barcode" @click.prevent="scanCode">
-                        <div style="line-height:120px;"> SCAN CODE </div>
+                        <div style="line-height:120px;">
+                            <v-ons-ripple></v-ons-ripple>
+                            SCAN CODE
+                        </div>
                     </v-ons-col>
                 </v-ons-row>
-                <p class="text-white" v-if="error">{{error}}</p>
+                <!-- <p class="error" v-if="error">{{error}}</p> -->
             </div>
+        </div>
+
+        <div class="toast" v-show="error" style="position:fixed;bottom:5px;">
+            <div class="toast__message">{{error}}</div>
+            <button class="toast__button" @click="error = ''">OK</button>
+        </div>
+
+        <div class="action-sheet-mask" v-show="selectBatActionSheet"></div>
+        <div class="action-sheet" v-show="selectBatActionSheet">
+            <button class="action-sheet-button" v-for="b in batchNumberList" @click="selectBatchNumber(b)">{{ b }}</button>
+            <button class="action-sheet-button" @click="selectBatchActionSheet = false">Cancel</button>
         </div>
 
         <v-ons-modal :visible="processing">
@@ -57,10 +80,17 @@ export default {
         return {
             batch_number: '',
             error: '',
-            processing: false
+            processing: false,
+            selectBatchActionSheet: false,
+            batchNumberList: []
         }
     },
     methods: {
+        selectBatchNumber: function(po_number) {
+            this.batch_number = po_number
+            this.selectBatchActionSheet = false
+            this.submitData()
+        },
         scanText: function() {
             let _this = this;
             _this.batch_number = ''
@@ -73,9 +103,23 @@ export default {
             _this.$ons.ready(function() {
                 navigator.camera.getPicture(function(imageData) {
                     textocr.recText(0, 2, imageData, function(recognizedText) {
-                        _this.batch_number = recognizedText.replace(/\D/g, '')
-                        if (_this.batch_number) {
+                        let match = recognizedText.split(',')
+                            .filter(t => t.trim().length >= 9)
+                            .map(m => m.replace(/\D/g, ''))
+                            .filter(m => m.length === 9)
+
+                        if (match.length === 1) {
+                            _this.batch_number = match[0]
                             _this.submitData()
+                        }
+
+                        if (match.length === 0) {
+                            _this.error = 'Batch Number pattern not found!'
+                        }
+
+                        if (match.length > 1) {
+                            _this.batchNumberList = match
+                            _this.selectBatchActionSheet = true
                         }
                     }, function(message) {
                         _this.error = 'Failed to read text: ' + message
@@ -142,6 +186,11 @@ export default {
                 if (inspection.ET_CHAR_REQUIREMENTS === '') {
                     _this.error = 'Batch number not found'
                 } else {
+                    // alert(JSON.stringify(inspection.ET_CHAR_RESULTS))
+                    // if (inspection.ET_CHAR_RESULTS.item[0].EVALUATED === 'X') {
+                    //     _this.error = 'Ispection is done for this batch number'
+                    //     return
+                    // }
                     // alert(JSON.stringify(inspection))
                     inspection.ET_CHAR_REQUIREMENTS.item.forEach(function(cr, idx) {
                         let c = _this.inspectionCharacteristics.find(ic => ic.mstr_char === cr.MSTR_CHAR)
@@ -152,6 +201,8 @@ export default {
                     inspection.ET_CHAR_RESULTS.item.forEach(function(cr) {
                         evaluation[cr.INSPCHAR] = cr.EVALUATION !== 'R'
                     })
+
+                    // alert(JSON.stringify(inspection.ET_CHAR_RESULTS.item))
 
                     _this.$emit('push-page', {
                         extends: InspectionForm,
@@ -214,7 +265,7 @@ export default {
     height: 120px;
     /* border-radius: 30px; */
     text-align: center;
-    color: #fff;
+    color: #000;
     opacity: 0.8;
     font-size: 20px;
 }
