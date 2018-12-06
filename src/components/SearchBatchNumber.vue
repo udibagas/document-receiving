@@ -49,8 +49,8 @@
             <button class="toast__button" @click="error = ''">OK</button>
         </div>
 
-        <div class="action-sheet-mask" v-show="selectBatActionSheet"></div>
-        <div class="action-sheet" v-show="selectBatActionSheet">
+        <div class="action-sheet-mask" v-show="selectBatchActionSheet"></div>
+        <div class="action-sheet" v-show="selectBatchActionSheet">
             <button class="action-sheet-button" v-for="b in batchNumberList" @click="selectBatchNumber(b)">{{ b }}</button>
             <button class="action-sheet-button" @click="selectBatchActionSheet = false">Cancel</button>
         </div>
@@ -95,7 +95,7 @@ export default {
             let _this = this;
             _this.batch_number = ''
             let cameraOptions = {
-                quality: 100,
+                quality: 80,
                 correctOrientation: true,
                 destinationType: Camera.DestinationType.NATIVE_URI
             };
@@ -104,9 +104,9 @@ export default {
                 navigator.camera.getPicture(function(imageData) {
                     textocr.recText(0, 2, imageData, function(recognizedText) {
                         let match = recognizedText.split(',')
-                            .filter(t => t.trim().length >= 9)
+                            .filter(t => t.trim().length >= 10)
                             .map(m => m.replace(/\D/g, ''))
-                            .filter(m => m.length === 9)
+                            .filter(m => m.length === 10)
 
                         if (match.length === 1) {
                             _this.batch_number = match[0]
