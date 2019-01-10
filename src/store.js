@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios'
 import fastXmlParser from 'fast-xml-parser'
+import PoDummy from './PoDummy'
 
 Vue.use(Vuex)
 
@@ -56,7 +57,8 @@ export default new Vuex.Store({
         }
     },
     state: {
-        po: {},
+        // po: {},
+        po: PoDummy['SOAP:Envelope']['SOAP:Body']['ns0:ZFM_PO_OUTBOUND.Response'],
         inspectionCharacteristics: [
             {
                 mstr_char: '50000000',

@@ -11,22 +11,22 @@
 </template>
 
 <script>
-import Login from './components/Login'
-import Main from './components/Main'
-// import Test from './components/Test'
+import Login from './Login'
+import Main from './Main'
+import GoodsReceipt from './GoodsReceipt'
 
 export default {
     name: 'app',
     data: function() {
         return {
-            pageStack: [(window.localStorage.isLoggedIn === 'true') ? Main : Login]
-            // pageStack: [Test]
+            // pageStack: [(window.localStorage.isLoggedIn === 'true') ? Main : Login]
+            pageStack: [GoodsReceipt]
         }
     },
     mounted: function() {
-        this.$ons.ready(function() {
-            window.plugins.insomnia.keepAwake()
-        });
+        // this.$ons.ready(function() {
+        //     window.plugins.insomnia.keepAwake()
+        // });
     }
 }
 </script>
@@ -37,13 +37,50 @@ export default {
     src: url("assets/fonts/MyriadMM.ttf");
 }
 
+@font-face {
+    font-family: "OpenSans";
+    src: url("assets/fonts/OpenSans-Regular.ttf");
+}
+
+@font-face {
+    font-family: "OpenSans";
+    src: url("assets/fonts/OpenSans-Bold.ttf");
+    font-weight: bold;
+}
+
+@font-face {
+    font-family: "OpenSans";
+    src: url("assets/fonts/OpenSans-Italic.ttf");
+    font-style: italic;
+}
+
+@font-face {
+    font-family: "OpenSans";
+    src: url("assets/fonts/OpenSans-BoldItalic.ttf");
+    font-weight: bold;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: "OpenSans";
+    src: url("assets/fonts/OpenSans-Light.ttf");
+    font-weight: lighter;
+}
+
+@font-face {
+    font-family: "OpenSans";
+    src: url("assets/fonts/OpenSans-LightItalic.ttf");
+    font-weight: lighter;
+    font-style: italic;
+}
+
 body {
-    font-family: "MyriadMM", sans-serif;
+    font-family: "OpenSans", sans-serif;
     color: #5a5a5a;
 }
 
 .page--material__content {
-    font-family: "MyriadMM", sans-serif;
+    font-family: "OpenSans", sans-serif;
     color: #5a5a5a;
 }
 
@@ -55,30 +92,16 @@ body {
 .text-input,
 .textarea,
 .textarea--transparent {
-    font-family: "MyriadMM", sans-serif !important;
+    font-family: "OpenSans", sans-serif !important;
 }
 
 .back-button--material {
     color: #fff;
 }
 
-.toolbar--material.toolbar,
-.action-sheet-button--material,
-.action-sheet-button--material:last-of-type {
-    background-color: #396080;
-    color: #fff;
-}
-
 .toolbar__title {
     color: #fff;
     font-size: 1em;
-}
-
-.action-sheet-button--material {
-    padding: 0;
-    text-align: center;
-    height: 40px;
-    line-height: 40px;
 }
 
 .button {

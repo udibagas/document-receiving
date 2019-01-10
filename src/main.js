@@ -16,6 +16,7 @@ Vue.use(Datetime)
 Vue.config.productionTip = false
 
 Vue.use(VueOnsen)
+Vue.component('navbar', require('./Navbar').default);
 
 /* eslint-disable no-new */
 new Vue({
