@@ -1,14 +1,19 @@
 <template lang="html">
     <ons-page>
-        <v-ons-toolbar>
-            <div class="left">
-                <v-ons-back-button></v-ons-back-button>
-            </div>
-            <div class="center">MRIR NOTIFICATION FORM</div>
-        </v-ons-toolbar>
         <div class="background"></div>
-        <ul class="list" style="margin-bottom:45px;">
-            <li class="list-item">
+        <navbar nav="Back" @back="$emit('pop-page')" style="background-color:#1e2237;"></navbar>
+        <div class="nav-title">MRIR Notification Form</div>
+        <po-header></po-header>
+
+        <v-ons-card>
+            <div class="list-item__title">#{{parseInt(item.PO_ITEM)}} | {{item.SHORT_TEXT}}</div>
+            <span class="list-item__subtitle">
+                <strong>{{item.MATERIAL_EXTERNAL}}</strong>
+            </span>
+        </v-ons-card>
+
+        <ul class="list" style="margin-bottom:70px;">
+            <!-- <li class="list-item">
                 <div class="list-item__center">
                     {{po.E_POHEADER.PO_NUMBER}}
                 </div>
@@ -31,7 +36,7 @@
                 <div class="list-item__right">
                     <div class="list-item__label">Material</div>
                 </div>
-            </li>
+            </li> -->
             <li class="list-item">
                 <div class="list-item__center">
                     <input type="text" v-model="short_text" class="text-input" placeholder="Short Text">
@@ -100,7 +105,8 @@ export default {
             busy: false,
             short_text: '',
             description: '',
-            qty_complaint: ''
+            qty_complaint: '',
+            ref_num: ''
         }
     },
     methods: {
@@ -188,5 +194,32 @@ export default {
 </script>
 
 <style lang="css" scoped>
+.page {
+    margin-top: 130px;
+}
 
+.text-input, 
+.textarea, 
+.list-item__label
+.vdatetime,
+.list-item__center {
+    font-size: 12px !important;
+}
+
+.list-item__title {
+    font-size: 14px;
+    color: #3a6897;
+    font-family: 'OpenSans';
+    font-weight: bold;
+}
+
+.list-item__subtitle {
+    font-size: 12px;
+    font-family: 'OpenSans';
+    color: #333;
+}
+
+.card {
+    border-radius: 15px;
+}
 </style>

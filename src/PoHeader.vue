@@ -20,7 +20,7 @@
                     </v-ons-col>
                 </v-ons-row>
                 <span class="label">Created By</span>
-                <span class="value">{{po.E_POHEADER.CREATED_BY}}</span>
+                <span class="value">{{po.E_POHEADER.CREATED_BY}}/{{po.E_USER_FULLNAME}}</span>
             </v-ons-col>
         </v-ons-row>
     </v-ons-card>
@@ -60,17 +60,13 @@ export default {
     font-weight: bold;
     color: #d1c23a;
     display: block;
-    font-size: 12px;
-    margin: 0 0 3px 0;
+    margin-bottom: 3px;
 }
 
 .vendor {
     font-size: 16px;
     color: #3a6897;
     display: block;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
     margin: 3px 0;
 }
 

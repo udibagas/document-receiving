@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios'
 import fastXmlParser from 'fast-xml-parser'
-import PoDummy from './PoDummy'
+// import PoDummy from './PoDummy'
 
 Vue.use(Vuex)
 
@@ -57,8 +57,20 @@ export default new Vuex.Store({
         }
     },
     state: {
-        // po: {},
-        po: PoDummy['SOAP:Envelope']['SOAP:Body']['ns0:ZFM_PO_OUTBOUND.Response'],
+        bgList: [
+            'http://13.76.153.42/material-receiving-and-inspection-dev/images/a.jpg',
+            'http://13.76.153.42/material-receiving-and-inspection-dev/images/b.jpg',
+            'http://13.76.153.42/material-receiving-and-inspection-dev/images/c.jpg',
+            'http://13.76.153.42/material-receiving-and-inspection-dev/images/d.jpg',
+            'http://13.76.153.42/material-receiving-and-inspection-dev/images/e.jpg',
+            'http://13.76.153.42/material-receiving-and-inspection-dev/images/f.jpg',
+            'http://13.76.153.42/material-receiving-and-inspection-dev/images/g.jpg',
+            'http://13.76.153.42/material-receiving-and-inspection-dev/images/h.jpg',
+            'http://13.76.153.42/material-receiving-and-inspection-dev/images/i.jpg',
+            'http://13.76.153.42/material-receiving-and-inspection-dev/images/j.jpg'
+        ],
+        po: {},
+        // po: PoDummy['SOAP:Envelope']['SOAP:Body']['ns0:ZFM_PO_OUTBOUND.Response'],
         inspectionCharacteristics: [
             {
                 mstr_char: '50000000',

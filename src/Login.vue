@@ -1,8 +1,8 @@
 <template>
     <ons-page>
-        <div class="background"></div>
+        <div class="background" :style="{ backgroundImage: 'url(' + bg + ')'}"></div>
         <div class="content">
-            <img style="width:65%;margin:10px auto;" src="./assets/img/logo-white.png"><br>
+            <div class="logo-placeholder">&nbsp;</div>
             <span style="font-size:24px;color:#fff;">MATERIAL RECEIVING <br>AND INSPECTION</span><br>
             <div class="form">
                 <p><input type="text" v-model="username" class="my-input" placeholder="Username" /></p>
@@ -27,6 +27,8 @@ import Register from './Register'
 export default {
     data: function() {
         return {
+            bg: '',
+            bgInterval: null,
             username: '',
             password: '',
             error: false,
@@ -79,6 +81,16 @@ export default {
                 _this.error = e.response.data.message || e.response.message
             })
         }
+    },
+    mounted() {
+        let _this = this
+        this.bg = this.$store.state.bgList[0]
+        this.bgInterval = setInterval(function() {
+            _this.bg = _this.$store.state.bgList[Math.floor(Math.random() * 10)]
+        }, 30000);
+    },
+    destroyed() {
+        clearInterval(this.bgInterval);
     }
 }
 </script>
@@ -86,11 +98,10 @@ export default {
 <style scoped>
 .background {
     background-color:#3355aa;
-    background-image: url('./assets/img/ID7.png');
+    /* background-image: url('./assets/img/ID7.png'); */
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
-    background-blend-mode: color-dodge;
 }
 
 .content {
@@ -114,7 +125,6 @@ export default {
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
-    /* font-weight: bold; */
     border-radius: 15px;
     height:50px;
     line-height:50px;
@@ -130,19 +140,11 @@ export default {
     border-radius: 15px;
 }
 
-::-webkit-input-placeholder {
-   color: #ddd;
-}
-
-:-moz-placeholder {
-   color: #ddd;
-}
-
-::-moz-placeholder {
-   color: #ddd;
-}
-
-:-ms-input-placeholder {
-   color: #ddd;
+.logo-placeholder {
+    background-image: url('./assets/img/logo-white.png');
+    background-size: 200px;
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 100px;
 }
 </style>

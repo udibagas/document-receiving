@@ -1,12 +1,8 @@
 <template lang="html">
     <v-ons-page>
-        <v-ons-toolbar>
-            <div class="left">
-                <v-ons-back-button></v-ons-back-button>
-            </div>
-            <div class="center">ITEM DETAIL</div>
-        </v-ons-toolbar>
         <div class="background"></div>
+        <navbar nav="Back" @back="$emit('pop-page')" style="background-color:#1e2237;"></navbar>
+        <div class="nav-title">Item Detail</div>
         <ul class="list">
             <li class="list-item">
                 <div class="list-item__center">
@@ -103,4 +99,7 @@ export default {
 </script>
 
 <style lang="css" scoped>
+.page {
+    margin-top: 130px;
+}
 </style>

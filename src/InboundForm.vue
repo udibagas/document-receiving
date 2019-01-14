@@ -1,23 +1,17 @@
 <template lang="html">
     <ons-page>
-        <v-ons-toolbar>
-            <div class="left">
-                <v-ons-back-button></v-ons-back-button>
-            </div>
-            <div class="center">CREATE INBOUND</div>
-        </v-ons-toolbar>
         <div class="background"></div>
+        <navbar nav="Back" @back="$emit('pop-page')" style="background-color:#1e2237;"></navbar>
+        <div class="nav-title">Form Inbound</div>
         <po-header></po-header>
-        <v-ons-list style="margin-bottom:45px">
+
+        <v-ons-list style="margin-bottom:70px">
             <li class="list-header">Item</li>
             <li class="list-item" v-for="item in items" :key="item.PO_ITEM" v-if="item.QUANTITY > item.QTY_INBOUND">
-                <div class="list-item__left">
-                    <strong>#{{parseInt(item.PO_ITEM)}}</strong>
-                </div>
                 <div class="list-item__center">
-                    <div class="list-item__title">{{item.SHORT_TEXT}}</div>
+                    <div class="list-item__title">#{{parseInt(item.PO_ITEM)}} | {{item.SHORT_TEXT}}</div>
                     <span class="list-item__subtitle">
-                        {{item.MATERIAL_EXTERNAL}}<br>
+                        <strong>{{item.MATERIAL_EXTERNAL}}</strong><br>
                         Qty PO: {{item.QUANTITY}} &bull;
                         Qty Inbound: {{item.QTY_INBOUND}} &bull;
                         Qty GR: {{item.QTY_GR}}
@@ -222,6 +216,10 @@ export default {
 </script>
 
 <style lang="css" scoped>
+.page {
+    margin-top: 130px;
+}
+
 .btn-submit {
     width: 95%;
 }
@@ -230,14 +228,40 @@ input {
     border: none !important;
 }
 
+.background {
+    background-color: #F3F3F3;
+}
+
+.list-item__title {
+    font-size: 14px;
+    color: #3a6897;
+    font-family: 'OpenSans';
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.list-item__subtitle {
+    font-size: 12px;
+    font-family: 'OpenSans';
+    color: #333;
+}
+
+.text-input, 
+.textarea, 
+.list-item__label
+.vdatetime,
+.list-item__center {
+    font-size: 12px !important;
+}
+
 .my-input {
     background-color: #eee;
     border: none;
     padding: 5px;
     font-size: 20px;
     width: 40px;
-    color: red;
+    color: #3a6897;
     text-align: center;
-    border-radius: 4px;
+    border-radius: 2px;
 }
 </style>

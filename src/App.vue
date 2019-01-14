@@ -13,30 +13,24 @@
 <script>
 import Login from './Login'
 import Main from './Main'
-import GoodsReceipt from './GoodsReceipt'
 
 export default {
     name: 'app',
     data: function() {
         return {
-            // pageStack: [(window.localStorage.isLoggedIn === 'true') ? Main : Login]
-            pageStack: [GoodsReceipt]
+            pageStack: [(window.localStorage.isLoggedIn === 'true') ? Main : Login]
+            // pageStack: [Login]
         }
     },
     mounted: function() {
-        // this.$ons.ready(function() {
-        //     window.plugins.insomnia.keepAwake()
-        // });
+        this.$ons.ready(function() {
+            window.plugins.insomnia.keepAwake()
+        });
     }
 }
 </script>
 
 <style>
-@font-face {
-    font-family: "MyriadMM";
-    src: url("assets/fonts/MyriadMM.ttf");
-}
-
 @font-face {
     font-family: "OpenSans";
     src: url("assets/fonts/OpenSans-Regular.ttf");
@@ -91,7 +85,8 @@ body {
 .list-item,
 .text-input,
 .textarea,
-.textarea--transparent {
+.textarea--transparent,
+.button {
     font-family: "OpenSans", sans-serif !important;
 }
 
@@ -104,12 +99,29 @@ body {
     font-size: 1em;
 }
 
-.button {
-    background-color: #396080;
+.nav-title {
+    background-color:#9BA09A;
+    background-image: url('./assets/img/ID4.png');
+    background-position: left;
+    background-repeat: no-repeat;
+    margin-top: 0;
+    height: 80px;
+    line-height: 80px;
+    position: fixed;
+    width: 100%;
+    top: 50px;
+    font-size: 24px;
+    padding-left: 15px;
+    color: #FFF;
 }
 
-.btn-action {
-    background-color: #38c172;
+.button {
+    background-color:#3acce1;
+    font-weight: bold;
+    border-radius: 15px;
+    height: 50px;
+    line-height: 50px;
+    font-size: 13px;
 }
 
 .background {
@@ -137,12 +149,11 @@ body {
     bottom: 0px;
     width: 100%;
     text-align: center;
-    background-color: #fff;
     padding: 10px 0;
 }
 
 .text-primary, .list-header--material {
-    color: #396080;
+    background-color:#3acce1;
 }
 
 .text-white {
@@ -150,7 +161,8 @@ body {
 }
 
 .list-header {
-    background-color: #396080;
+    background-color:#3acce1;
     color: #fff;
+    font-weight: bold;
 }
 </style>

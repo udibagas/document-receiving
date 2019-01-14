@@ -2,34 +2,39 @@
     <v-ons-page>
         <div class="background"></div>
         <navbar nav="Back" @back="$emit('pop-page')" style="background-color:#1e2237;"></navbar>
-        <div class="title">Goods Receipt</div>
+        <div class="nav-title">Goods Receipt</div>
         <po-header></po-header>
 
-        <v-ons-list style="margin-bottom:15px;">
-            <li class="list-header">Unprocessed Inbound</li>
-            <v-ons-list-item v-for="(c, i) in poConfirmation"
-                :key="i"
-                v-if="parseFloat(c.QUANTITY) > parseFloat(c.QTY_REDUCED) && c.CONF_NAME === 'Inbound Delivery'"
-                tappable modifier="chevron"
-                @click="createGr(c)">
-                <div class="center">
-                    <div class="list-item__title">
-                        {{c.DELIV_NUMB}}
+        <v-ons-card style="margin-bottom:70px;" v-if="poConfirmation.filter(c => parseFloat(c.QUANTITY) > parseFloat(c.QTY_REDUCED)).length > 0">
+            <v-ons-row v-for="(c, i) in poConfirmation"
+            :key="i"
+            v-if="parseFloat(c.QUANTITY) > parseFloat(c.QTY_REDUCED) && c.CONF_NAME === 'Inbound Delivery'"
+            tappable
+            @click="createGr(c)">
+                <v-ons-col width="40px" style="text-align:center;margin-right:15px;">
+                    <div class="icon-container">
+                        <i class="zmdi zmdi-label" style="color:#fff;"></i>
                     </div>
-                    <div class="list-item__subtitle">
-                        <span class="my-label">Prelim Doc No.</span> : {{c.PREL_DOC_NO}}<br>
-                        <span class="my-label">Invoice Number</span> : {{c.INVOICE_NO}}<br>
-                        <span class="my-label">Bill of Lading</span> : {{c.BILL_OF_LADING}}<br>
-                        <span class="my-label">Part Number</span> : {{itemList.find(i => i.PO_ITEM === c.PO_ITEM).MATERIAL_EXTERNAL}}<br>
-                        <span class="my-label">Mat. Description</span> : <span style="white-space: nowrap;text-overflow:ellipsis;overflow:hidden">{{itemList.find(i => i.PO_ITEM === c.PO_ITEM).SHORT_TEXT}}</span>
-                    </div>
-                </div>
-            </v-ons-list-item>
-        </v-ons-list>
-
-        <h4 class="danger" style="text-align:center;text-transform:uppercase;margin-top:50px;" v-if="poConfirmation.filter(c => parseFloat(c.QUANTITY) > parseFloat(c.QTY_REDUCED)).length === 0">
-            No Unprocessed Inbound Found
-        </h4>
+                    <div class="vertical-line">&nbsp;</div>
+                </v-ons-col>
+                <v-ons-col>
+                    <span class="deliv-number">{{c.DELIV_NUMB}}</span>
+                    <v-ons-row>
+                        <v-ons-col>
+                            <span class="label">Prelim Doc No.</span> <span class="value">{{c.PREL_DOC_NO || '-'}}</span>
+                        </v-ons-col>
+                        <v-ons-col>
+                            <span class="label">Invoice Number</span> <span class="value">{{c.INVOICE_NO || '-'}}</span>
+                        </v-ons-col>
+                    </v-ons-row>
+                    <span class="label">Bill of Lading</span> <span class="value">{{c.BILL_OF_LADING || '-'}}</span>
+                    <span class="label">Part Number</span> <span class="value">{{itemList.find(i => i.PO_ITEM === c.PO_ITEM).MATERIAL_EXTERNAL}}</span>
+                    <span class="label">Mat. Description</span> <span class="value">{{itemList.find(i => i.PO_ITEM === c.PO_ITEM).SHORT_TEXT}}</span>
+                    <br>
+                    <br>
+                </v-ons-col>
+            </v-ons-row>
+        </v-ons-card>
 
         <div class="btn-fixed-bottom">
             <v-ons-button v-if="!allowProcess" style="width:95%;" @click.prevent="createNotification">CREATE NOTIFICATION</v-ons-button>
@@ -100,31 +105,51 @@ export default {
 </script>
 
 <style lang="css" scoped>
-.background {
-    background-color: #F3F3F3;
-}
-
 .page {
     margin-top: 130px;
 }
 
-.my-label {
-    width: 110px;
-    display: inline-block;
+.background {
+    background-color: #F3F3F3;
 }
 
-.title {
-    color:#fff;
-    background-color:#1e2237;
-    background-image: url('./assets/img/ID4.png');
-    background-position: left;
-    margin-top: 0;
-    height: 80px;
-    line-height: 80px;
-    position: fixed;
-    width: 100%;
-    top: 50px;
-    font-size: 24px;
-    padding-left: 15px;
+.card {
+    border-radius: 15px;
+}
+
+.deliv-number {
+    display: block;
+    color: #454F63;
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+
+.label {
+    display: block;
+    font-style: italic;
+    color: #ccc;
+    font-size: 10px;
+    margin-top: 5px;
+}
+
+.value {
+    color: #333;
+    font-size: 13px;
+}
+
+.icon-container {
+    background-color: #3497FD;
+    border-radius: 8px;
+    width:30px;
+    height:30px;
+    line-height:30px;
+    margin:0 auto;
+}
+
+.vertical-line {
+    width:1px;
+    margin:0 auto;
+    border-left:2px solid #ddd;
+    height:85%;
 }
 </style>

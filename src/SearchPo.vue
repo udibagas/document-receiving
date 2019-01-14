@@ -1,11 +1,11 @@
 <template>
     <v-ons-page>
-        <div class="background"></div>
+        <div class="background" :style="{ backgroundImage: 'url(' + bg + ')'}"></div>
         <navbar nav="Back" @back="$emit('pop-page')"></navbar>
-        <div class="content">
-            <img style="width:130px;" src="./assets/img/logo-white.png"><br>
+        <div class="main">
+            <div class="logo-placeholder">&nbsp;</div>
             <span style="font-size:20px;color:#fff;">Search PO Number <br> for {{action.toUpperCase()}}</span>
-            <input type="number" v-model="po_number" class="po-number-input" placeholder="PO NUMBER">
+            <input type="number" v-model="po_number" class="po-number-input" placeholder="PO Number">
             <div class="btn-group">
                 <v-ons-row>
                     <v-ons-col @click.prevent="po_number = ''; error = ''">
@@ -84,6 +84,8 @@ export default {
     name: 'GoodsReceipt',
     data: function() {
         return {
+            bg: '',
+            bgInterval: null,
             action: '',
             poNotFoundDialog: false,
             po_number: '',
@@ -238,8 +240,15 @@ export default {
             })
         }
     },
-    mounted: function() {
-        this.submitButtonLabel += this.action.toUpperCase()
+    mounted() {
+        let _this = this
+        this.bg = this.$store.state.bgList[0]
+        this.bgInterval = setInterval(function() {
+            _this.bg = _this.$store.state.bgList[Math.floor(Math.random() * 10)]
+        }, 30000);
+    },
+    destroyed() {
+        clearInterval(this.bgInterval);
     }
 }
 </script>
@@ -247,11 +256,10 @@ export default {
 <style scoped>
 .background {
     background-color:#3355aa;
-    background-image: url('./assets/img/ID7.png');
+    /* background-image: url('./assets/img/ID7.png'); */
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
-    background-blend-mode: color-dodge;
 }
 
 .submit-btn {
@@ -268,14 +276,19 @@ export default {
     color:#3acce1;
 }
 
-.content {
-    margin: 210px auto 0;
+.main {
     padding: 30px;
+    position: absolute;
+    bottom: 50px;
+    width: 100%;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
 }
 
 .po-number-input {
     width: 100%;
-    font-size: 16px;
+    font-size: 30px;
     background-color: #fff;
     text-align: center;
     border: none;
@@ -284,6 +297,7 @@ export default {
     line-height: 50px;
     display: block;
     margin: 15px 0;
+    font-family: 'OpenSans';
 }
 
 .btn-group {
@@ -308,5 +322,12 @@ export default {
     box-sizing: border-box;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
+}
+
+.logo-placeholder {
+    background-image: url('./assets/img/logo-white.png');
+    background-size: 150px;
+    background-repeat: no-repeat;
+    height: 40px;
 }
 </style>

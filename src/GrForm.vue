@@ -1,19 +1,11 @@
 <template lang="html">
     <v-ons-page>
-        <v-ons-toolbar>
-            <div class="left">
-                <v-ons-back-button></v-ons-back-button>
-            </div>
-            <div class="center">GR PROCESS</div>
-            <div class="right">
-                <v-ons-toolbar-button>
-                    <v-ons-button icon="fa-bell" class="btn-action" style="border:1px solid #fff;" @click.prevent="createNotification"> CREATE NOTIF</v-ons-button>
-                </v-ons-toolbar-button>
-            </div>
-        </v-ons-toolbar>
         <div class="background"></div>
+        <navbar nav="Back" @back="$emit('pop-page')" style="background-color:#1e2237;"></navbar>
+        <div class="nav-title">GR Form</div>
         <po-header></po-header>
-        <ul class="list" style="margin-bottom:45px">
+        <ul class="list" style="margin-bottom:140px">
+            <li class="list-header">Item Detail</li>
             <li class="list-item">
                 <div class="list-item__center">
                     {{parseInt(item.PO_ITEM)}}
@@ -187,7 +179,8 @@
         </ul>
 
         <div class="btn-fixed-bottom">
-            <v-ons-button style="width:95%" :disabled="busy" @click.prevent="submitGr"> SUBMIT</v-ons-button>
+            <v-ons-button style="width:95%;margin-bottom:10px;" :disabled="busy" @click.prevent="submitGr"> SUBMIT</v-ons-button>
+            <v-ons-button class="btn-action" style="width:94%" @click.prevent="createNotification"> CREATE NOTIFICATION</v-ons-button>
         </div>
 
         <div class="toast" v-show="error" style="position:fixed;bottom:5px;">
@@ -388,4 +381,21 @@ export default {
 </script>
 
 <style lang="css" scoped>
+.page {
+    margin-top: 130px;
+}
+
+.text-input, 
+.textarea, 
+.list-item__label
+.vdatetime,
+.list-item__center {
+    font-size: 12px !important;
+}
+
+.btn-action {
+    background-color: #FFF;
+    border: 1px solid #3acce1;
+    color: #3acce1;
+}
 </style>

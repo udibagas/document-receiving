@@ -1,7 +1,7 @@
 <template lang="html">
     <v-ons-page>
-        <v-ons-toolbar>
-            <div class="center">SUCCESS</div>
+        <v-ons-toolbar style="background-color:#3ACCE1;">
+            <div class="center" style="text-align:center;">SUCCESS</div>
         </v-ons-toolbar>
         <div class="background"></div>
         <div class="content">

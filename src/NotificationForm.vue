@@ -1,13 +1,9 @@
 <template lang="html">
     <ons-page>
-        <v-ons-toolbar>
-            <div class="left">
-                <v-ons-back-button></v-ons-back-button>
-            </div>
-            <div class="center">CREATE NOTIFICATION</div>
-        </v-ons-toolbar>
         <div class="background"></div>
-        <ul class="list" style="margin-bottom:45px">
+        <navbar nav="Back" @back="$emit('pop-page')" style="background-color:#1e2237;"></navbar>
+        <div class="nav-title">Create Notification</div>
+        <ul class="list" style="margin-bottom:70px">
             <li class="list-item" tappable>
                 <div class="list-item__center" @click.prevent="problemDialog = true">
                     <div class="list-item__title">
@@ -178,5 +174,12 @@ export default {
 </script>
 
 <style lang="css" scoped>
+.page {
+    margin-top: 130px;
+}
+
+.text-input, .textarea {
+    font-size: 14px;
+}
 
 </style>

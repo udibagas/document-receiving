@@ -1,9 +1,9 @@
 <template lang="html">
     <v-ons-page>
-        <div class="background"></div>
+        <div class="background" :style="{ backgroundImage: 'url(' + bg + ')'}"></div>
         <navbar nav="Logout" @logout="logout"></navbar>
-        <div class="content">
-            <img style="width:130px;" src="./assets/img/logo-white.png"><br>
+        <div class="main">
+            <div class="logo-placeholder">&nbsp;</div>
             <span style="font-size:22px;color:#fff;font-weight:light;">Material Receiving <br>and Inspection</span>
             <br>
             <br>
@@ -51,8 +51,16 @@ import Login from './Login'
 import SearchPo from './SearchPo'
 import SearchBatchNumber from './SearchBatchNumber'
 import DeclareServiceable from './DeclareServiceable'
+import { timeout } from 'q';
+import { setInterval } from 'timers';
 
 export default {
+    data() {
+        return {
+            bg: '',
+            bgInterval: null
+        }
+    },
     methods: {
         logout: function() {
             window.localStorage.isLoggedIn = null
@@ -100,6 +108,16 @@ export default {
         ds: function() {
             this.$emit('push-page', DeclareServiceable)
         }
+    },
+    mounted() {
+        let _this = this
+        this.bg = this.$store.state.bgList[0]
+        this.bgInterval = setInterval(function() {
+            _this.bg = _this.$store.state.bgList[Math.floor(Math.random() * 10)]
+        }, 30000);
+    },
+    destroyed() {
+        clearInterval(this.bgInterval);
     }
 }
 </script>
@@ -107,17 +125,20 @@ export default {
 <style scoped>
 .background {
     background-color:#3355aa;
-    background-image: url('./assets/img/ID7.png');
+    /* background-image: url('./assets/img/ID7.png'); */
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
-    background-blend-mode: color-dodge;
 }
 
-.content {
-    margin-top: 240px;
+.main {
     padding: 30px;
     position: absolute;
+    bottom: 50px;
+    width: 100%;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
 }
 
 .card {
@@ -127,5 +148,12 @@ export default {
     background: transparent;
     color: #fff;
     text-align: center;
+}
+
+.logo-placeholder {
+    background-image: url('./assets/img/logo-white.png');
+    background-size: 150px;
+    background-repeat: no-repeat;
+    height: 40px;
 }
 </style>

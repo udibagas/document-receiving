@@ -1,51 +1,36 @@
 <template lang="html">
     <v-ons-page>
-        <v-ons-toolbar>
-            <div class="left">
-                <v-ons-back-button></v-ons-back-button>
-            </div>
-            <div class="center">INSPECTION FORM</div>
-            <div class="right">
-                <v-ons-toolbar-button>
-                    <v-ons-button icon="fa-save" style="border:1px solid #fff;" @click.prevent="submitInspection"> SAVE</v-ons-button>
-                </v-ons-toolbar-button>
-            </div>
-        </v-ons-toolbar>
         <div class="background"></div>
-        <v-ons-list>
-            <v-ons-list-item>
-                <div class="center">
-                    <small>INSPECTION LOT NUMBER</small>
-                    <div class="list-item__title">{{inspection.ET_OPERATION.item.INSPLOT}}</div>
-                </div>
-            </v-ons-list-item>
-            <v-ons-list-item>
-                <div class="center">
-                    <small>BATCH NUMBER</small>
-                    <div class="list-item__title">{{batch_number}}</div>
-                </div>
-            </v-ons-list-item>
-            <v-ons-list-item>
-                <div class="center">
-                    <small>PLANT</small>
-                    <div class="list-item__title">{{inspection.ET_OPERATION.item.PLANT}}</div>
-                </div>
-            </v-ons-list-item>
-            <v-ons-list-item>
-                <div class="center">
-                    <small>TEXT OPERATION</small>
-                    <div class="list-item__title">{{inspection.ET_OPERATION.item.TXT_OPER}}</div>
-                </div>
-            </v-ons-list-item>
-            <v-ons-list-item>
-                <div class="center">
-                    <small>WORK CENTER</small>
-                    <div class="list-item__title">{{inspection.ET_OPERATION.item.WORKCENTER || '-'}}</div>
-                </div>
-            </v-ons-list-item>
+        <navbar nav="Back" @back="$emit('pop-page')" style="background-color:#1e2237;"></navbar>
+        <div class="nav-title">Inspection Form</div>
+        <v-ons-card>
+            <span class="label">Inspection Lot Number</span>
+            <span class="value">{{inspection.ET_OPERATION.item.INSPLOT}}</span>
+            <v-ons-row>
+                <v-ons-col>
+                    <span class="label">Batch Number</span>
+                    <span class="value">{{batch_number}}</span>
+                </v-ons-col>
+                <v-ons-col>
+                    <span class="label">Plant</span>
+                    <span class="value">{{inspection.ET_OPERATION.item.PLANT}}</span>
+                </v-ons-col>
+            </v-ons-row>
+            <v-ons-row>
+                <v-ons-col>
+                    <span class="label">Text Operation</span>
+                    <span class="value">{{inspection.ET_OPERATION.item.TXT_OPER}}</span>
+                </v-ons-col>
+                <v-ons-col>
+                    <span class="label">Work Center</span>
+                    <span class="value">{{inspection.ET_OPERATION.item.WORKCENTER || '-'}}</span>
+                </v-ons-col>
+            </v-ons-row>
+        </v-ons-card>
+        <v-ons-list style="margin-bottom:70px;">
             <v-ons-list-item v-for="(r, i) in inspection.ET_CHAR_REQUIREMENTS.item" tappable :key="r.INSPCHAR">
                 <div class="center">
-                    <small>{{r.CHAR_DESCR}}</small>
+                    <small class="char-desc">{{r.CHAR_DESCR}}</small>
                     <div class="list-item__title" @click="selectCharacteristic(r.MSTR_CHAR)" v-if="r.MSTR_CHAR !== '50000018'">
                         <i class="fa fa-edit"></i>
                         <span :class="inspection.ET_CHAR_RESULTS.item[i].CHARACTERISTIC.code === '' ? 'danger' : ''">
@@ -58,8 +43,7 @@
                         <!-- <v-ons-input type="date" style="width:150px;" v-model="inspection.ET_CHAR_RESULTS.item[i].ORIGINAL_INPUT" placeholder="Best Before Date"></v-ons-input> -->
                     </div>
                     <div class="list-item__subtitle">
-                        Status:
-                        <span :class="evaluation[r.INSPCHAR] ? 'success' : 'danger'">
+                        <span :class="evaluation[r.INSPCHAR] ? 'approved' : 'rejected'">
                             {{evaluation[r.INSPCHAR] ? 'Approved' : 'Rejected'}}
                         </span>
                     </div>
@@ -77,6 +61,10 @@
                 </v-ons-list-item>
             </v-ons-list>
         </v-ons-dialog>
+
+        <div class="btn-fixed-bottom">
+            <v-ons-button style="width:95%" @click.prevent="submitInspection">SUBMIT</v-ons-button>
+        </div>
 
         <v-ons-modal :visible="busy">
             <p style="text-align: center">
@@ -196,4 +184,54 @@ export default {
 </script>
 
 <style lang="css" scoped>
+.page {
+    margin-top: 130px;
+}
+
+.label {
+    display: block;
+    font-style: italic;
+    color: #ccc;
+    font-size: 12px;
+}
+
+.value {
+    color: #3a6897;
+    margin-bottom: 10px;
+    font-size: 18px;
+    display: block;
+    font-weight: bold;
+}
+
+.card {
+    border-radius: 15px;
+}
+
+.approved, .rejected {
+    border-radius: 5px;
+    color: white;
+    font-size: 10px;
+    padding: 5px;
+    font-weight: bold;
+}
+
+.approved {
+    background-color: #3ACCE1;
+}
+
+.rejected {
+    background-color: red;
+}
+
+.char-desc {
+    font-size: 10px;
+    color: #999;
+    font-style: italic;
+    font-weight: bold;
+}
+
+.list-item__title {
+    color: #3a6897;
+    font-size: 14px;
+}
 </style>

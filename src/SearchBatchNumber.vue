@@ -1,12 +1,12 @@
 <template>
     <v-ons-page>
-        <div class="background"></div>
+        <div class="background" :style="{ backgroundImage: 'url(' + bg + ')'}"></div>
         <navbar nav="Back" @back="$emit('pop-page')"></navbar>
-        <div class="content">
-            <img style="width:130px;" src="./assets/img/logo-white.png"><br>
+        <div class="main">
+            <div class="logo-placeholder">&nbsp;</div>
             <span style="font-size:20px;color:#fff;">Search Batch Number <br> for Quality Inspection</span>
             <div class="form">
-                <input type="number" v-model="batch_number" class="po-number-input" placeholder="BATCH NUMBER">
+                <input type="number" v-model="batch_number" class="batch-number-input" placeholder="Batch Number">
                 <div class="btn-group">
                 <v-ons-row>
                     <v-ons-col @click.prevent="batch_number = ''; error = ''">
@@ -63,6 +63,7 @@
 import axios from 'axios'
 import fastXmlParser from 'fast-xml-parser'
 import InspectionForm from './InspectionForm'
+// import InspectionDummy from './InspectionDummy'
 
 export default {
     computed: {
@@ -72,6 +73,8 @@ export default {
     },
     data: function() {
         return {
+            bg: '',
+            bgInterval: null,
             batch_number: '',
             error: '',
             processing: false,
@@ -150,6 +153,39 @@ export default {
                 );
             })
         },
+        // TEST ONLY
+        // submitData() {
+        //     let _this = this
+        //     let inspection = InspectionDummy.Envelope.Body["ZFM_INSPOPER_GETDETAIL.Response"]
+        //     if (inspection.ET_CHAR_REQUIREMENTS === '') {
+        //         _this.error = 'Batch number not found'
+        //     } else {
+        //         inspection.ET_CHAR_REQUIREMENTS.item.forEach(function(cr, idx) {
+        //             let c = _this.inspectionCharacteristics.find(ic => ic.mstr_char === cr.MSTR_CHAR)
+        //             if (c) {
+        //                 inspection.ET_CHAR_RESULTS.item[idx].CHARACTERISTIC = c.options.find(o => o.code === inspection.ET_CHAR_RESULTS.item[idx].CODE1) || c.default
+        //             } else {
+        //                 inspection.ET_CHAR_RESULTS.item[idx].CHARACTERISTIC = { group: '', code: '', description: '[UNREGISTERED CHARACTERISTIC]' }
+        //             }
+        //         })
+
+        //         let evaluation = {}
+        //         inspection.ET_CHAR_RESULTS.item.forEach(function(cr) {
+        //             evaluation[cr.INSPCHAR] = cr.EVALUATION !== 'R'
+        //         })
+
+        //         _this.$emit('push-page', {
+        //             extends: InspectionForm,
+        //             data: function() {
+        //                 return {
+        //                     batch_number: _this.batch_number,
+        //                     inspection: inspection,
+        //                     evaluation: evaluation
+        //                 }
+        //             }
+        //         })
+        //     }
+        // },
         submitData: function() {
             if (!this.batch_number) {
                 return
@@ -222,6 +258,16 @@ export default {
                 }
             })
         }
+    },
+    mounted() {
+        let _this = this
+        this.bg = this.$store.state.bgList[0]
+        this.bgInterval = setInterval(function() {
+            _this.bg = _this.$store.state.bgList[Math.floor(Math.random() * 10)]
+        }, 30000);
+    },
+    destroyed() {
+        clearInterval(this.bgInterval);
     }
 }
 </script>
@@ -229,11 +275,10 @@ export default {
 <style scoped>
 .background {
     background-color:#3355aa;
-    background-image: url('./assets/img/ID7.png');
+    /* background-image: url('./assets/img/ID7.png'); */
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
-    background-blend-mode: color-dodge;
 }
 
 .submit-btn {
@@ -250,14 +295,19 @@ export default {
     color:#3acce1;
 }
 
-.content {
-    margin: 200px auto 0;
+.main {
     padding: 30px;
+    position: absolute;
+    bottom: 50px;
+    width: 100%;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
 }
 
-.po-number-input {
+.batch-number-input {
     width: 100%;
-    font-size: 16px;
+    font-size: 30px;
     background-color: #fff;
     text-align: center;
     border: none;
@@ -266,6 +316,7 @@ export default {
     line-height: 50px;
     display: block;
     margin: 15px 0;
+    font-family: 'OpenSans';
 }
 
 .btn-group {
@@ -290,5 +341,12 @@ export default {
     box-sizing: border-box;
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
+}
+
+.logo-placeholder {
+    background-image: url('./assets/img/logo-white.png');
+    background-size: 150px;
+    background-repeat: no-repeat;
+    height: 40px;
 }
 </style>

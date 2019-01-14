@@ -1,11 +1,5 @@
 <template>
     <ons-page>
-        <!-- <v-ons-toolbar>
-            <div class="left">
-                <v-ons-back-button></v-ons-back-button>
-            </div>
-            <div class="center">REQUEST ACTIVATION</div>
-        </v-ons-toolbar> -->
         <div class="background"></div>
         <div class="content">
             <div class="form">
@@ -49,7 +43,8 @@ export default {
             password: '',
             email: '',
             error: false,
-            busy: false
+            busy: false,
+            registerOkDialog: false
         }
     },
     methods: {
@@ -82,13 +77,11 @@ export default {
 
 <style scoped>
 .background {
-    /* background-image: url('../assets/bg_main_cropped.jpg'); */
-    background-image: url('http://13.76.153.42/material-receiving-and-inspection-dev/images/bg_main_cropped.jpg');
     background-color:#3355aa;
+    background-image: url('./assets/img/ID7.png');
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
-    background-blend-mode: color-dodge;
 }
 
 .content {
@@ -114,9 +107,5 @@ export default {
 
 .register-btn {
     width: 100%;
-    background-color:#55c284;
-    height:50px;
-    line-height:50px;
-    font-size:20px;
 }
 </style>
