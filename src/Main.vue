@@ -124,11 +124,14 @@ export default {
 
 <style scoped>
 .background {
-    background-color:#3355aa;
+    /* background-color:#3355aa; */
     /* background-image: url('./assets/img/ID7.png'); */
+    background-color: rgba(0, 0, 0, .5);
+    background-blend-mode: darken;
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
+    background-blend-mode: darken;
 }
 
 .main {

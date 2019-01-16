@@ -28,18 +28,21 @@
             </v-ons-row>
         </v-ons-card>
         <v-ons-list style="margin-bottom:70px;">
-            <v-ons-list-item v-for="(r, i) in inspection.ET_CHAR_REQUIREMENTS.item" tappable :key="r.INSPCHAR">
+            <v-ons-list-item v-for="(r, i) in inspection.ET_CHAR_REQUIREMENTS.item" :key="r.INSPCHAR">
                 <div class="center">
                     <small class="char-desc">{{r.CHAR_DESCR}}</small>
-                    <div class="list-item__title" @click="selectCharacteristic(r.MSTR_CHAR)" v-if="r.MSTR_CHAR !== '50000018'">
-                        <i class="fa fa-edit"></i>
-                        <span :class="inspection.ET_CHAR_RESULTS.item[i].CHARACTERISTIC.code === '' ? 'danger' : ''">
+                    <div class="list-item__title" v-if="r.MSTR_CHAR !== '50000018'">
+                        <span @click="selectCharacteristic(r.MSTR_CHAR)" :class="inspection.ET_CHAR_RESULTS.item[i].CHARACTERISTIC.code === '' ? 'danger' : ''">
+                            <i class="zmdi zmdi-border-color"></i>
+                            &nbsp;
                             {{inspection.ET_CHAR_RESULTS.item[i].CHARACTERISTIC.description}}
                         </span>
+                        <textarea rows="2" v-model="inspection.ET_CHAR_RESULTS.item[i].REMARK" class="remark-input" placeholder="Remark"></textarea>
                     </div>
                     <div class="list-item__title" v-if="r.MSTR_CHAR === '50000018'">
-                        <datetime v-model="inspection.ET_CHAR_RESULTS.item[i].ORIGINAL_INPUT" placeholder="Best Before Date" format="dd/MM/yyyy" zone="Asia/Jakarta" value-zone="Asia/Jakarta"></datetime>
-
+                        <input type="text" v-mask="'99/99/9999'" v-model="inspection.ET_CHAR_RESULTS.item[i].ORIGINAL_INPUT" class="remark-input" placeholder="dd/mm/yyyy">
+                        <textarea rows="2" v-model="inspection.ET_CHAR_RESULTS.item[i].REMARK" class="remark-input" placeholder="Remark"></textarea>
+                        <!-- <datetime v-model="inspection.ET_CHAR_RESULTS.item[i].ORIGINAL_INPUT" placeholder="Best Before Date" format="dd/MM/yyyy" zone="Asia/Jakarta" value-zone="Asia/Jakarta"></datetime> -->
                         <!-- <v-ons-input type="date" style="width:150px;" v-model="inspection.ET_CHAR_RESULTS.item[i].ORIGINAL_INPUT" placeholder="Best Before Date"></v-ons-input> -->
                     </div>
                     <div class="list-item__subtitle">
@@ -125,18 +128,18 @@ export default {
                     EVALUATION: _this.evaluation[cr.INSPCHAR] ? 'A' : 'R',
                     CODE1: cr.CHARACTERISTIC.code,
                     CODE_GRP1: cr.CHARACTERISTIC.group,
-                    ORIGINAL_INPUT: cr.ORIGINAL_INPUT ? moment(cr.ORIGINAL_INPUT).format('DDMMYYYY') : ''
+                    ORIGINAL_INPUT: cr.ORIGINAL_INPUT ? moment(cr.ORIGINAL_INPUT, 'DD/MM/YYYY').format('DDMMYYYY') : '31129999'
                 })
             })
-
-            // alert(JSON.stringify(charResults))
-            // return
 
             // ini nunggu api-nya final
             if (charResults.filter((cr, i) => cr.CODE1 === '' && _this.inspection.ET_CHAR_REQUIREMENTS.item[i].MSTR_CHAR !== '50000018').length > 0) {
                 _this.error = 'Please fill the form correctly!'
                 return
             }
+
+            // alert(JSON.stringify(charResults))
+            // return
 
             let data = {
                 api_token: window.localStorage.api_token,
@@ -233,5 +236,17 @@ export default {
 .list-item__title {
     color: #3a6897;
     font-size: 14px;
+}
+
+.remark-input {
+    margin: 10px 0;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: 'OpenSans';
+    background-color: #F3F3F3;
+    border: none;
+    display: block;
+    width: 250px;
+    padding: 10px;
 }
 </style>

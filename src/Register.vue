@@ -77,7 +77,9 @@ export default {
 
 <style scoped>
 .background {
-    background-color:#3355aa;
+    /* background-color:#3355aa; */
+    background-color: rgba(0, 0, 0, .5);
+    background-blend-mode: darken;
     background-image: url('./assets/img/ID7.png');
     background-position: center;
     background-repeat: no-repeat;

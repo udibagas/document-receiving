@@ -18,6 +18,10 @@ Vue.config.productionTip = false
 Vue.use(VueOnsen)
 Vue.component('navbar', require('./Navbar').default);
 
+const VueInputMask = require('vue-inputmask').default
+
+Vue.use(VueInputMask)
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
